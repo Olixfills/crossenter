@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Royal Purple Palette (HSL) */
+  --p-h: 263;
+  --p-s: 90%;
+  
+  --accent:         hsl(var(--p-h), var(--p-s), 64%);
+  --accent-light:   hsl(var(--p-h), var(--p-s), 75%);
+  --accent-dark:    hsl(var(--p-h), var(--p-s), 45%);
+  --accent-glow:    hsla(var(--p-h), var(--p-s), 64%, 0.15);
+  
+  --bg-base:        hsl(240, 10%, 6%);
+  --bg-raised:      hsl(240, 10%, 9%);
+  --bg-surface:     hsl(240, 10%, 14%);
+  --bg-active:      hsl(var(--p-h), 40%, 18%);
+  --bg-hover:       hsl(240, 10%, 18%);
+  
+  --text-hi:        hsl(240, 10%, 96%);
+  --text-lo:        hsl(240, 10%, 75%);
+  --text-ghost:     hsl(240, 10%, 50%);
+  
+  --border-dim:     hsl(240, 10%, 16%);
+  --border-hi:      hsl(240, 10%, 25%);
+  --border-accent:  hsla(var(--p-h), var(--p-s), 64%, 0.4);
+}
+
+/* ── Reset & root ─────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-hi);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
+  }
+
+  /* Custom scrollbars */
+  ::-webkit-scrollbar              { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track        { background: transparent; }
+  ::-webkit-scrollbar-thumb        { background: var(--border-hi); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover  { background: var(--accent); }
+}
+
+/* ── Utility classes ──────────────────────────────────────────────────────── */
+@layer utilities {
+  .glass {
+    background: hsla(240, 10%, 12%, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .shadow-panel {
+    box-shadow: 0 4px 20px -5px rgba(0,0,0,0.5);
+  }
+  
+  .shadow-accent {
+    box-shadow: 0 0 15px -3px hsla(var(--p-h), var(--p-s), 64%, 0.4);
+  }
+  
+  .shadow-accent-sm {
+    box-shadow: 0 0 8px -2px hsla(var(--p-h), var(--p-s), 64%, 0.6);
+  }
+
+  .drag-region { -webkit-app-region: drag; }
+  .no-drag     { -webkit-app-region: no-drag; }
+
+  @keyframes pulse-accent {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.95); }
+  }
+  .animate-pulse-accent { animation: pulse-accent 2.5s infinite ease-in-out; }
+
+  /* High-Visibility Custom Purple Scrollbar */
+  .custom-scrollbar-purple::-webkit-scrollbar {
+    height: 4px;
+    background: transparent;
+  }
+  .custom-scrollbar-purple::-webkit-scrollbar-thumb {
+    background: hsla(var(--p-h), var(--p-s), 64%, 0.4);
+    border-radius: 10px;
+  }
+  .custom-scrollbar-purple::-webkit-scrollbar-thumb:hover {
+    background: hsla(var(--p-h), var(--p-s), 64%, 1);
+    box-shadow: 0 0 10px hsla(var(--p-h), var(--p-s), 64%, 0.5);
+  }
+}
+
+/* ── Component classes ────────────────────────────────────────────────────── */
+@layer components {
+  .list-item {
+    @apply flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-150 cursor-pointer;
+    @apply text-text-lo hover:text-text-hi hover:bg-bg-hover;
+  }
+  
+  .tag-btn {
+    @apply flex items-center justify-center px-3 py-1.5 rounded text-xs font-bold border transition-all duration-150 cursor-pointer;
+    @apply border-border-dim bg-bg-surface/30 text-text-ghost hover:text-text-hi hover:border-border-hi hover:bg-bg-surface;
+  }
+
+  .transport-btn {
+    @apply flex flex-col items-center justify-center gap-1 rounded-lg border transition-all duration-150 cursor-pointer select-none;
+    @apply border-border-dim bg-bg-surface/40 text-text-lo hover:text-text-hi hover:border-border-hi hover:bg-bg-hover active:scale-95;
+  }
+
+  .slide-badge {
+    @apply text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider bg-black/40 border border-white/5;
+  }
+}
