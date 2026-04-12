@@ -20,12 +20,12 @@ import {
 const MODES: AppMode[] = ['Show', 'Edit', 'Stage', 'Draw', 'Calendar']
 const MENUS = ['File', 'Edit', 'View', 'Tools', 'Help']
 
-const ModeIcons: Record<AppMode, any> = {
-  Show:     Play,
-  Edit:     PenTool,
-  Stage:    Monitor,
-  Draw:     Palette,
-  Calendar: Calendar,
+const ModeIcons: Record<string, any> = {
+  Show:      Play,
+  Edit:      PenTool,
+  Stage:     Monitor,
+  Draw:      Palette,
+  Calendar:  Calendar,
 }
 
 export default function TopNav() {

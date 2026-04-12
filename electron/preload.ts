@@ -59,7 +59,16 @@ contextBridge.exposeInMainWorld('crossenter', {
     const subscription = (_event: any) => callback();
     ipcRenderer.on('show:list-updated', subscription);
     return () => ipcRenderer.removeListener('show:list-updated', subscription);
-  }
+  },
+
+  // Templates (Phase 7)
+  getTemplates: () => ipcRenderer.invoke('get-templates'),
+  saveTemplate: (data: any) => ipcRenderer.invoke('save-template', data),
+  deleteTemplate: (id: number) => ipcRenderer.invoke('delete-template', id),
+
+  // App Settings (Phase 7)
+  getSetting: (key: string) => ipcRenderer.invoke('get-setting', key),
+  setSetting: (key: string, value: string | null) => ipcRenderer.invoke('set-setting', key, value),
 })
 
 // Type declaration for renderer TypeScript access
@@ -113,4 +122,13 @@ export type CrossenterBridge = {
 
   // Events
   onShowsUpdated: (callback: () => void) => () => void
+
+  // Templates (Phase 7)
+  getTemplates: () => Promise<any[]>
+  saveTemplate: (data: any) => Promise<number>
+  deleteTemplate: (id: number) => Promise<void>
+
+  // App Settings (Phase 7)
+  getSetting: (key: string) => Promise<string | null>
+  setSetting: (key: string, value: string | null) => Promise<void>
 }

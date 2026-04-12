@@ -360,10 +360,19 @@ function registerHandlers() {
     }
     return dbOps.deleteMedia(id);
   });
+
+  // Templates (Phase 7)
+  ipcMain.handle('get-templates', async () => dbOps.getTemplates());
+  ipcMain.handle('save-template', async (_e, data) => dbOps.saveTemplate(data));
+  ipcMain.handle('delete-template', async (_e, id) => dbOps.deleteTemplate(id));
+
+  // App Settings (Phase 7)
+  ipcMain.handle('get-setting', async (_e, key) => dbOps.getSetting(key));
+  ipcMain.handle('set-setting', async (_e, key, value) => dbOps.setSetting(key, value));
 }
 
 function getMediaType(filePath: string): string {
-  const ext = path.extname(filePath).toLowerCase();
+  const ext = path.extname(filePath)?.toLowerCase();
   if (['.mp4', '.webm', '.mov', '.mkv'].includes(ext)) return 'video';
   if (['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) return 'image';
   if (['.mp3', '.wav', '.ogg', '.m4a'].includes(ext)) return 'audio';

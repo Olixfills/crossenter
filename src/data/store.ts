@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type AppMode = 'Show' | 'Edit' | 'Stage' | 'Draw' | 'Calendar'
+export type AppMode = 'Show' | 'Edit' | 'Stage' | 'Draw' | 'Calendar' | 'Templates'
 
 interface UIState {
   activeMode: AppMode

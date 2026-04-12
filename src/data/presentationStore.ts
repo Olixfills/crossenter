@@ -5,6 +5,7 @@ import {
   type Show,
   type Slide
 } from './placeholders'
+import type { TemplateData } from './editorStore'
 
 declare global {
   interface Window {
@@ -30,6 +31,12 @@ interface TextStyles {
   textShadowY: number
   bgOpacity: number
   padding: number
+  // Template-driven fields (resolved when going live)
+  fontFamily: string
+  templateBgType: 'color' | 'image' | 'video' | 'gradient' | null
+  templateBgValue: string | null
+  transition: 'cut' | 'fade' | 'slide-up' | 'slide-left' | 'zoom' | 'flip'
+  transitionDuration: number
 }
 
 interface PresentationState {
@@ -49,6 +56,11 @@ interface PresentationState {
   scriptureBackground: Media | null
   showBackground: Media | null
   textStyles: TextStyles
+
+  // Phase 7: Templates
+  templates: TemplateData[]
+  defaultSongTemplateId: number | null
+  defaultScriptureTemplateId: number | null
   
   // Actions
   loadActivePlaylist: () => Promise<void>
@@ -77,6 +89,11 @@ interface PresentationState {
   nextSlide: () => void
   prevSlide: () => void
   refreshActiveShow: () => Promise<void>
+
+  // Phase 7: Template Management
+  loadTemplates: () => Promise<void>
+  setDefaultTemplate: (type: 'song' | 'scripture', templateId: number | null) => Promise<void>
+  refreshTemplates: () => Promise<void>
 }
 
 const DEFAULT_TEXT_STYLES: TextStyles = {
@@ -89,7 +106,12 @@ const DEFAULT_TEXT_STYLES: TextStyles = {
   textShadowX: 0,
   textShadowY: 10,
   bgOpacity: 0.3,
-  padding: 24
+  padding: 24,
+  fontFamily: 'Inter',
+  templateBgType: null,
+  templateBgValue: null,
+  transition: 'fade',
+  transitionDuration: 700,
 }
 
 // WebSocket client for broadcasting live changes
@@ -164,6 +186,11 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   showBackground: null,
   textStyles: DEFAULT_TEXT_STYLES,
 
+  // Phase 7
+  templates: [],
+  defaultSongTemplateId: null,
+  defaultScriptureTemplateId: null,
+
   setBackgroundMedia: (media, context) => {
     if (context === 'scripture') set({ scriptureBackground: media })
     else set({ showBackground: media })
@@ -218,9 +245,44 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   setSelectedSlideId: (selectedSlideId) => set({ selectedSlideId }),
   
   setLiveSlideId: (liveSlideId) => {
-    const slide = get().slides.find(s => s.id === liveSlideId) || null
-    set({ liveSlideId, liveSlide: slide, selectedSlideId: liveSlideId })
-    broadcastLiveEnriched(get())
+    const applyLive = () => {
+      const state = get()
+      const slide = state.slides.find(s => s.id === liveSlideId) || null
+      // Resolve the appropriate template based on slide type
+      const { templates, defaultSongTemplateId, defaultScriptureTemplateId } = state
+      const isScripture = slide?.type === 'scripture'
+      const templateId = isScripture ? defaultScriptureTemplateId : defaultSongTemplateId
+      const template = templateId ? templates.find(t => t.id === templateId) : undefined
+      
+      console.log('[goLive] templates:', templates.length, 'templateId:', templateId, 'found:', !!template)
+      
+      const templateStyles = template ? {
+        fontSize: template.font_size,
+        color: template.font_color,
+        textAlign: template.text_align as any,
+        textShadowColor: template.shadow_color,
+        textShadowBlur: template.shadow_blur,
+        textShadowX: template.offset_x,
+        textShadowY: template.offset_y,
+        bgOpacity: template.backdrop_opacity,
+        padding: template.padding,
+        fontFamily: template.font_family,
+        templateBgType: template.bg_type,
+        templateBgValue: template.bg_value,
+        transition: (template as any).transition ?? 'fade',
+        transitionDuration: (template as any).transition_duration ?? 700,
+      } : {}
+      const newStyles = { ...state.textStyles, ...templateStyles }
+      set({ liveSlideId, liveSlide: slide, selectedSlideId: liveSlideId, textStyles: newStyles })
+      broadcastLiveEnriched(get())
+    }
+
+    // If templates haven't loaded yet, load them first then go live
+    if (get().templates.length === 0) {
+      get().loadTemplates().then(applyLive)
+    } else {
+      applyLive()
+    }
   },
 
   goLive: (slideId) => {
@@ -228,8 +290,41 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   },
 
   goLiveExternal: (slide) => {
-    set({ liveSlide: slide, liveSlideId: slide?.id || null, activeShow: null, slides: [] })
-    broadcastLiveEnriched(get())
+    const applyExternal = () => {
+      const state = get()
+      const { templates, defaultScriptureTemplateId, defaultSongTemplateId } = state
+      const isScripture = slide?.type === 'scripture'
+      const templateId = isScripture ? defaultScriptureTemplateId : defaultSongTemplateId
+      const template = templateId ? templates.find(t => t.id === templateId) : undefined
+
+      console.log('[goLiveExternal] templates:', templates.length, 'found:', !!template)
+
+      const templateStyles = template ? {
+        fontSize: template.font_size,
+        color: template.font_color,
+        textAlign: template.text_align as any,
+        textShadowColor: template.shadow_color,
+        textShadowBlur: template.shadow_blur,
+        textShadowX: template.offset_x,
+        textShadowY: template.offset_y,
+        bgOpacity: template.backdrop_opacity,
+        padding: template.padding,
+        fontFamily: template.font_family,
+        templateBgType: template.bg_type,
+        templateBgValue: template.bg_value,
+        transition: (template as any).transition ?? 'fade',
+        transitionDuration: (template as any).transition_duration ?? 700,
+      } : {}
+      const newStyles = { ...state.textStyles, ...templateStyles }
+      set({ liveSlide: slide, liveSlideId: slide?.id || null, activeShow: null, slides: [], textStyles: newStyles })
+      broadcastLiveEnriched(get())
+    }
+
+    if (get().templates.length === 0) {
+      get().loadTemplates().then(applyExternal)
+    } else {
+      applyExternal()
+    }
   },
 
   nextSlide: () => {
@@ -304,16 +399,39 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
     } catch (err) {
       console.error("[Refresh] Failed to reload active show:", err)
     }
-  }
+  },
+
+  // Phase 7: Template management
+  loadTemplates: async () => {
+    try {
+      const templates = await window.crossenter.getTemplates()
+      const songIdStr = await window.crossenter.getSetting('default_song_template_id')
+      const scriptureIdStr = await window.crossenter.getSetting('default_scripture_template_id')
+      set({
+        templates: templates || [],
+        defaultSongTemplateId: songIdStr ? Number(songIdStr) : null,
+        defaultScriptureTemplateId: scriptureIdStr ? Number(scriptureIdStr) : null,
+      })
+    } catch (err) {
+      console.error('[Templates] Failed to load templates:', err)
+    }
+  },
+
+  setDefaultTemplate: async (type, templateId) => {
+    const key = type === 'song' ? 'default_song_template_id' : 'default_scripture_template_id'
+    await window.crossenter.setSetting(key, templateId ? String(templateId) : null)
+    if (type === 'song') set({ defaultSongTemplateId: templateId })
+    else set({ defaultScriptureTemplateId: templateId })
+  },
+
+  refreshTemplates: async () => {
+    const templates = await window.crossenter.getTemplates()
+    set({ templates: templates || [] })
+  },
 }))
 
 if (typeof window !== 'undefined' && window.crossenter) {
   connectWS();
   usePresentationStore.getState().loadActivePlaylist();
-}
-
-// Initialize connection and load data
-if (typeof window !== 'undefined' && window.crossenter) {
-  connectWS();
-  usePresentationStore.getState().loadActivePlaylist();
+  usePresentationStore.getState().loadTemplates();
 }

@@ -5,6 +5,7 @@ import { usePresentationStore } from '../data/presentationStore'
 // Crossenter — Stage Display Window
 // High-contrast monitor for musicians / speakers on stage.
 // Shows: current slide text (large), next slide preview, clock, countdown.
+// Now applies template background from the active default template.
 // ─────────────────────────────────────────────────────────────────────────────
 
 function useClock() {
@@ -32,16 +33,32 @@ function useCountdown(targetMinutes = 5) {
 export default function StageDisplay() {
   const clock = useClock()
   const countdown = useCountdown(5)
-  const { liveSlide, liveNextSlide, activeShow, scriptureBackground, showBackground } = usePresentationStore()
+  const { liveSlide, liveNextSlide, activeShow, scriptureBackground, showBackground, textStyles } = usePresentationStore()
 
   const current  = liveSlide
   const next     = liveNextSlide
 
+  const { templateBgType, templateBgValue, fontFamily } = textStyles
+
+  // Media background (image/video from user setting)
   const activeBg = current?.type === 'scripture' 
     ? scriptureBackground 
     : (current?.type === 'media' && current.media_url 
       ? { url: current.media_url, type: current.media_type || 'image' } 
       : showBackground)
+
+  // Resolve container background:
+  // 1. Media slide → black (video/image is shown fullscreen)
+  // 2. Template color → CSS color
+  // 3. Template gradient → CSS gradient
+  // 4. Template image/video bg → black (shown as layer below)
+  // 5. No template → dark fallback
+  const containerBg: React.CSSProperties = (() => {
+    if (current?.type === 'media') return { background: '#000' }
+    if (templateBgType === 'color' && templateBgValue) return { background: templateBgValue }
+    if (templateBgType === 'gradient' && templateBgValue) return { background: templateBgValue }
+    return { background: '#000' }
+  })()
 
   if (!current) {
     return (
@@ -62,22 +79,42 @@ export default function StageDisplay() {
   return (
     <div
       className="w-full h-full flex flex-col overflow-hidden animate-in fade-in duration-500 relative"
-      style={{ background: '#000', color: '#fff', fontFamily: 'Inter, sans-serif', userSelect: 'none' }}
+      style={{ ...containerBg, color: '#fff', fontFamily: fontFamily || 'Inter, sans-serif', userSelect: 'none' }}
     >
-      {/* Background layer for media (Global backgrounds only, not for media slides themselves) */}
-      {activeBg && current?.type !== 'media' && (
+      {/* ── Template image/video background layer ── */}
+      {(templateBgType === 'image' || templateBgType === 'video') && templateBgValue && current?.type !== 'media' && (
+        <div className="absolute inset-0 z-0 opacity-40 pointer-events-none overflow-hidden">
+          {templateBgType === 'video' ? (
+            <video src={templateBgValue.startsWith('http') ? templateBgValue : `crossenter://${templateBgValue}`}
+              autoPlay loop muted className="w-full h-full object-cover" />
+          ) : (
+            <img src={templateBgValue.startsWith('http') ? templateBgValue : `crossenter://${templateBgValue}`}
+              className="w-full h-full object-cover" alt="" />
+          )}
+        </div>
+      )}
+
+      {/* ── Background layer for user-set media backgrounds ── */}
+      {activeBg && current?.type !== 'media' && !templateBgType && (
         <div className="absolute inset-0 z-0 opacity-20 pointer-events-none overflow-hidden">
            {activeBg.type === 'video' ? (
               <video src={activeBg.url} autoPlay loop muted className="w-full h-full object-cover" />
            ) : (
-              <img src={activeBg.url} className="w-full h-full object-cover" />
+              <img src={activeBg.url} className="w-full h-full object-cover" alt="" />
            )}
         </div>
       )}
+
+      {/* ── Readability overlay ── */}
+      <div
+        className="absolute inset-0 z-[1] pointer-events-none"
+        style={{ background: `rgba(0,0,0,${current?.type === 'media' ? 0 : textStyles.bgOpacity * 0.5})` }}
+      />
+
       {/* ── Top bar: Clock + Countdown ───── */}
       <div
-        className="flex items-center justify-between px-6 py-4 shrink-0 bg-zinc-900/40"
-        style={{ borderBottom: '3px solid #333' }}
+        className="relative z-10 flex items-center justify-between px-6 py-4 shrink-0 bg-black/30"
+        style={{ borderBottom: '3px solid rgba(255,255,255,0.1)' }}
       >
         {/* Wall clock */}
         <div className="w-1/3">
@@ -106,35 +143,37 @@ export default function StageDisplay() {
 
       {/* ── Current slide (large) ─────────── */}
       <div
-        className={`flex-1 flex items-center justify-center min-h-0 overflow-hidden relative z-10 ${current.type === 'media' ? 'p-0' : 'px-16 py-10 bg-gradient-to-b from-black/80 to-zinc-950/80'}`}
-        style={{ borderBottom: '3px solid #333' }}
+        className={`relative z-10 flex-1 flex items-center justify-center min-h-0 overflow-hidden ${current.type === 'media' ? 'p-0' : 'px-16 py-10'}`}
+        style={{ borderBottom: '3px solid rgba(255,255,255,0.08)' }}
       >
         {current.type === 'blank' ? (
           <div className="text-white/5 text-4xl font-black tracking-[1em] uppercase">— BLANK —</div>
         ) : current.type === 'media' && current.media_url ? (
-          <div className="w-full h-full flex items-center justify-center relative">
+          <div className="w-full h-full flex items-center justify-center relative z-10">
              {current.media_type === 'video' ? (
                 <video src={current.media_url} autoPlay loop muted className="w-full h-full object-cover" />
              ) : (
-                <img src={current.media_url} className="w-full h-full object-cover" />
+                <img src={current.media_url} className="w-full h-full object-cover" alt="" />
              )}
-             
              {/* Small label overlay */}
              <div className="absolute bottom-6 right-6 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 animate-in slide-in-from-right-4 duration-500">
                 <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em]">{current.label}</span>
              </div>
           </div>
         ) : (
-          <div className="w-full max-h-full flex flex-col justify-center min-h-0 overflow-hidden">
+          <div className="w-full max-h-full flex flex-col justify-center min-h-0 overflow-hidden relative z-10">
             <div className="text-accent text-xs font-black uppercase tracking-[0.4em] mb-4 text-center opacity-60 shrink-0">
                {current.label}
             </div>
             <p
-              className="text-white font-bold leading-tight text-center"
+              className="font-bold leading-tight text-center"
               style={{
                 fontSize: 'clamp(28px, 6.5vh, 82px)',
                 whiteSpace: 'pre-line',
-                textShadow: '0 10px 40px rgba(0,0,0,0.5)',
+                color: textStyles.color || '#ffffff',
+                textShadow: `${textStyles.textShadowX}px ${textStyles.textShadowY}px ${textStyles.textShadowBlur}px ${textStyles.textShadowColor}`,
+                fontFamily: fontFamily || 'Inter, sans-serif',
+                textAlign: textStyles.textAlign,
                 wordBreak: 'break-word'
               }}
             >
@@ -145,7 +184,7 @@ export default function StageDisplay() {
       </div>
 
       {/* ── Next slide preview ────────────── */}
-      <div className="shrink-0 px-12 py-5 bg-zinc-900 border-t border-white/5 max-h-[25%] overflow-hidden flex flex-col" style={{ boxShadow: '0 -20px 40px rgba(0,0,0,0.5)' }}>
+      <div className="relative z-10 shrink-0 px-12 py-5 bg-black/40 border-t border-white/5 max-h-[25%] overflow-hidden flex flex-col" style={{ boxShadow: '0 -20px 40px rgba(0,0,0,0.5)' }}>
         <div className="text-white/30 text-[10px] font-black uppercase tracking-[0.4em] mb-2 shrink-0">Next Step →</div>
         {next ? (
           <p

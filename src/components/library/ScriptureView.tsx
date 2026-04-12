@@ -158,8 +158,20 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
 
   // Fast Entry State
   const [bookSearch, setBookSearch] = useState("");
+  const [bookSuggestion, setBookSuggestion] = useState("");
   const [chapterEntry, setChapterEntry] = useState("");
   const [verseEntry, setVerseEntry] = useState("");
+  const [refSearch, setRefSearch] = useState("");
+
+  // Logic for Book Suggestion (Autocomplete)
+  useEffect(() => {
+    if (!bookSearch) {
+      setBookSuggestion("");
+      return;
+    }
+    const match = books.find(b => b.name.toLowerCase().startsWith(bookSearch.toLowerCase()));
+    setBookSuggestion(match ? match.name : "");
+  }, [bookSearch, books]);
 
   const { goLiveExternal, liveSlideId } = usePresentationStore();
 
@@ -354,44 +366,116 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
   };
 
   const handleBookSearchKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Tab' || e.key === 'Enter') {
-      const match = books.find(b => b.name.toLowerCase().startsWith(bookSearch.toLowerCase()));
+    if (e.key === 'Tab') {
+      const match = books.find(b => b?.name?.toLowerCase().startsWith(bookSearch.toLowerCase()));
       if (match) {
         e.preventDefault();
         setSelectedBookId(match.id);
         setSelectedChapter(1);
-        setPreviewVerse(null);
-        setSelectedVerseIds([]);
+        setBookSearch(match.name);
+        setBookSuggestion("");
         chapterInputRef.current?.focus();
+      }
+    } else if (e.key === 'Enter') {
+      const match = books.find(b => b?.name?.toLowerCase().startsWith(bookSearch.toLowerCase()));
+      if (match) {
+        setSelectedBookId(match.id);
+        setSelectedChapter(1);
+        setBookSearch(match.name);
+        setBookSuggestion("");
+        // If Enter is pressed, we try to go live with chapter 1 verse 1 or current preview
+        loadVerses(match.id, 1).then(() => {
+          // We'll handle going live in the next tick once verses are loaded or just project ch 1
+          // For now, let's just focus chapter so user can confirm
+          chapterInputRef.current?.focus();
+        });
       }
     }
   };
 
   const handleChapterKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Tab' || e.key === 'Enter') {
+    if (e.key === 'Tab') {
       const ch = parseInt(chapterEntry);
       if (ch > 0 && ch <= chapterCount) {
         e.preventDefault();
         setSelectedChapter(ch);
-        setPreviewVerse(null);
-        setSelectedVerseIds([]);
         verseInputRef.current?.focus();
+      }
+    } else if (e.key === 'Enter') {
+      const ch = parseInt(chapterEntry);
+      if (ch > 0 && ch <= chapterCount) {
+        setSelectedChapter(ch);
+        // Project first verse of this chapter
+        loadVerses(selectedBookId!, ch).then((loadedVerses) => {
+           if (loadedVerses && (loadedVerses as any).length > 0) {
+              handleVerseLive((loadedVerses as any)[0]);
+           }
+        });
       }
     }
   };
 
   const handleVerseKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Tab' || e.key === 'Enter') {
+    if (e.key === 'Tab') {
+       e.preventDefault();
        parseAndSelectVerses(verseEntry, verses);
-       if (previewVerse) {
-          e.preventDefault();
-          handleVerseLive(previewVerse);
-          // Reset fields
-          setVerseEntry("");
-          setChapterEntry("");
-          setBookSearch("");
-          bookInputRef.current?.focus();
+       // Scroll into view logic is already in useEffect for previewVerse
+    } else if (e.key === 'Enter') {
+       parseAndSelectVerses(verseEntry, verses);
+       // Select and project
+       const vNum = parseInt(verseEntry);
+       const target = verses.find(v => v.verse_number === vNum);
+       if (target) {
+          handleVerseLive(target);
        }
+    }
+  };
+
+  const handleReferenceSearch = async () => {
+    if (!refSearch.trim()) return;
+
+    // Regex to capture: Book (with optional number), Chapter, optional Verse range
+    // Example: "1 John 3:16-18", "John 3", "Genesis 1:1"
+    const regex = /^((?:\d\s+)?[a-zA-Z]+)\s+(\d+)(?::(\d+)(?:-(\d+))?)?$/i;
+    const match = refSearch.trim().match(regex);
+
+    if (match) {
+      const bookName = match[1].toLowerCase();
+      const chapter = parseInt(match[2]);
+      const verseStart = match[3] ? parseInt(match[3]) : null;
+      const verseEnd = match[4] ? parseInt(match[4]) : null;
+
+      // Find book
+      const book = books.find(b => b.name.toLowerCase().startsWith(bookName) || b.name.toLowerCase().includes(bookName));
+      if (book) {
+        setSelectedBookId(book.id);
+        setSelectedChapter(chapter);
+        
+        // Clear inputs
+        setRefSearch("");
+        setBookSearch("");
+        setChapterEntry("");
+        setVerseEntry("");
+
+        // Load verses and project
+        const chapterVerses = await (window as any).crossenter.getVerses(book.id, chapter);
+        setVerses(chapterVerses || []);
+
+        if (verseStart) {
+          const vStr = verseEnd ? `${verseStart}-${verseEnd}` : `${verseStart}`;
+          parseAndSelectVerses(vStr, chapterVerses || []);
+          
+          // Wait a tick for state update or use the local data
+          const targetVerse = chapterVerses.find((v: any) => v.verse_number === verseStart);
+          if (targetVerse) {
+            handleVerseLive(targetVerse);
+          }
+        } else {
+          // If no verse specified, just go to chapter
+          setSelectedVerseIds([]);
+          setPreviewVerse(null);
+        }
+      }
     }
   };
 
@@ -487,39 +571,77 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
               </select>
            </div>
  
-           {/* 3-Field Input */}
-           <div className="flex gap-2">
-              <div className="relative flex-1 group">
-                 <Search size={14} className="absolute left-3 top-2.5 text-text-ghost group-focus-within:text-accent transition-colors" strokeWidth={2.5} />
+           {/* 3-Field Input + Reference Search */}
+           <div className="flex items-center gap-2">
+              {/* Complex Book Search with Ghost Autocomplete */}
+              <div className="relative w-32 group shrink-0">
+                 <Search size={12} className="absolute left-2.5 top-2.5 text-text-ghost group-focus-within:text-accent transition-colors z-30" strokeWidth={2.5} />
+                 
+                 {/* Ghost Suggestion Layer — Fixed: moved to z-20 above input but pointer-events-none */}
+                 {bookSearch && bookSuggestion && (
+                   <div className="absolute inset-0 pl-7 pr-3 py-2 text-xs text-text-ghost/40 pointer-events-none z-20 font-medium overflow-hidden whitespace-nowrap">
+                     <span className="opacity-0">{bookSearch}</span>
+                     <span>{bookSuggestion.slice(bookSearch.length)}</span>
+                   </div>
+                 )}
+
                  <input 
                     ref={bookInputRef}
                     type="text"
-                    placeholder="Search Book..."
+                    placeholder="Book"
                     value={bookSearch}
                     onChange={(e) => setBookSearch(e.target.value)}
                     onKeyDown={handleBookSearchKeyDown}
-                    className="w-full bg-bg-base/80 border border-border-dim rounded-lg pl-9 pr-3 py-2 text-xs text-text-hi placeholder:text-text-ghost/50 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all"
+                    className="w-full bg-bg-base/80 border border-border-dim rounded-lg pl-7 pr-2 py-1.5 text-xs text-text-hi placeholder:text-text-ghost/50 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all relative z-10"
                  />
-                 <span className="absolute right-2 top-2 text-[9px] text-text-ghost font-bold bg-bg-surface px-1.5 py-0.5 rounded border border-border-dim group-focus-within:border-accent/40">TAB</span>
               </div>
-              <input 
-                ref={chapterInputRef}
-                type="text"
-                placeholder="Ch"
-                value={chapterEntry}
-                onChange={(e) => setChapterEntry(e.target.value)}
-                onKeyDown={handleChapterKeyDown}
-                className="w-16 bg-bg-base/80 border border-border-dim rounded-lg px-3 py-2 text-xs text-center text-text-hi focus:border-accent outline-none transition-all"
-              />
-              <input 
-                ref={verseInputRef}
-                type="text"
-                placeholder="Vs"
-                value={verseEntry}
-                onChange={(e) => setVerseEntry(e.target.value)}
-                onKeyDown={handleVerseKeyDown}
-                className="w-16 bg-bg-base/80 border border-border-dim rounded-lg px-3 py-2 text-xs text-center text-text-hi focus:border-accent outline-none transition-all"
-              />
+
+              {/* Chapter Input */}
+              <div className="w-12 shrink-0 relative">
+                <input 
+                  ref={chapterInputRef}
+                  type="text"
+                  placeholder="Ch"
+                  value={chapterEntry}
+                  onChange={(e) => setChapterEntry(e.target.value)}
+                  onKeyDown={handleChapterKeyDown}
+                  className="w-full bg-bg-base/80 border border-border-dim rounded-lg px-2 py-1.5 text-xs text-center text-text-hi focus:border-accent outline-none transition-all"
+                />
+              </div>
+
+              {/* Verse Input */}
+              <div className="w-12 shrink-0 relative">
+                <input 
+                  ref={verseInputRef}
+                  type="text"
+                  placeholder="Vs"
+                  value={verseEntry}
+                  onChange={(e) => setVerseEntry(e.target.value)}
+                  onKeyDown={handleVerseKeyDown}
+                  className="w-full bg-bg-base/80 border border-border-dim rounded-lg px-2 py-1.5 text-xs text-center text-text-hi focus:border-accent outline-none transition-all"
+                />
+              </div>
+
+              {/* Separator */}
+              <div className="h-4 w-[1px] bg-border-dim/50 mx-1 shrink-0" />
+
+              {/* Omnibox Style Reference Search */}
+              <div className="relative flex-1 group">
+                 <Search size={12} className="absolute left-2.5 top-2.5 text-text-ghost group-focus-within:text-accent transition-colors z-20" strokeWidth={2.5} />
+                 <input 
+                    type="text"
+                    placeholder="Reference Search (e.g. John 3:16)"
+                    value={refSearch}
+                    onChange={(e) => setRefSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                       if (e.key === 'Enter') {
+                          handleReferenceSearch();
+                       }
+                    }}
+                    className="w-full bg-bg-base/80 border border-border-dim rounded-lg pl-7 pr-3 py-1.5 text-xs text-text-hi placeholder:text-text-ghost/50 focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all"
+                 />
+                 <div className="absolute right-2 top-2 text-[7px] font-black text-white bg-accent px-1 py-0.5 rounded border border-accent/20 shadow-sm leading-none">REF</div>
+              </div>
            </div>
         </div>
         

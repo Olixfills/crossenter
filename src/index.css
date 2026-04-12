@@ -87,6 +87,12 @@
   }
   .animate-pulse-accent { animation: pulse-accent 2.5s infinite ease-in-out; }
 
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to   { transform: translateX(0);    opacity: 1; }
+  }
+  .animate-slide-in-right { animation: slide-in-right 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
   /* High-Visibility Custom Purple Scrollbar */
   .custom-scrollbar-purple::-webkit-scrollbar {
     height: 4px;

@@ -67,7 +67,7 @@ export default function PlaylistsView({ searchQuery }: { searchQuery: string }) 
   };
 
   const filtered = savedPlaylists.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    p?.name?.toLowerCase().includes(searchQuery?.toLowerCase())
   );
 
   return (

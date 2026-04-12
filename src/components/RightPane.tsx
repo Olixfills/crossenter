@@ -16,7 +16,7 @@ import {
 // Crossenter — Right Tool Panel (Inspector & Live Control)
 // ─────────────────────────────────────────────────────────────────────────────
 
-function LivePreview({ liveSlide, activeBg }: { liveSlide: any, activeBg: any }) {
+function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, activeBg: any, textStyles: any }) {
   if (!liveSlide) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-text-ghost opacity-40 italic select-none animate-in fade-in duration-700 bg-black/20 rounded-xl border border-dashed border-border-dim">
@@ -25,6 +25,21 @@ function LivePreview({ liveSlide, activeBg }: { liveSlide: any, activeBg: any })
         <p className="text-[10px] mt-1">Ready to transition content</p>
       </div>
     )
+  }
+
+  const { templateBgType, templateBgValue, fontFamily, color, textShadowX, textShadowY, textShadowBlur, textShadowColor, bgOpacity, padding } = textStyles
+  const shadowStr = `${textShadowX}px ${textShadowY}px ${textShadowBlur}px ${textShadowColor}`
+
+  // Is this a media slide? Always show the actual media, ignore template bg.
+  const isMediaSlide = liveSlide.type === 'media'
+  // Template CSS bg only applies to text slides (song/scripture)
+  const hasTemplateCssBg = !isMediaSlide && (templateBgType === 'color' || templateBgType === 'gradient') && templateBgValue
+  // Show activeBg layer when: media slide (always), OR song/scripture with image/video bg
+  const showActiveBgLayer = activeBg && (isMediaSlide || !hasTemplateCssBg)
+
+  const containerStyle: React.CSSProperties = {
+    background: hasTemplateCssBg ? templateBgValue : '#000',
+    padding: isMediaSlide ? '0px' : `${Math.min(padding, 24)}px`,
   }
 
   return (
@@ -37,32 +52,56 @@ function LivePreview({ liveSlide, activeBg }: { liveSlide: any, activeBg: any })
          <span className="text-[9px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-500 font-black uppercase tracking-tighter">{liveSlide.label || 'V1'}</span>
       </div>
       
-      {/* 16:9 Frame Lock */}
-      <div className="relative w-full aspect-video bg-black flex items-center justify-center p-6 overflow-hidden">
-         {activeBg ? (
-            <div className={`absolute inset-0 z-0 ${liveSlide?.type === 'media' ? 'opacity-100' : 'opacity-60'}`}>
+      {/* 16:9 Frame — mirrors exact MainOutput rendering logic */}
+      <div
+        className="relative w-full aspect-video flex items-center justify-center overflow-hidden"
+        style={containerStyle}
+      >
+         {/* Media or background image/video layer */}
+         {showActiveBgLayer && (
+            <div className={`absolute inset-0 z-0 ${isMediaSlide ? 'opacity-100' : 'opacity-70'}`}>
                {activeBg.type === 'video' ? (
                   <video src={activeBg.url} autoPlay loop muted className="w-full h-full object-cover" />
                ) : (
-                  <img src={activeBg.url} className="w-full h-full object-cover" />
+                  <img src={activeBg.url} className="w-full h-full object-cover" alt="" />
                )}
             </div>
-         ) : (
-            <div className="absolute inset-0 opacity-10" style={{ background: 'radial-gradient(circle at center, #7b2ff7 0%, transparent 60%)' }} />
          )}
 
-         <p className="relative z-10 text-white text-center leading-[1.15] text-[10px] sm:text-[11px] font-black whitespace-pre-line drop-shadow-lg max-h-full overflow-hidden">
-            {liveSlide.text}
-         </p>
-         
+         {/* Readability overlay — only for text slides */}
+         {!isMediaSlide && (
+           <div className="absolute inset-0 z-[1]" style={{ background: `rgba(0,0,0,${bgOpacity})` }} />
+         )}
+
+         {/* Slide text — hidden for pure media slides */}
+         {!isMediaSlide && liveSlide.type !== 'blank' && (
+           <p
+             className="relative z-10 text-center leading-[1.15] text-[10px] sm:text-[11px] font-black whitespace-pre-line max-h-full overflow-hidden"
+             style={{
+               color: color || '#ffffff',
+               fontFamily: fontFamily || 'Inter, sans-serif',
+               textShadow: shadowStr,
+             }}
+           >
+              {liveSlide.text}
+           </p>
+         )}
+
+         {/* Media label overlay (like MainOutput) */}
+         {isMediaSlide && liveSlide.label && (
+           <div className="absolute bottom-2 right-2 z-10 bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded text-[8px] font-black text-accent uppercase tracking-widest">
+             {liveSlide.label}
+           </div>
+         )}
+
          {/* Safe Zone indicator */}
-         <div className="absolute inset-2 border border-white/5 rounded-sm pointer-events-none" />
+         <div className="absolute inset-1.5 border border-white/5 rounded-sm pointer-events-none z-20" />
       </div>
 
       <div className="p-2.5 bg-bg-base/50 border-t border-border-dim">
         <div className="flex items-center justify-between text-[9px] text-text-ghost font-bold uppercase tracking-tight">
-           <span className="truncate max-w-[140px] text-accent">{liveSlide.showTitle || 'Independent Layer'}</span>
-           <span className="font-mono opacity-40">{liveSlide.text.length} chars</span>
+           <span className="truncate max-w-[140px] text-accent">{liveSlide.showTitle || liveSlide.label || 'Media'}</span>
+           <span className="font-mono opacity-40 shrink-0">{isMediaSlide ? liveSlide.media_type || 'media' : hasTemplateCssBg ? templateBgType : 'no bg'}</span>
         </div>
       </div>
     </div>
@@ -70,7 +109,7 @@ function LivePreview({ liveSlide, activeBg }: { liveSlide: any, activeBg: any })
 }
 
 function ShowTools() {
-  const { liveSlideId, liveSlide, activeShow, scriptureBackground, showBackground } = usePresentationStore()
+  const { liveSlideId, liveSlide, activeShow, scriptureBackground, showBackground, textStyles } = usePresentationStore()
   const [isAutoProgress, setIsAutoProgress] = useState(false)
 
   const activeBg = liveSlide?.type === 'scripture' 
@@ -90,6 +129,7 @@ function ShowTools() {
         <LivePreview 
           liveSlide={liveSlide} 
           activeBg={activeBg}
+          textStyles={textStyles}
         />
         
         <div 
