@@ -15,9 +15,10 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const FONT_FAMILIES = [
-  'Inter', 'Roboto', 'Outfit', 'Poppins', 'Lato', 'Open Sans', 
-  'Montserrat', 'Source Sans Pro', 'Nunito', 'Raleway',
-  'Playfair Display', 'Merriweather', 'Georgia', 'Arial', 'Helvetica'
+  'Inter', 'Plus Jakarta Sans', 'Outfit', 'Roboto', 'Poppins', 'Lato', 
+  'Open Sans', 'Montserrat', 'Source Sans Pro', 'Nunito', 'Raleway',
+  'Playfair Display', 'Merriweather', 'Lora', 'Oswald', 'Fira Sans',
+  'Georgia', 'Arial', 'Helvetica', 'Times New Roman'
 ]
 
 function SectionLabel({ icon: Icon, label }: { icon: any; label: string }) {
@@ -408,6 +409,7 @@ export default function TemplatePropertiesSidebar() {
                 { id: 'slide-left', label: 'Slide ←' },
                 { id: 'zoom',       label: 'Zoom' },
                 { id: 'flip',       label: 'Flip' },
+                { id: 'blur',       label: 'Blur' },
               ] as const).map(t => (
                 <button
                   key={t.id}

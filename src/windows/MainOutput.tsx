@@ -1,22 +1,24 @@
 import { useState, useEffect, useRef } from 'react'
 import { usePresentationStore } from '../data/presentationStore'
+import { useFontLoader } from '../hooks/useFontLoader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Main Output Window
 // Applies template background, typography, transitions from the active default.
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Maps transition name → CSS animation class to apply on the content layer
-function getTransitionClasses(transition: string, duration: number) {
-  const d = `duration-[${duration}ms]`
+// Maps transition name → Tailwind animation classes
+// NOTE: Duration is handled via inline style to support dynamic timing reliably
+function getTransitionClasses(transition: string) {
   switch (transition) {
     case 'cut':        return ''
-    case 'slide-up':   return `animate-in slide-in-from-bottom-16 fade-in ${d}`
-    case 'slide-left': return `animate-in slide-in-from-right-16 fade-in ${d}`
-    case 'zoom':       return `animate-in zoom-in-75 fade-in ${d}`
-    case 'flip':       return `animate-in flip-in ${d}`
+    case 'slide-up':   return 'animate-in slide-in-from-bottom-24 fade-in'
+    case 'slide-left': return 'animate-in slide-in-from-right-24 fade-in'
+    case 'zoom':       return 'animate-in zoom-in-75 fade-in'
+    case 'flip':       return 'animate-in [perspective:1000px] [backface-visibility:hidden] flip-in'
+    case 'blur':       return 'animate-in fade-in blur-sm'
     case 'fade':
-    default:           return `animate-in fade-in ${d}`
+    default:           return 'animate-in fade-in'
   }
 }
 
@@ -34,12 +36,15 @@ export default function MainOutput() {
   const [slideKey, setSlideKey] = useState(0)
   const prevSlideRef = useRef<string | null>(null)
 
+  // 1. Load the template font dynamically
+  useFontLoader(textStyles.fontFamily)
+
+  // ... useEffects remain same ...
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 1000)
     return () => clearInterval(t)
   }, [])
 
-  // Bump key whenever the slide changes so transition re-fires
   useEffect(() => {
     if (liveSlide?.id !== prevSlideRef.current) {
       setSlideKey(k => k + 1)
@@ -49,35 +54,32 @@ export default function MainOutput() {
 
   const { templateBgType, templateBgValue, transition, transitionDuration } = textStyles
 
-  // Background priority:
-  // 1. Media slides → always use the media file itself
-  // 2. Template color/gradient → always wins (overrides user's stored media bg)
-  // 3. Template image/video → use stored scriptureBackground/showBackground (still user-managed)
-  // 4. No template → show stored scriptureBackground/showBackground
+  // Background priority logic ... (no changes needed here)
   const isMediaSlide = liveSlide?.type === 'media' && liveSlide.media_url
   const hasTemplateCssBg = (templateBgType === 'color' || templateBgType === 'gradient') && templateBgValue
 
-  // The media layer below the text (image or video element)
   const activeBg = isMediaSlide
     ? { url: liveSlide.media_url!, type: (liveSlide.media_type as any) || 'image', path: liveSlide.media_url! }
-    : hasTemplateCssBg
-      ? null  // template color/gradient is applied via CSS — no image layer needed
-      : liveSlide?.type === 'scripture'
-        ? scriptureBackground
-        : showBackground
+    : hasTemplateCssBg ? null : (liveSlide?.type === 'scripture' ? scriptureBackground : showBackground)
 
   const templateCssBg = resolveTemplateBg(templateBgType, templateBgValue ?? null)
 
-  // Container background: template CSS bg (color/gradient) or pitch black for media/image
   const containerStyle: React.CSSProperties = isMediaSlide
     ? { background: '#000' }
-    : hasTemplateCssBg
-      ? templateCssBg
-      : { background: '#000' }
+    : hasTemplateCssBg ? templateCssBg : { background: '#000' }
 
-  const transitionClass = getTransitionClasses(transition, transitionDuration)
+  // 2. Fixed Transition: Class without duration + Inline Duration
+  const transitionClass = getTransitionClasses(transition || 'fade')
+  const contentStyle: React.CSSProperties = {
+    textAlign: textStyles.textAlign as any,
+    padding: `${textStyles.padding}px`,
+    fontFamily: textStyles.fontFamily || 'Inter, system-ui, sans-serif',
+    animationDuration: `${transitionDuration || 700}ms`,
+    animationFillMode: 'forwards'
+  }
 
   if (!liveSlide) {
+    // ... standby UI same ...
     return (
       <div className="w-full h-full bg-black flex flex-col items-center justify-center">
         <div className="flex flex-col items-center gap-4 opacity-5 shadow-[0_0_50px_rgba(255,255,255,0.1)]">
@@ -96,35 +98,21 @@ export default function MainOutput() {
       style={containerStyle}
     >
       
-      {/* ── Background Layer (media/image bg when no template CSS bg) ── */}
+      {/* ── Background Layer ── */}
       <div className="absolute inset-0 z-0">
         {activeBg ? (
           activeBg.type === 'video' ? (
-            <video 
-              key={activeBg.path}
-              src={activeBg.url} 
-              autoPlay 
-              loop 
-              muted 
-              className="w-full h-full object-cover animate-in fade-in duration-1000"
-            />
+            <video key={activeBg.path} src={activeBg.url} autoPlay loop muted className="w-full h-full object-cover animate-in fade-in duration-1000" />
           ) : (
-            <img 
-              key={activeBg.path}
-              src={activeBg.url} 
-              className="w-full h-full object-cover animate-in fade-in duration-1000"
-              alt=""
-            />
+            <img key={activeBg.path} src={activeBg.url} className="w-full h-full object-cover animate-in fade-in duration-1000" alt="" />
           )
         ) : null}
       </div>
 
-      {/* ── Overlay Layer (Readability) ─────── */}
+      {/* ── Overlay Layer ── */}
       <div 
         className="absolute inset-0 z-[1] transition-opacity duration-1000" 
-        style={{ 
-          background: `rgba(0,0,0,${liveSlide?.type === 'media' ? 0 : textStyles.bgOpacity})` 
-        }} 
+        style={{ background: `rgba(0,0,0,${liveSlide?.type === 'media' ? 0 : textStyles.bgOpacity})` }} 
       />
 
       {/* ── Content Layer with Transition ───── */}
@@ -132,11 +120,7 @@ export default function MainOutput() {
         <div 
           key={slideKey}
           className={`relative z-10 w-full pointer-events-none ${transitionClass}`}
-          style={{ 
-            textAlign: textStyles.textAlign as any,
-            padding: `${textStyles.padding}px`,
-            fontFamily: textStyles.fontFamily || 'Inter, system-ui, sans-serif',
-          }}
+          style={contentStyle}
         >
           <p
             className="leading-[1.1] whitespace-pre-line"
@@ -145,7 +129,7 @@ export default function MainOutput() {
               color: textStyles.color,
               fontWeight: textStyles.fontWeight,
               textShadow: shadowStr,
-              fontFamily: textStyles.fontFamily || 'Inter, system-ui, sans-serif',
+              fontFamily: 'inherit',
             }}
           >
             {liveSlide.text}

@@ -1,22 +1,40 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useUIStore } from '../data/store'
 import { usePresentationStore } from '../data/presentationStore'
+import { useFontLoader } from '../hooks/useFontLoader'
 import { CURRENT_TAGS, GLOBAL_TAGS } from '../data/placeholders'
+
+// ... icons ...
 import { 
-  EyeOff, 
-  Settings, 
-  PenTool, 
-  Wrench, 
-  Palette, 
-  CalendarDays,
-  Zap
+  EyeOff, Settings, PenTool, Wrench, Palette, CalendarDays, Zap
 } from 'lucide-react'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Crossenter — Right Tool Panel (Inspector & Live Control)
-// ─────────────────────────────────────────────────────────────────────────────
+// Maps transition name → Tailwind animation classes (synchronized with MainOutput)
+function getTransitionClasses(transition: string) {
+  switch (transition) {
+    case 'cut':        return ''
+    case 'slide-up':   return 'animate-in slide-in-from-bottom-12 fade-in'
+    case 'slide-left': return 'animate-in slide-in-from-right-12 fade-in'
+    case 'zoom':       return 'animate-in zoom-in-75 fade-in'
+    case 'flip':       return 'animate-in [perspective:1000px] [backface-visibility:hidden] flip-in'
+    case 'blur':       return 'animate-in fade-in blur-[2px]'
+    case 'fade':
+    default:           return 'animate-in fade-in'
+  }
+}
 
 function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, activeBg: any, textStyles: any }) {
+  const [slideKey, setSlideKey] = useState(0)
+  const prevSlideId = useRef<string | null>(null)
+
+  // Bump key when slide changes to trigger transition in inspector too
+  useEffect(() => {
+    if (liveSlide?.id !== prevSlideId.current) {
+      setSlideKey(k => k + 1)
+      prevSlideId.current = liveSlide?.id
+    }
+  }, [liveSlide?.id])
+
   if (!liveSlide) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-text-ghost opacity-40 italic select-none animate-in fade-in duration-700 bg-black/20 rounded-xl border border-dashed border-border-dim">
@@ -27,20 +45,24 @@ function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, acti
     )
   }
 
-  const { templateBgType, templateBgValue, fontFamily, color, textShadowX, textShadowY, textShadowBlur, textShadowColor, bgOpacity, padding } = textStyles
-  const shadowStr = `${textShadowX}px ${textShadowY}px ${textShadowBlur}px ${textShadowColor}`
+  const { 
+    templateBgType, templateBgValue, fontFamily, color, 
+    textShadowX, textShadowY, textShadowBlur, textShadowColor, 
+    bgOpacity, padding, textAlign, transition, transitionDuration 
+  } = textStyles
+  
+  const shadowStr = `${textShadowX ? textShadowX * 0.2 : 0}px ${textShadowY ? textShadowY * 0.2 : 0}px ${textShadowBlur ? textShadowBlur * 0.2 : 0}px ${textShadowColor}`
 
-  // Is this a media slide? Always show the actual media, ignore template bg.
   const isMediaSlide = liveSlide.type === 'media'
-  // Template CSS bg only applies to text slides (song/scripture)
   const hasTemplateCssBg = !isMediaSlide && (templateBgType === 'color' || templateBgType === 'gradient') && templateBgValue
-  // Show activeBg layer when: media slide (always), OR song/scripture with image/video bg
   const showActiveBgLayer = activeBg && (isMediaSlide || !hasTemplateCssBg)
 
   const containerStyle: React.CSSProperties = {
     background: hasTemplateCssBg ? templateBgValue : '#000',
     padding: isMediaSlide ? '0px' : `${Math.min(padding, 24)}px`,
   }
+
+  const transitionClass = getTransitionClasses(transition || 'fade')
 
   return (
     <div className="flex flex-col bg-bg-base/30 rounded-xl border border-border-dim overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
@@ -70,21 +92,31 @@ function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, acti
 
          {/* Readability overlay — only for text slides */}
          {!isMediaSlide && (
-           <div className="absolute inset-0 z-[1]" style={{ background: `rgba(0,0,0,${bgOpacity})` }} />
+            <div className="absolute inset-0 z-[1]" style={{ background: `rgba(0,0,0,${bgOpacity})` }} />
          )}
 
-         {/* Slide text — hidden for pure media slides */}
+         {/* Slide text — with transitions! */}
          {!isMediaSlide && liveSlide.type !== 'blank' && (
-           <p
-             className="relative z-10 text-center leading-[1.15] text-[10px] sm:text-[11px] font-black whitespace-pre-line max-h-full overflow-hidden"
-             style={{
-               color: color || '#ffffff',
-               fontFamily: fontFamily || 'Inter, sans-serif',
-               textShadow: shadowStr,
+           <div 
+             key={slideKey}
+             className={`relative z-10 w-full px-4 ${transitionClass}`}
+             style={{ 
+               textAlign: textAlign as any,
+               animationDuration: `${(transitionDuration || 700) * 0.8}ms`, // slightly faster for UI feel
+               animationFillMode: 'forwards'
              }}
            >
-              {liveSlide.text}
-           </p>
+             <p
+               className="leading-[1.15] text-[10px] sm:text-[11px] font-black whitespace-pre-line max-h-full overflow-hidden"
+               style={{
+                 color: color || '#ffffff',
+                 fontFamily: fontFamily || 'Inter, sans-serif',
+                 textShadow: shadowStr,
+               }}
+             >
+                {liveSlide.text}
+             </p>
+           </div>
          )}
 
          {/* Media label overlay (like MainOutput) */}
@@ -111,6 +143,9 @@ function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, acti
 function ShowTools() {
   const { liveSlideId, liveSlide, activeShow, scriptureBackground, showBackground, textStyles } = usePresentationStore()
   const [isAutoProgress, setIsAutoProgress] = useState(false)
+
+  // Load live font
+  useFontLoader(textStyles.fontFamily)
 
   const activeBg = liveSlide?.type === 'scripture' 
     ? scriptureBackground 

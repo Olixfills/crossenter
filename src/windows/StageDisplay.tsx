@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { usePresentationStore } from '../data/presentationStore'
+import { useFontLoader } from '../hooks/useFontLoader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Stage Display Window

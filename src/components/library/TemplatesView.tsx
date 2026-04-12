@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUIStore } from "../../data/store";
 import { usePresentationStore } from "../../data/presentationStore";
+import { useFontLoader } from "../../hooks/useFontLoader";
 import {
   useEditorStore,
   DEFAULT_TEMPLATE,
@@ -46,14 +47,15 @@ function TemplateCard({
         ? template.bg_value
         : "#111";
 
+  // Sync shadow with MainOutput (scaled by 0.1 for cards)
+  const shadowStr = `${template.offset_x * 0.1}px ${template.offset_y * 0.1}px ${template.shadow_blur * 0.1}px ${template.shadow_color}`;
+
   const previewStyle: React.CSSProperties = {
     background: bgStyle,
     fontFamily: template.font_family,
     color: template.font_color,
     textAlign: template.text_align as any,
-    textShadow: `${template.offset_x}px ${template.offset_y}px ${
-      template.shadow_blur * 0.12
-    }px ${template.shadow_color}`,
+    textShadow: shadowStr,
   };
 
   return (
@@ -161,19 +163,23 @@ function DetailPane({
   onDelete,
   deletingId,
 }: DetailPaneProps) {
+  // 1. Load the font for the detail preview
+  useFontLoader(template.font_family);
+
   const bgVal =
     template.bg_type === "gradient" || template.bg_type === "color"
       ? template.bg_value
       : "#111";
+
+  // Sync shadow with MainOutput (scaled by 0.2 for detail view)
+  const shadowStr = `${template.offset_x * 0.2}px ${template.offset_y * 0.2}px ${template.shadow_blur * 0.2}px ${template.shadow_color}`;
 
   const previewStyle: React.CSSProperties = {
     background: bgVal,
     fontFamily: template.font_family,
     color: template.font_color,
     textAlign: template.text_align as any,
-    textShadow: `${template.offset_x}px ${template.offset_y}px ${
-      template.shadow_blur * 0.15
-    }px ${template.shadow_color}`,
+    textShadow: shadowStr,
   };
 
   const isConfirmingDelete = deletingId === template.id;
