@@ -3972,17 +3972,18 @@ function initDatabase() {
     db.prepare("INSERT INTO categories (name, type) VALUES ('General', 'show')").run();
   }
   try {
-    const templateCols = db.prepare("PRAGMA table_info(templates)").all();
-    if (!templateCols.some((c) => c.name === "transition")) {
-      db.exec("ALTER TABLE templates ADD COLUMN transition TEXT NOT NULL DEFAULT 'fade';");
-      console.log("[Database] Migration: Added transition column to templates.");
+    const showCols = db.prepare("PRAGMA table_info(shows)").all();
+    if (!showCols.some((c) => c.name === "background_media_id")) {
+      db.exec("ALTER TABLE shows ADD COLUMN background_media_id INTEGER;");
+      console.log("[Database] Migration: Added background_media_id to shows.");
     }
-    if (!templateCols.some((c) => c.name === "transition_duration")) {
-      db.exec("ALTER TABLE templates ADD COLUMN transition_duration INTEGER NOT NULL DEFAULT 700;");
-      console.log("[Database] Migration: Added transition_duration column to templates.");
+    const slideCols = db.prepare("PRAGMA table_info(slides)").all();
+    if (!slideCols.some((c) => c.name === "background_media_id")) {
+      db.exec("ALTER TABLE slides ADD COLUMN background_media_id INTEGER;");
+      console.log("[Database] Migration: Added background_media_id to slides.");
     }
   } catch (e) {
-    console.warn("[DB] Template column migration error:", e);
+    console.warn("[DB] Media override migration error:", e);
   }
   try {
     const alreadySeeded = db.prepare("SELECT value FROM app_settings WHERE key = 'builtin_templates_seeded_v1'").get();
@@ -4060,12 +4061,38 @@ const dbOps = {
     return getDb().prepare("SELECT * FROM shows ORDER BY title ASC").all();
   },
   getShowWithSlides: (id) => {
-    const show = getDb().prepare("SELECT * FROM shows WHERE id = ?").get(id);
+    const show = getDb().prepare(`
+      SELECT s.*, m.name as bg_name, m.type as bg_type, m.file_path_or_url as bg_path
+      FROM shows s
+      LEFT JOIN media m ON s.background_media_id = m.id
+      WHERE s.id = ?
+    `).get(id);
     if (!show) return null;
-    const slides = getDb().prepare("SELECT * FROM slides WHERE show_id = ? ORDER BY slide_order ASC").all(id);
+    const slides = getDb().prepare(`
+      SELECT sl.*, m.name as bg_name, m.type as bg_type, m.file_path_or_url as bg_path
+      FROM slides sl
+      LEFT JOIN media m ON sl.background_media_id = m.id
+      WHERE sl.show_id = ? 
+      ORDER BY sl.slide_order ASC
+    `).all(id);
     return {
       ...show,
-      content: slides,
+      content: slides.map((sl) => ({
+        ...sl,
+        // Map joined media to active background object if exists
+        background_media: sl.bg_path ? {
+          name: sl.bg_name,
+          type: sl.bg_type,
+          path: sl.bg_path,
+          url: sl.bg_path.startsWith("http") || sl.bg_path.startsWith("data:") ? sl.bg_path : `crossenter://${sl.bg_path}`
+        } : null
+      })),
+      background_media: show.bg_path ? {
+        name: show.bg_name,
+        type: show.bg_type,
+        path: show.bg_path,
+        url: show.bg_path.startsWith("http") || show.bg_path.startsWith("data:") ? show.bg_path : `crossenter://${show.bg_path}`
+      } : null,
       settings: show.settings ? JSON.parse(show.settings) : null
     };
   },

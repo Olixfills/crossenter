@@ -13,6 +13,7 @@ export interface Slide {
   active?: boolean
   media_url?: string
   media_type?: 'video' | 'image' | 'audio' | 'link'
+  background_media_id?: number | null
 }
 
 export interface Show {
@@ -23,6 +24,7 @@ export interface Show {
   content: Slide[]
   type: 'song' | 'scripture' | 'media' | 'presentation' | 'recital'
   created_at?: string
+  background_media_id?: number | null
 }
 
 export interface Category {

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useUIStore } from '../data/store'
 import { usePresentationStore } from '../data/presentationStore'
 import { useFontLoader } from '../hooks/useFontLoader'
+import { resolveMediaUrl } from '../utils/url'
 import { CURRENT_TAGS, GLOBAL_TAGS } from '../data/placeholders'
 
 // ... icons ...
@@ -26,6 +27,27 @@ function getTransitionClasses(transition: string) {
 function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, activeBg: any, textStyles: any }) {
   const [slideKey, setSlideKey] = useState(0)
   const prevSlideId = useRef<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Sync logic for Inspector Preview
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:8080')
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data)
+        if (msg.type === 'MEDIA_COMMAND' && videoRef.current) {
+          const video = videoRef.current
+          switch (msg.command) {
+            case 'PLAY': video.play(); break
+            case 'PAUSE': video.pause(); break
+            case 'STOP': video.pause(); video.currentTime = 0; break
+            case 'SEEK': video.currentTime = msg.payload; break
+          }
+        }
+      } catch (e) { console.error(e) }
+    }
+    return () => ws.close()
+  }, [])
 
   // Bump key when slide changes to trigger transition in inspector too
   useEffect(() => {
@@ -82,10 +104,18 @@ function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, acti
          {/* Media or background image/video layer */}
          {showActiveBgLayer && (
             <div className={`absolute inset-0 z-0 ${isMediaSlide ? 'opacity-100' : 'opacity-70'}`}>
-               {activeBg.type === 'video' ? (
-                  <video src={activeBg.url} autoPlay loop muted className="w-full h-full object-cover" />
-               ) : (
-                  <img src={activeBg.url} className="w-full h-full object-cover" alt="" />
+                {activeBg.type === 'video' ? (
+                   <video 
+                      ref={videoRef}
+                      key={activeBg.url}
+                      src={resolveMediaUrl(activeBg.url)} 
+                      autoPlay 
+                      loop={true} 
+                      muted={true} 
+                      className="w-full h-full object-cover shadow-inner" 
+                   />
+                ) : (
+                  <img src={resolveMediaUrl(activeBg.url)} className="w-full h-full object-cover" alt="" />
                )}
             </div>
          )}
@@ -141,17 +171,29 @@ function LivePreview({ liveSlide, activeBg, textStyles }: { liveSlide: any, acti
 }
 
 function ShowTools() {
-  const { liveSlideId, liveSlide, activeShow, scriptureBackground, showBackground, textStyles } = usePresentationStore()
+  const { 
+    liveSlideId, 
+    liveSlide, 
+    activeShow, 
+    scriptureBackground, 
+    showBackground, 
+    textStyles, 
+    playbackMode, 
+    activeMedia,
+    isBlanked,
+    toggleBlank,
+    isLogoEnabled,
+    isTimerEnabled,
+    toggleOverlay,
+    clearOutput
+  } = usePresentationStore()
   const [isAutoProgress, setIsAutoProgress] = useState(false)
 
   // Load live font
   useFontLoader(textStyles.fontFamily)
 
-  const activeBg = liveSlide?.type === 'scripture' 
-    ? scriptureBackground 
-    : (liveSlide?.type === 'media' && liveSlide.media_url 
-      ? { url: liveSlide.media_url, type: liveSlide.media_type || 'image' } 
-      : showBackground)
+  // Use the store's resolved activeMedia for the background
+  const activeBg = activeMedia
 
   return (
     <div className="flex flex-col h-full bg-bg-raised p-4 gap-6 overflow-y-auto custom-scrollbar">
@@ -169,7 +211,7 @@ function ShowTools() {
         
         <div 
           className={`
-            w-full py-3 rounded-xl border-2 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300
+            w-full py-2.5 rounded-lg border-2 font-black text-[9px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all duration-300
             ${liveSlideId ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/30 active:scale-[0.98] cursor-pointer' : 'bg-bg-surface border-border-dim text-text-ghost cursor-not-allowed opacity-50'}
           `}
         >
@@ -179,7 +221,7 @@ function ShowTools() {
               Broadcasting Live
             </>
           ) : (
-             <>Engines Standby</>
+            <>Engines Standby</>
           )}
         </div>
       </section>
@@ -208,14 +250,41 @@ function ShowTools() {
       <section className="flex flex-col gap-3">
         <h3 className="text-2xs font-black text-text-hi uppercase tracking-widest px-1 opacity-50">Quick Overlays</h3>
         <div className="grid grid-cols-2 gap-2">
-          {GLOBAL_TAGS.map(tag => (
-            <button 
-              key={tag} 
-              className="py-2.5 rounded-xl bg-bg-surface border border-border-dim text-[10px] text-text-lo hover:border-accent hover:bg-bg-hover transition-all font-black uppercase tracking-tighter"
-            >
-              {tag}
-            </button>
-          ))}
+          {GLOBAL_TAGS.map(tag => {
+            const isBlankBtn = tag === 'Blank'
+            const isLogoBtn = tag === 'Logo'
+            const isTimerBtn = tag === 'Timer'
+            const isClearBtn = tag === 'Clear'
+            
+            const isActive = (isBlankBtn && isBlanked) || 
+                             (isLogoBtn && isLogoEnabled) || 
+                             (isTimerBtn && isTimerEnabled)
+            
+            const handleClick = () => {
+              if (isBlankBtn) toggleBlank()
+              if (isLogoBtn) toggleOverlay('logo')
+              if (isTimerBtn) toggleOverlay('timer')
+              if (isClearBtn) clearOutput()
+            }
+
+            return (
+              <button 
+                key={tag} 
+                onClick={handleClick}
+                className={`
+                  py-2 rounded-lg border text-[9px] font-black uppercase tracking-tighter transition-all
+                  ${isActive 
+                    ? 'bg-red-500 border-red-500 text-white shadow-lg shadow-red-500/30 active:scale-95' 
+                    : isBlankBtn || isLogoBtn || isTimerBtn || isClearBtn
+                      ? 'bg-bg-surface border-border-dim text-text-lo hover:border-accent hover:bg-bg-hover active:scale-95' 
+                      : 'bg-bg-surface border-border-dim text-text-lo hover:border-accent hover:bg-bg-hover'
+                  }
+                `}
+              >
+                {tag}
+              </button>
+            )
+          })}
         </div>
       </section>
 

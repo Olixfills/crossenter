@@ -18,6 +18,7 @@ import MediaView from "./library/MediaView";
 import PlaylistsView from "./library/PlaylistsView";
 import PlaceholderView from "./library/PlaceholderView";
 import TemplatesView from "./library/TemplatesView";
+import OverlaysView from "./library/OverlaysView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Library Pane
@@ -126,7 +127,7 @@ export default function LibraryPane() {
 
         {/* Placeholder for other tabs */}
         {activeTab === "Overlays" && (
-          <PlaceholderView title="Overlays" icon={Layers} />
+          <OverlaysView />
         )}
         {activeTab === "Audio" && (
           <PlaceholderView title="Audio" icon={Volume2} />

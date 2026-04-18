@@ -20,6 +20,7 @@ import {
 import { useDraggable } from "@dnd-kit/core";
 import { usePresentationStore } from "../../data/presentationStore";
 import { useUIStore } from "../../data/store";
+import { resolveMediaUrl } from "../../utils/url";
 import AddLinkModal from "./AddLinkModal";
 
 // --- Sub-component: Media Card ---
@@ -80,13 +81,13 @@ function MediaCard({
 
         {item.type === "image" ? (
           <img
-            src={item.url}
+            src={resolveMediaUrl(item.url)}
             className="w-full h-full object-cover"
             alt={item.name}
           />
         ) : item.type === "video" ? (
           <video
-            src={item.url}
+            src={resolveMediaUrl(item.url)}
             className="w-full h-full object-cover"
             muted
             onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
@@ -161,13 +162,13 @@ function PreviewPanel({
         <div className="aspect-video rounded-lg bg-black overflow-hidden shadow-inner border border-white/5 relative group">
           {item.type === "image" ? (
             <img
-              src={item.url}
+              src={resolveMediaUrl(item.url)}
               className="w-full h-full object-contain"
               alt={item.name}
             />
           ) : item.type === "video" ? (
             <video
-              src={item.url}
+              src={resolveMediaUrl(item.url)}
               className="w-full h-full object-contain"
               autoPlay
               muted

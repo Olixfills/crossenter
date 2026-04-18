@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { usePresentationStore } from '../data/presentationStore'
 import { useFontLoader } from '../hooks/useFontLoader'
+import { resolveMediaUrl } from '../utils/url'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Main Output Window
@@ -30,20 +31,80 @@ function resolveTemplateBg(bgType: string | null, bgValue: string | null): React
   return {}  // image/video handled via <img>/<video> elements
 }
 
+function resolvePosition(pos: string): string {
+  switch (pos) {
+    case 'top-left':      return 'top-8 left-8 items-start text-left'
+    case 'top-center':    return 'top-8 left-1/2 -translate-x-1/2 items-center text-center'
+    case 'top-right':     return 'top-8 right-8 items-end text-right'
+    case 'center-left':   return 'top-1/2 -translate-y-1/2 left-8 items-start text-left'
+    case 'center':        return 'top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center text-center'
+    case 'center-right':  return 'top-1/2 -translate-y-1/2 right-8 items-end text-right'
+    case 'bottom-left':   return 'bottom-8 left-8 items-start text-left'
+    case 'bottom-center': return 'bottom-8 left-1/2 -translate-x-1/2 items-center text-center'
+    case 'bottom-right':
+    default:              return 'bottom-8 right-8 items-end text-right'
+  }
+}
+
 export default function MainOutput() {
-  const { liveSlide, textStyles, scriptureBackground, showBackground } = usePresentationStore()
+  const { 
+    liveSlide, 
+    textStyles, 
+    scriptureBackground, 
+    showBackground, 
+    playbackMode, 
+    activeMedia,
+    mediaMuted,
+    mediaVolume,
+    mediaLoop,
+    isBlanked,
+    globalBlankType,
+    globalBlankValue,
+
+    // Phase 10
+    isLogoEnabled,
+    logoUrl,
+    logoPosition,
+    logoScale,
+    logoOpacity,
+    logoIsFullScreen,
+    isTimerEnabled,
+    timerMode,
+    timerTarget,
+    timerPosition,
+    timerColor,
+    timerFontSize,
+    isSafetyEnabled,
+    safetyUrl,
+  } = usePresentationStore()
   const [clock, setClock] = useState(new Date())
   const [slideKey, setSlideKey] = useState(0)
   const prevSlideRef = useRef<string | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // 1. Load the template font dynamically
   useFontLoader(textStyles.fontFamily)
 
-  // ... useEffects remain same ...
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 1000)
     return () => clearInterval(t)
   }, [])
+
+  // Timer Countdown Logic
+  const [countdown, setCountdown] = useState("00:00:00")
+  useEffect(() => {
+    if (timerMode !== 'countdown' || !timerTarget) return
+    const timer = setInterval(() => {
+      const [h, m, s] = timerTarget.split(':').map(Number)
+      const targetSecs = (h || 0) * 3600 + (m || 0) * 60 + (s || 0)
+      
+      // For now, let's just show the static target if we're not running a global sync clock
+      // Real countdown synchronization would need a "StartTime" in the store.
+      // But for Phase 10, let's keep it simple: just show the target or clock.
+      setCountdown(timerTarget)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [timerTarget, timerMode])
 
   useEffect(() => {
     if (liveSlide?.id !== prevSlideRef.current) {
@@ -52,23 +113,69 @@ export default function MainOutput() {
     }
   }, [liveSlide?.id])
 
+  // --- WebSocket & Sync Logic ---
+  const wsRef = useRef<WebSocket | null>(null)
+
+  useEffect(() => {
+    const ws = new WebSocket('ws://localhost:8080')
+    wsRef.current = ws
+    
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data)
+        if (msg.type === 'MEDIA_COMMAND' && videoRef.current) {
+          const video = videoRef.current
+          switch (msg.command) {
+            case 'PLAY': video.play(); break
+            case 'PAUSE': video.pause(); break
+            case 'SEEK': video.currentTime = msg.payload; break
+            case 'STOP': video.pause(); video.currentTime = 0; break
+            case 'SET_VOLUME': video.volume = msg.payload; break
+            case 'TOGGLE_MUTE': video.muted = !video.muted; break
+            case 'TOGGLE_LOOP': video.loop = !video.loop; break
+          }
+        }
+        // Also listen for loop state from SYNC_STATE if needed, 
+        // but typically we rely on the command or the immediate store value.
+      } catch (e) { console.error(e) }
+    }
+    
+    return () => {
+      ws.close()
+      wsRef.current = null
+    }
+  }, [])
+
+  // Throttled sync broadcaster (now uses the persistent WS ref)
+  const handleTimeUpdate = () => {
+    if (!videoRef.current || playbackMode !== 'foreground' || !wsRef.current) return
+    if (wsRef.current.readyState !== WebSocket.OPEN) return
+
+    const video = videoRef.current
+    wsRef.current.send(JSON.stringify({
+      type: 'MEDIA_SYNC',
+      payload: {
+        currentTime: video.currentTime,
+        duration: video.duration,
+        playing: !video.paused,
+        muted: video.muted,
+        volume: video.volume,
+        loop: video.loop
+      }
+    }))
+  }
+
   const { templateBgType, templateBgValue, transition, transitionDuration } = textStyles
 
-  // Background priority logic ... (no changes needed here)
   const isMediaSlide = liveSlide?.type === 'media' && liveSlide.media_url
   const hasTemplateCssBg = (templateBgType === 'color' || templateBgType === 'gradient') && templateBgValue
 
-  const activeBg = isMediaSlide
-    ? { url: liveSlide.media_url!, type: (liveSlide.media_type as any) || 'image', path: liveSlide.media_url! }
-    : hasTemplateCssBg ? null : (liveSlide?.type === 'scripture' ? scriptureBackground : showBackground)
-
   const templateCssBg = resolveTemplateBg(templateBgType, templateBgValue ?? null)
-
-  const containerStyle: React.CSSProperties = isMediaSlide
+  const containerStyle: React.CSSProperties = (isMediaSlide || activeMedia?.type === 'video')
     ? { background: '#000' }
     : hasTemplateCssBg ? templateCssBg : { background: '#000' }
 
-  // 2. Fixed Transition: Class without duration + Inline Duration
+  // 2. Fixed Transition
   const transitionClass = getTransitionClasses(transition || 'fade')
   const contentStyle: React.CSSProperties = {
     textAlign: textStyles.textAlign as any,
@@ -79,7 +186,6 @@ export default function MainOutput() {
   }
 
   if (!liveSlide) {
-    // ... standby UI same ...
     return (
       <div className="w-full h-full bg-black flex flex-col items-center justify-center">
         <div className="flex flex-col items-center gap-4 opacity-5 shadow-[0_0_50px_rgba(255,255,255,0.1)]">
@@ -98,25 +204,41 @@ export default function MainOutput() {
       style={containerStyle}
     >
       
-      {/* ── Background Layer ── */}
-      <div className="absolute inset-0 z-0">
-        {activeBg ? (
-          activeBg.type === 'video' ? (
-            <video key={activeBg.path} src={activeBg.url} autoPlay loop muted className="w-full h-full object-cover animate-in fade-in duration-1000" />
+      {/* ── Background/Media Layer ── */}
+      <div className={`absolute inset-0 ${playbackMode === 'foreground' ? 'z-20' : 'z-0'}`}>
+        {activeMedia && (
+          activeMedia.type === 'video' ? (
+            <video 
+              ref={videoRef}
+              key={activeMedia.url} 
+              src={resolveMediaUrl(activeMedia.url)} 
+              autoPlay 
+              loop={mediaLoop} 
+              muted={playbackMode === 'background' ? true : mediaMuted} 
+              onTimeUpdate={handleTimeUpdate}
+              onPlay={handleTimeUpdate}
+              onPause={handleTimeUpdate}
+              className={`w-full h-full animate-in fade-in duration-1000 ${playbackMode === 'background' ? 'object-cover' : 'object-contain'}`} 
+            />
           ) : (
-            <img key={activeBg.path} src={activeBg.url} className="w-full h-full object-cover animate-in fade-in duration-1000" alt="" />
+            <img 
+              key={activeMedia.url} 
+              src={resolveMediaUrl(activeMedia.url)} 
+              className="w-full h-full object-cover animate-in fade-in duration-1000" 
+              alt="" 
+            />
           )
-        ) : null}
+        )}
       </div>
 
       {/* ── Overlay Layer ── */}
       <div 
         className="absolute inset-0 z-[1] transition-opacity duration-1000" 
-        style={{ background: `rgba(0,0,0,${liveSlide?.type === 'media' ? 0 : textStyles.bgOpacity})` }} 
+        style={{ background: `rgba(0,0,0,${playbackMode === 'foreground' ? 0 : textStyles.bgOpacity})` }} 
       />
 
       {/* ── Content Layer with Transition ───── */}
-      {liveSlide.type !== 'blank' && (
+      {liveSlide.type !== 'blank' && playbackMode !== 'foreground' && (
         <div 
           key={slideKey}
           className={`relative z-10 w-full pointer-events-none ${transitionClass}`}
@@ -158,9 +280,61 @@ export default function MainOutput() {
         </div>
       )}
 
-      {/* ── Clock / Meta ── */}
-      <div className="absolute bottom-12 right-12 z-20 opacity-30 text-white font-black text-xl tracking-tighter">
-        {clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      {/* ── Safety Layer (Phase 10) ── */}
+      {isSafetyEnabled && safetyUrl && (
+        <div className="absolute inset-0 z-[5]">
+           <img src={resolveMediaUrl(safetyUrl)} className="w-full h-full object-cover animate-in fade-in duration-1000" alt="Safety" />
+        </div>
+      )}
+
+      {/* ── Logo Overlay Layer (Phase 10) ── */}
+      {isLogoEnabled && logoUrl && (
+        <div className={`absolute z-[110] transition-all duration-700 flex flex-col pointer-events-none ${logoIsFullScreen ? 'inset-0 items-center justify-center p-0' : `p-4 ${resolvePosition(logoPosition)}`}`}>
+           <img 
+             src={resolveMediaUrl(logoUrl)} 
+             style={logoIsFullScreen ? {
+               maxWidth: '100%',
+               maxHeight: '100%',
+               width: 'auto',
+               height: 'auto',
+               objectFit: 'contain',
+               opacity: logoOpacity
+             } : { 
+               width: `${logoScale * 1.5}px`, // Adjusted for 16:9 rectangular assumption
+               opacity: logoOpacity 
+             }} 
+             className="drop-shadow-2xl transition-all"
+             alt="Logo" 
+           />
+        </div>
+      )}
+
+      {/* ── Quick Timer Layer (Phase 10) ── */}
+      {isTimerEnabled && (
+        <div className={`absolute z-[105] p-6 flex flex-col pointer-events-none transition-all duration-700 ${resolvePosition(timerPosition)}`}>
+           <p className="font-black tracking-tighter shadow-black animate-in zoom-in-95 duration-500" style={{ color: timerColor, fontSize: `${timerFontSize}px` }}>
+              {timerMode === 'clock' 
+                ? clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) 
+                : countdown}
+           </p>
+        </div>
+      )}
+
+      {/* ── Global Blank Overlay (Phase 9.5) ── */}
+      <div 
+        className={`absolute inset-0 z-[100] transition-opacity duration-700 bg-black ${isBlanked ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        style={{
+          ...(globalBlankType === 'color' && { backgroundColor: globalBlankValue }),
+          ...(globalBlankType === 'gradient' && { backgroundImage: globalBlankValue })
+        }}
+      >
+        {globalBlankType === 'image' && isBlanked && (
+          <img 
+            src={resolveMediaUrl(globalBlankValue)} 
+            className="w-full h-full object-cover" 
+            alt="Blank"
+          />
+        )}
       </div>
     </div>
   )
