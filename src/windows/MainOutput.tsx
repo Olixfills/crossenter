@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { usePresentationStore } from '../data/presentationStore'
 import { useFontLoader } from '../hooks/useFontLoader'
 import { resolveMediaUrl } from '../utils/url'
+import { resolvePosition } from '../utils/layout'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Main Output Window
@@ -31,20 +32,7 @@ function resolveTemplateBg(bgType: string | null, bgValue: string | null): React
   return {}  // image/video handled via <img>/<video> elements
 }
 
-function resolvePosition(pos: string): string {
-  switch (pos) {
-    case 'top-left':      return 'top-8 left-8 items-start text-left'
-    case 'top-center':    return 'top-8 left-1/2 -translate-x-1/2 items-center text-center'
-    case 'top-right':     return 'top-8 right-8 items-end text-right'
-    case 'center-left':   return 'top-1/2 -translate-y-1/2 left-8 items-start text-left'
-    case 'center':        return 'top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 items-center text-center'
-    case 'center-right':  return 'top-1/2 -translate-y-1/2 right-8 items-end text-right'
-    case 'bottom-left':   return 'bottom-8 left-8 items-start text-left'
-    case 'bottom-center': return 'bottom-8 left-1/2 -translate-x-1/2 items-center text-center'
-    case 'bottom-right':
-    default:              return 'bottom-8 right-8 items-end text-right'
-  }
-}
+// Output window logic
 
 export default function MainOutput() {
   const { 
@@ -76,6 +64,12 @@ export default function MainOutput() {
     timerFontSize,
     isSafetyEnabled,
     safetyUrl,
+
+    // Phase 10: Alerts
+    activeAlertText,
+    alertBgColor,
+    alertTextColor,
+    alertScrollSpeed,
   } = usePresentationStore()
   const [clock, setClock] = useState(new Date())
   const [slideKey, setSlideKey] = useState(0)
@@ -280,6 +274,28 @@ export default function MainOutput() {
         </div>
       )}
 
+      {/* ── Alert Layer (Phase 10) ── */}
+      {activeAlertText && (
+        <div 
+          className="absolute bottom-0 left-0 right-0 py-4 px-6 z-[75] overflow-hidden flex items-center shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-white/5 backdrop-blur-md"
+          style={{ backgroundColor: alertBgColor }}
+        >
+          <div 
+            className="whitespace-nowrap animate-marquee flex items-center gap-12"
+            style={{ animationDuration: alertScrollSpeed }}
+          >
+             <p className="text-2xl font-black uppercase tracking-[0.2em] flex items-center gap-8" style={{ color: alertTextColor }}>
+                <span>{activeAlertText}</span>
+                <span className="opacity-30">•</span>
+                <span>{activeAlertText}</span>
+                <span className="opacity-30">•</span>
+                <span>{activeAlertText}</span>
+                <span className="opacity-30">•</span>
+             </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Safety Layer (Phase 10) ── */}
       {isSafetyEnabled && safetyUrl && (
         <div className="absolute inset-0 z-[5]">
@@ -289,14 +305,15 @@ export default function MainOutput() {
 
       {/* ── Logo Overlay Layer (Phase 10) ── */}
       {isLogoEnabled && logoUrl && (
-        <div className={`absolute z-[110] transition-all duration-700 flex flex-col pointer-events-none ${logoIsFullScreen ? 'inset-0 items-center justify-center p-0' : `p-4 ${resolvePosition(logoPosition)}`}`}>
+        <div 
+          className={`absolute z-[110] transition-all duration-700 flex flex-col pointer-events-none ${logoIsFullScreen ? 'inset-0 items-center justify-center p-0' : `p-4 ${resolvePosition(logoPosition)}`}`}
+          style={logoIsFullScreen ? { backgroundColor: '#000' } : {}}
+        >
            <img 
              src={resolveMediaUrl(logoUrl)} 
              style={logoIsFullScreen ? {
-               maxWidth: '100%',
-               maxHeight: '100%',
-               width: 'auto',
-               height: 'auto',
+               width: '100%',
+               height: '100%',
                objectFit: 'contain',
                opacity: logoOpacity
              } : { 

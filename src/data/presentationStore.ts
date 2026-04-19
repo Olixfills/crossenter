@@ -92,8 +92,15 @@ interface PresentationState {
   timerColor: string
   timerFontSize: number
 
-  isSafetyEnabled: boolean
-  safetyUrl: string
+  isSafetyEnabled: boolean;
+  safetyUrl: string;
+
+  // Phase 10: Alerts Engine
+  activeAlertText: string | null;
+  alertTemplates: any[];
+  alertBgColor: string;
+  alertTextColor: string;
+  alertScrollSpeed: string;
   loadActivePlaylist: () => Promise<void>
   setPlaylistItems: (items: PlaylistItem[]) => void
   setActiveShow: (show: Show | null) => void
@@ -137,8 +144,24 @@ interface PresentationState {
   setBlankSetting: (key: 'global_blank_type' | 'global_blank_value', value: string) => Promise<void>
 
   // Phase 10 Actions
-  toggleOverlay: (type: 'logo' | 'timer' | 'safety') => void
-  setOverlaySetting: (key: string, value: any) => Promise<void>
+  toggleOverlay: (type: 'logo' | 'timer' | 'safety') => void;
+  setOverlaySetting: (key: string, value: any) => Promise<void>;
+
+  // Phase 10: Alert Actions
+  loadAlertTemplates: () => Promise<void>;
+  pushAlert: (text: string | null) => void;
+  saveAlertTemplate: (title: string, text: string) => Promise<void>;
+  deleteAlertTemplate: (id: number) => Promise<void>;
+
+  // Phase 12: Stage Display
+  stageMessage: string | null;
+  stageTimerRunning: boolean;
+  stageTimerDuration: number;
+  stageTimerRemaining: number;
+
+  setStageMessage: (msg: string | null) => void;
+  sendStageCommand: (command: 'TIMER_START' | 'TIMER_STOP' | 'TIMER_RESET', payload?: any) => void;
+  updateStageState: (state: Partial<PresentationState>) => void;
 }
 
 const DEFAULT_TEXT_STYLES: TextStyles = {
@@ -191,6 +214,7 @@ const connectWS = () => {
                logoPosition: message.payload.logoPosition,
                logoScale: message.payload.logoScale,
                logoOpacity: message.payload.logoOpacity,
+               logoIsFullScreen: message.payload.logoIsFullScreen,
                isTimerEnabled: message.payload.isTimerEnabled,
                timerMode: message.payload.timerMode,
                timerTarget: message.payload.timerTarget,
@@ -199,6 +223,12 @@ const connectWS = () => {
                timerFontSize: message.payload.timerFontSize,
                isSafetyEnabled: message.payload.isSafetyEnabled,
                safetyUrl: message.payload.safetyUrl,
+
+               // Phase 10: Alerts
+               activeAlertText: message.payload.activeAlertText,
+               alertBgColor: message.payload.alertBgColor,
+               alertTextColor: message.payload.alertTextColor,
+               alertScrollSpeed: message.payload.alertScrollSpeed,
             })
           })
         }
@@ -210,6 +240,17 @@ const connectWS = () => {
             mediaMuted: message.payload.muted,
             mediaVolume: message.payload.volume,
             mediaLoop: message.payload.loop
+          })
+        }
+        if (message.type === 'STAGE_TICK') {
+          usePresentationStore.setState({ stageTimerRemaining: message.payload.remaining })
+        }
+        if (message.type === 'STAGE_UPDATE') {
+          usePresentationStore.setState({
+            stageMessage: message.payload.message,
+            stageTimerRunning: message.payload.running,
+            stageTimerRemaining: message.payload.remaining,
+            stageTimerDuration: message.payload.duration,
           })
         }
       } catch (e) {
@@ -264,6 +305,13 @@ const broadcastLiveEnriched = (state: PresentationState) => {
         timerFontSize: state.timerFontSize,
         isSafetyEnabled: state.isSafetyEnabled,
         safetyUrl: state.safetyUrl,
+        logoIsFullScreen: state.logoIsFullScreen,
+
+        // Phase 10: Alerts
+        activeAlertText: state.activeAlertText,
+        alertBgColor: state.alertBgColor,
+        alertTextColor: state.alertTextColor,
+        alertScrollSpeed: state.alertScrollSpeed,
       }
     }))
   }
@@ -321,6 +369,13 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   isSafetyEnabled: false,
   safetyUrl: '',
 
+  // Phase 10: Alerts Engine
+  activeAlertText: null,
+  alertTemplates: [],
+  alertBgColor: 'rgba(200, 0, 0, 0.9)',
+  alertTextColor: '#ffffff',
+  alertScrollSpeed: '30s',
+
   setBackgroundMedia: (media, context) => {
     if (context === 'scripture') set({ scriptureBackground: media })
     else set({ showBackground: media })
@@ -342,6 +397,28 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   },
 
   updateMediaState: (newState) => set(newState),
+
+  alertScrollSpeed: '15s',
+
+  // Phase 12 Initialization
+  stageMessage: null,
+  stageTimerRunning: false,
+  stageTimerDuration: 300,
+  stageTimerRemaining: 300,
+
+  setStageMessage: (msg: string | null) => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'STAGE_COMMAND', command: 'SET_MESSAGE', payload: msg }))
+    }
+  },
+
+  sendStageCommand: (command, payload) => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'STAGE_COMMAND', command, payload }))
+    }
+  },
+
+  updateStageState: (state) => set(state),
 
   loadActivePlaylist: async () => {
     const pl = await window.crossenter.getActivePlaylist();
@@ -582,6 +659,11 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
       const safetyUrl = await window.crossenter.getSetting('safety_url') || ''
       const logoIsFullScreen = await window.crossenter.getSetting('logo_is_full_screen') === 'true'
 
+      // Phase 10: Alerts Settings
+      const alertBgColor = await window.crossenter.getSetting('alert_bg_color') || 'rgba(200, 0, 0, 0.9)'
+      const alertTextColor = await window.crossenter.getSetting('alert_text_color') || '#ffffff'
+      const alertScrollSpeed = await window.crossenter.getSetting('alert_scroll_speed') || '30s'
+
       set({
         templates: templates || [],
         defaultSongTemplateId: songIdStr ? Number(songIdStr) : null,
@@ -591,8 +673,13 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
 
         isLogoEnabled, logoUrl, logoPosition, logoScale, logoOpacity, logoIsFullScreen,
         isTimerEnabled, timerMode, timerTarget, timerPosition, timerColor, timerFontSize,
-        isSafetyEnabled, safetyUrl
+        isSafetyEnabled, safetyUrl,
+
+        alertBgColor, alertTextColor, alertScrollSpeed
       })
+
+      // Load alert templates
+      await get().loadAlertTemplates()
     } catch (err) {
       console.error('[Templates] Failed to load templates:', err)
     }
@@ -651,6 +738,27 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
     
     // 3. Broadcast
     broadcastLiveEnriched(get())
+  },
+
+  // Phase 10: Alert Actions
+  loadAlertTemplates: async () => {
+    const templates = await window.crossenter.getAlertTemplates();
+    set({ alertTemplates: templates || [] });
+  },
+
+  pushAlert: (text) => {
+    set({ activeAlertText: text });
+    broadcastLiveEnriched(get());
+  },
+
+  saveAlertTemplate: async (title, text) => {
+    await window.crossenter.saveAlertTemplate({ title, template_text: text });
+    await get().loadAlertTemplates();
+  },
+
+  deleteAlertTemplate: async (id) => {
+    await window.crossenter.deleteAlertTemplate(id);
+    await get().loadAlertTemplates();
   },
 
   clearOutput: () => {

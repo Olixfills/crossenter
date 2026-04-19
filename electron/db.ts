@@ -129,6 +129,13 @@ export function initDatabase() {
       key TEXT PRIMARY KEY,
       value TEXT
     );
+
+    -- Phase 10: Alerts & Announcements
+    CREATE TABLE IF NOT EXISTS alert_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      template_text TEXT NOT NULL
+    );
   `);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -298,12 +305,29 @@ export function initDatabase() {
         db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('default_scripture_template_id', ?)").run(String(Number(firstId) + 1));
       }
 
+      // Phase 10: Default Alert Styles
+      const hasAlertBg = db.prepare("SELECT value FROM app_settings WHERE key = 'alert_bg_color'").get();
+      if (!hasAlertBg) {
+        db.prepare("INSERT INTO app_settings (key, value) VALUES ('alert_bg_color', 'rgba(200, 0, 0, 0.9)')").run();
+        db.prepare("INSERT INTO app_settings (key, value) VALUES ('alert_text_color', '#ffffff')").run();
+        db.prepare("INSERT INTO app_settings (key, value) VALUES ('alert_scroll_speed', '30s')").run();
+      }
+
+      // Seed starter alerts
+      const hasAlerts = db.prepare("SELECT id FROM alert_templates LIMIT 1").get();
+      if (!hasAlerts) {
+        const insertAlert = db.prepare("INSERT INTO alert_templates (title, template_text) VALUES (?, ?)");
+        insertAlert.run('Nursery Call', 'Parents of child [ID], please report to the nursery.');
+        insertAlert.run('Announcement', 'Welcome to our service! Please join us for coffee in the lounge after the meeting.');
+        insertAlert.run('Security', 'Owner of vehicle [PLATE], you have left your lights on.');
+      }
+
       // Mark as seeded so this never runs again
       db.prepare("INSERT INTO app_settings (key, value) VALUES ('builtin_templates_seeded_v1', '1')").run();
-      console.log(`[Database] Seeded ${builtinTemplates.length} built-in templates. Defaults configured.`);
+      console.log(`[Database] Seeded starter templates and alerts.`);
     }
   } catch (e) {
-    console.warn('[DB] Template seeding error:', e);
+    console.warn('[DB] Seeding error:', e);
   }
 
   return db;
@@ -708,6 +732,40 @@ export const dbOps = {
       getDb().prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, value);
     } catch (err) {
       console.error("[Database] setSetting error:", err);
+      throw err;
+    }
+  },
+
+  // Alert Templates
+  getAlertTemplates: () => {
+    try {
+      return getDb().prepare('SELECT * FROM alert_templates ORDER BY title ASC').all();
+    } catch (err) {
+      console.error("[Database] getAlertTemplates error:", err);
+      return [];
+    }
+  },
+
+  saveAlertTemplate: (data: { id?: number; title: string, template_text: string }) => {
+    try {
+      if (data.id) {
+        getDb().prepare('UPDATE alert_templates SET title = ?, template_text = ? WHERE id = ?').run(data.title, data.template_text, data.id);
+        return data.id;
+      } else {
+        const result = getDb().prepare('INSERT INTO alert_templates (title, template_text) VALUES (?, ?)').run(data.title, data.template_text);
+        return result.lastInsertRowid;
+      }
+    } catch (err) {
+      console.error("[Database] saveAlertTemplate error:", err);
+      throw err;
+    }
+  },
+
+  deleteAlertTemplate: (id: number) => {
+    try {
+      return getDb().prepare('DELETE FROM alert_templates WHERE id = ?').run(id);
+    } catch (err) {
+      console.error("[Database] deleteAlertTemplate error:", err);
       throw err;
     }
   }

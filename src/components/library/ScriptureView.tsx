@@ -5,8 +5,80 @@ import {
   LayoutGrid, 
   List, 
   Search, 
-  ExternalLink
+  ExternalLink,
+  ChevronRight,
+  Maximize2
 } from "lucide-react";
+
+// ── Standards: Bible Book Mapping (Phase 11 Grid) ──────────
+const BIBLE_BOOKS_MAP: Record<string, { abbr: string; color: string }> = {
+  "Genesis": { abbr: "Gen", color: "#a855f7" },
+  "Exodus": { abbr: "Exo", color: "#a855f7" },
+  "Leviticus": { abbr: "Lev", color: "#a855f7" },
+  "Numbers": { abbr: "Num", color: "#a855f7" },
+  "Deuteronomy": { abbr: "Deu", color: "#a855f7" },
+  "Joshua": { abbr: "Jos", color: "#3b82f6" },
+  "Judges": { abbr: "Jdg", color: "#3b82f6" },
+  "Ruth": { abbr: "Rut", color: "#3b82f6" },
+  "1 Samuel": { abbr: "1sa", color: "#3b82f6" },
+  "2 Samuel": { abbr: "2sa", color: "#3b82f6" },
+  "1 Kings": { abbr: "1ki", color: "#3b82f6" },
+  "2 Kings": { abbr: "2ki", color: "#3b82f6" },
+  "1 Chronicles": { abbr: "1ch", color: "#3b82f6" },
+  "2 Chronicles": { abbr: "2ch", color: "#3b82f6" },
+  "Ezra": { abbr: "Ezr", color: "#3b82f6" },
+  "Nehemiah": { abbr: "Neh", color: "#3b82f6" },
+  "Esther": { abbr: "Est", color: "#3b82f6" },
+  "Job": { abbr: "Job", color: "#10b981" },
+  "Psalms": { abbr: "Psa", color: "#10b981" },
+  "Proverbs": { abbr: "Pro", color: "#10b981" },
+  "Ecclesiastes": { abbr: "Ecc", color: "#10b981" },
+  "Song of Solomon": { abbr: "Son", color: "#10b981" },
+  "Isaiah": { abbr: "Isa", color: "#f59e0b" },
+  "Jeremiah": { abbr: "Jer", color: "#f59e0b" },
+  "Lamentations": { abbr: "Lam", color: "#f59e0b" },
+  "Ezekiel": { abbr: "Ezk", color: "#f59e0b" },
+  "Daniel": { abbr: "Dan", color: "#f59e0b" },
+  "Hosea": { abbr: "Hos", color: "#ef4444" },
+  "Joel": { abbr: "Jol", color: "#ef4444" },
+  "Amos": { abbr: "Amo", color: "#ef4444" },
+  "Obadiah": { abbr: "Oba", color: "#ef4444" },
+  "Jonah": { abbr: "Jon", color: "#ef4444" },
+  "Micah": { abbr: "Mic", color: "#ef4444" },
+  "Nahum": { abbr: "Nam", color: "#ef4444" },
+  "Habakkuk": { abbr: "Hab", color: "#ef4444" },
+  "Zephaniah": { abbr: "Zep", color: "#ef4444" },
+  "Haggai": { abbr: "Hag", color: "#ef4444" },
+  "Zechariah": { abbr: "Zec", color: "#ef4444" },
+  "Malachi": { abbr: "Mal", color: "#ef4444" },
+  "Matthew": { abbr: "Mat", color: "#06b6d4" },
+  "Mark": { abbr: "Mrk", color: "#06b6d4" },
+  "Luke": { abbr: "Luk", color: "#06b6d4" },
+  "John": { abbr: "Jhn", color: "#06b6d4" },
+  "Acts": { abbr: "Act", color: "#ec4899" },
+  "Romans": { abbr: "Rom", color: "#8b5cf6" },
+  "1 Corinthians": { abbr: "1co", color: "#8b5cf6" },
+  "2 Corinthians": { abbr: "2co", color: "#8b5cf6" },
+  "Galatians": { abbr: "Gal", color: "#8b5cf6" },
+  "Ephesians": { abbr: "Eph", color: "#8b5cf6" },
+  "Philippians": { abbr: "Php", color: "#8b5cf6" },
+  "Colossians": { abbr: "Col", color: "#8b5cf6" },
+  "1 Thessalonians": { abbr: "1th", color: "#8b5cf6" },
+  "2 Thessalonians": { abbr: "2th", color: "#8b5cf6" },
+  "1 Timothy": { abbr: "1ti", color: "#8b5cf6" },
+  "2 Timothy": { abbr: "2ti", color: "#8b5cf6" },
+  "Titus": { abbr: "Tit", color: "#8b5cf6" },
+  "Philemon": { abbr: "Phm", color: "#8b5cf6" },
+  "Hebrews": { abbr: "Heb", color: "#f97316" },
+  "James": { abbr: "Jas", color: "#f97316" },
+  "1 Peter": { abbr: "1pe", color: "#f97316" },
+  "2 Peter": { abbr: "2pe", color: "#f97316" },
+  "1 John": { abbr: "1jn", color: "#f97316" },
+  "2 John": { abbr: "2jn", color: "#f97316" },
+  "3 John": { abbr: "3jn", color: "#f97316" },
+  "Jude": { abbr: "Jud", color: "#f97316" },
+  "Revelation": { abbr: "Rev", color: "#be123c" }
+};
 
 // ── Type definitions for IPC data ────────────────────
 interface Bible {
@@ -27,11 +99,71 @@ interface Verse {
   text: string;
 }
 
+// ── Shared Drag Data Helper ──────────────────
+function getScriptureDragData(
+  verse: Verse,
+  verses: Verse[],
+  selectedVerseIds: number[],
+  selectedBookId: number | null,
+  selectedChapter: number,
+  books: BibleBook[],
+  bibles: Bible[],
+  selectedBibleId: number | null
+) {
+  const isSelected = selectedVerseIds.includes(verse.id);
+  const bookName = books.find(b => b.id === selectedBookId)?.name || '...';
+  const bible = bibles.find(b => b.id === selectedBibleId);
+  const version = bible?.abbreviation || bible?.name || '';
+
+  // If part of a selection, bundle the full reference label
+  let refBase = `${bookName} ${selectedChapter}:${verse.verse_number}`;
+  if (selectedVerseIds.length > 1 && isSelected) {
+    const sortedIds = [...selectedVerseIds].sort((a,b) => {
+       const vA = verses.find(v => v.id === a)?.verse_number || 0;
+       const vB = verses.find(v => v.id === b)?.verse_number || 0;
+       return vA - vB;
+    });
+    const startV = verses.find(v => v.id === sortedIds[0])?.verse_number;
+    const endV = verses.find(v => v.id === sortedIds[sortedIds.length-1])?.verse_number;
+    if (startV && endV) {
+      refBase = `${bookName} ${selectedChapter}:${startV}-${endV}`;
+    }
+  }
+
+  const title = version ? `${refBase} (${version})` : refBase;
+
+  // For multi-item splitting, we provide the individual data too
+  const verseItems = isSelected ? selectedVerseIds.map(vid => {
+    const v = verses.find(v => v.id === vid);
+    const vRef = `${bookName} ${selectedChapter}:${v?.verse_number}`;
+    return {
+      id: vid,
+      title: version ? `${vRef} (${version})` : vRef,
+      text: v?.text || ""
+    };
+  }) : [];
+
+  return {
+    title,
+    metadata: {
+      title,
+      bookId: selectedBookId,
+      chapter: selectedChapter,
+      verseIds: isSelected ? selectedVerseIds : [verse.id],
+      verseItems: verseItems.length > 0 ? verseItems : [{ 
+        id: verse.id, 
+        title: version ? `${bookName} ${selectedChapter}:${verse.verse_number} (${version})` : `${bookName} ${selectedChapter}:${verse.verse_number}`,
+        text: verse.text 
+      }]
+    }
+  };
+}
+
 // ── Sub-component: Draggable Verse Row ────────────────────
 function DraggableVerseRow({ 
   verse, 
   verses,
-  viewMode, 
+  verseLayout, 
   previewVerse, 
   selectedVerseIds,
   selectedBookId,
@@ -44,7 +176,7 @@ function DraggableVerseRow({
 }: { 
   verse: Verse; 
   verses: Verse[];
-  viewMode: 'grid' | 'list';
+  verseLayout: 'grid' | 'list';
   previewVerse: Verse | null;
   selectedVerseIds: number[];
   selectedBookId: number | null;
@@ -55,24 +187,12 @@ function DraggableVerseRow({
   onClick: (e: React.MouseEvent) => void; 
   onDoubleClick: () => void;
 }) {
-  const bookName = books.find(b => b.id === selectedBookId)?.name || '...';
-  const bible = bibles.find(b => b.id === selectedBibleId);
-  const version = bible?.abbreviation || bible?.name || '';
   const isSelected = selectedVerseIds.includes(verse.id);
   const isPreview = previewVerse?.id === verse.id;
 
-  // If part of a selection, bundle the full reference label
-  let refBase = `${bookName} ${selectedChapter}:${verse.verse_number}`;
-  if (selectedVerseIds.length > 1 && isSelected) {
-    const sortedIds = [...selectedVerseIds].sort((a,b) => a-b);
-    const startV = verses.find(v => v.id === sortedIds[0])?.verse_number;
-    const endV = verses.find(v => v.id === sortedIds[sortedIds.length-1])?.verse_number;
-    if (startV && endV) {
-      refBase = `${bookName} ${selectedChapter}:${startV}-${endV}`;
-    }
-  }
-
-  const referenceLabel = version ? `${refBase} (${version})` : refBase;
+  const dragData = getScriptureDragData(
+    verse, verses, selectedVerseIds, selectedBookId, selectedChapter, books, bibles, selectedBibleId
+  );
   
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `lib-verse-${verse.id}`,
@@ -81,13 +201,8 @@ function DraggableVerseRow({
       item: {
         id: verse.id,
         type: 'scripture',
-        title: referenceLabel,
-        metadata: {
-          title: referenceLabel,
-          bookId: selectedBookId,
-          chapter: selectedChapter,
-          verseIds: isSelected ? selectedVerseIds : [verse.id]
-        }
+        title: dragData.title,
+        metadata: dragData.metadata
       }
     }
   });
@@ -107,7 +222,7 @@ function DraggableVerseRow({
       onClick={(e) => onClick(e)}
       onDoubleClick={onDoubleClick}
       className={`group flex transition-all text-left items-start ${
-        viewMode === 'grid'
+        verseLayout === 'grid'
           ? `gap-3 p-3.5 rounded-xl border ${
               isSelected || isPreview
                 ? 'bg-accent/10 border-accent' 
@@ -125,9 +240,82 @@ function DraggableVerseRow({
       </span>
       <p className={`text-xs leading-relaxed transition-colors ${
         isSelected || isPreview ? 'text-text-hi font-medium' : 'text-text-lo'
-      } ${viewMode === 'grid' ? 'line-clamp-4' : ''}`}>
+      } ${verseLayout === 'grid' ? 'line-clamp-4' : ''}`}>
          {verse.text}
       </p>
+    </button>
+  );
+}
+
+// ── Sub-component: Draggable Verse Number (Grid) ────────────────────
+function DraggableVerseNumber({
+  verse,
+  verses,
+  selectedVerseIds,
+  previewVerse,
+  selectedBookId,
+  selectedChapter,
+  books,
+  bibles,
+  selectedBibleId,
+  onMouseDown,
+  onDoubleClick
+}: {
+  verse: Verse;
+  verses: Verse[];
+  selectedVerseIds: number[];
+  previewVerse: Verse | null;
+  selectedBookId: number | null;
+  selectedChapter: number;
+  books: BibleBook[];
+  bibles: Bible[];
+  selectedBibleId: number | null;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onDoubleClick: () => void;
+}) {
+  const isSelected = selectedVerseIds.includes(verse.id);
+  const isPreview = previewVerse?.id === verse.id;
+
+  const dragData = getScriptureDragData(
+    verse, verses, selectedVerseIds, selectedBookId, selectedChapter, books, bibles, selectedBibleId
+  );
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `grid-verse-${verse.id}`,
+    data: {
+      type: 'library',
+      item: {
+        id: verse.id,
+        type: 'scripture',
+        title: dragData.title,
+        metadata: dragData.metadata
+      }
+    }
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    zIndex: 999,
+  } : undefined;
+
+  return (
+    <button
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      onMouseDown={onMouseDown}
+      onDoubleClick={onDoubleClick}
+      className={`
+        w-8 h-8 flex items-center justify-center rounded-full text-[10px] font-bold transition-all
+        ${isSelected || isPreview
+          ? 'bg-accent text-white shadow-lg scale-110 z-10 border border-white/20' 
+          : 'text-text-ghost/40 bg-white/2 hover:bg-white/10 hover:text-text-lo'
+        }
+        ${isDragging ? "opacity-40 cursor-grabbing" : "cursor-grab"}
+      `}
+    >
+      {verse.verse_number}
     </button>
   );
 }
@@ -147,7 +335,8 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
   const [selectedVerseIds, setSelectedVerseIds] = useState<number[]>([]);
   const [pivotVerseId, setPivotVerseId] = useState<number | null>(null);
   const [isImporting, setIsImporting] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [layoutMode, setLayoutMode] = useState<'grid' | 'list'>('grid'); // Tab-level layout mode
+  const [verseLayout, setVerseLayout] = useState<'grid' | 'list'>('grid'); // Result cards layout
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -214,8 +403,10 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
         setSelectedBookId(list[0].id);
         setSelectedChapter(1);
       }
+      return list;
     } catch (err) {
       console.error("[ScriptureView] loadBooks failed:", err);
+      return [];
     }
   };
 
@@ -268,8 +459,10 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
       if (verseEntry) {
          parseAndSelectVerses(verseEntry, list || []);
       }
+      return list;
     } catch (err) {
       console.error("[ScriptureView] loadVerses failed:", err);
+      return [];
     }
   };
 
@@ -354,8 +547,14 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
     } 
     // C. SINGLE SELECT (Normal Click)
     else {
-       setSelectedVerseIds([verse.id]);
-       setPivotVerseId(verse.id);
+       // Only reset selection if the clicked verse is NOT already in the selection.
+       // This is CRITICAL for drag-and-drop: standard OS behavior is to preserve
+       // selection on MouseDown if it's already part of a multi-selection, 
+       // allowing a drag to proceed with the full bundle.
+       if (!selectedVerseIds.includes(verse.id)) {
+          setSelectedVerseIds([verse.id]);
+          setPivotVerseId(verse.id);
+       }
     }
 
     // If a scripture is already live, single click updates the live output
@@ -485,80 +684,205 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
     b.name.toLowerCase().includes(externalSearchQuery.toLowerCase())
   );
 
+  function renderGridNavigator() {
+    return (
+      <div className="flex flex-col flex-1 min-h-0 bg-bg-surface/30 border-b border-border-dim/50 animate-in slide-in-from-top-4 duration-500 overflow-hidden">
+        {/* TOP: Books Grid (Scrollable) */}
+        <div className="p-2 bg-bg-base/40 border-b border-border-dim flex flex-wrap gap-1 shrink-0 max-h-[160px] overflow-y-auto custom-scrollbar">
+          {books.map(book => {
+            const meta = BIBLE_BOOKS_MAP[book.name] || { abbr: book.name.slice(0,3), color: "#666" };
+            const isSelected = selectedBookId === book.id;
+            return (
+              <button
+                key={book.id}
+                onClick={() => {
+                  setSelectedBookId(book.id);
+                  setSelectedChapter(1);
+                  setPreviewVerse(null);
+                }}
+                className={`
+                  px-2 py-1.5 rounded text-[9px] font-black uppercase tracking-tighter transition-all flex-1 min-w-[34px] text-center
+                  border-b-2
+                  ${isSelected 
+                    ? 'bg-accent text-white border-white/40 shadow-lg scale-105 z-10 font-black' 
+                    : 'bg-bg-base/60 text-text-lo hover:bg-bg-hover'
+                  }
+                `}
+                style={{ borderBottomColor: isSelected ? 'rgba(255,255,255,0.4)' : meta.color }}
+              >
+                {meta.abbr}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* BOTTOM: Side-by-Side Drills (Chapters & Verses) */}
+        {selectedBookId ? (
+          <div className="flex flex-1 min-h-0 bg-black/20 divide-x divide-white/5">
+            {/* Chapters Column (40%) - Deeper background */}
+            <div className="w-[40%] flex flex-col min-h-0 shrink-0 bg-bg-base/20">
+               <div className="px-3 py-1.5 text-[8px] font-black text-accent uppercase tracking-[0.2em] bg-accent/5 border-b border-accent/10">Chapters</div>
+               <div className="flex-1 overflow-y-auto p-2 flex flex-wrap gap-1.5 content-start custom-scrollbar">
+                  {Array.from({ length: chapterCount || 0 }, (_, i) => {
+                    const ch = i + 1;
+                    const isSelected = selectedChapter === ch;
+                    return (
+                      <button
+                        key={ch}
+                        onClick={() => {
+                          setSelectedChapter(ch);
+                          setPreviewVerse(null);
+                        }}
+                        className={`
+                          w-8 h-8 flex items-center justify-center rounded-lg text-[10px] font-bold transition-all
+                          ${isSelected 
+                            ? 'bg-accent text-white shadow-[0_0_12px_rgba(var(--accent-rgb),0.3)] scale-110 z-10' 
+                            : 'text-text-ghost/60 bg-white/5 hover:bg-white/10 hover:text-text-lo'
+                          }
+                        `}
+                      >
+                        {ch}
+                      </button>
+                    );
+                  })}
+               </div>
+            </div>
+
+            {/* Verses Column (60%) - Lighter, glassier background */}
+            <div className="w-[60%] flex flex-col min-h-0 bg-bg-surface/5 backdrop-blur-md">
+               <div className="px-3 py-1.5 text-[8px] font-black text-text-ghost uppercase tracking-[0.2em] bg-white/5 border-b border-white/5">Verses</div>
+               <div className="flex-1 overflow-y-auto p-2 flex flex-wrap gap-1.5 content-start custom-scrollbar">
+                  {verses.map((verse) => (
+                    <DraggableVerseNumber
+                      key={verse.id}
+                      verse={verse}
+                      verses={verses}
+                      selectedVerseIds={selectedVerseIds}
+                      previewVerse={previewVerse}
+                      selectedBookId={selectedBookId}
+                      selectedChapter={selectedChapter}
+                      books={books}
+                      bibles={bibles}
+                      selectedBibleId={selectedBibleId}
+                      onMouseDown={(e) => handleVerseClick(verse, e)}
+                      onDoubleClick={() => handleVerseLive(verse)}
+                    />
+                  ))}
+                  {verses.length === 0 && !isLoading && (
+                    <div className="w-full h-full flex items-center justify-center text-[10px] text-text-ghost italic opacity-40">
+                      Select a chapter to see verses
+                    </div>
+                  )}
+               </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-[10px] text-text-ghost uppercase tracking-[0.2em] opacity-40 italic">
+            Select a book to begin
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-1 min-h-0 overflow-hidden bg-bg-base/20">
       
-      {/* 1. Books Sidebar */}
-      <aside className="w-48 border-r border-border-dim bg-bg-base/40 flex flex-col shrink-0">
-        <div className="p-3 text-[10px] font-bold text-text-ghost uppercase tracking-widest border-b border-border-dim/50 bg-bg-base/30">
-          Library / Books
-        </div>
-        <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
-          {filteredBooks.map(book => (
-            <button 
-              key={book.id} 
-              id={`book-${book.id}`}
-              onClick={() => {
-                setSelectedBookId(book.id);
-                setSelectedChapter(1);
-                setPreviewVerse(null);
-              }}
-              className={`w-full text-left px-4 py-2 text-xs transition-all truncate border-l-2 ${
-                selectedBookId === book.id 
-                  ? 'text-accent font-bold bg-accent/10 border-accent' 
-                  : 'text-text-lo hover:bg-white/5 border-transparent'
-              }`}
-            >
-              {book.name}
-            </button>
-          ))}
-        </div>
-      </aside>
+      {/* 1. Books Sidebar (Only in List Mode) */}
+      {layoutMode === 'list' && (
+        <aside className="w-48 border-r border-border-dim bg-bg-base/40 flex flex-col shrink-0 animate-in slide-in-from-left duration-500">
+          <div className="p-3 text-[10px] font-bold text-text-ghost uppercase tracking-widest border-b border-border-dim/50 bg-bg-base/30">
+            Library / Books
+          </div>
+          <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
+            {filteredBooks.map(book => (
+              <button 
+                key={book.id} 
+                id={`book-${book.id}`}
+                onClick={() => {
+                  setSelectedBookId(book.id);
+                  setSelectedChapter(1);
+                  setPreviewVerse(null);
+                }}
+                className={`w-full text-left px-4 py-2 text-xs transition-all truncate border-l-2 ${
+                  selectedBookId === book.id 
+                    ? 'text-accent font-bold bg-accent/10 border-accent' 
+                    : 'text-text-lo hover:bg-white/5 border-transparent'
+                }`}
+              >
+                {book.name}
+              </button>
+            ))}
+          </div>
+        </aside>
+      )}
 
-      {/* 2. Chapters Selection */}
-      <aside className="w-20 border-r border-border-dim bg-bg-base/20 flex flex-col shrink-0">
-        <div className="p-3 text-[10px] font-bold text-text-ghost uppercase tracking-widest border-b border-border-dim/50 text-center bg-bg-base/30">
-          Ch
-        </div>
-        <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
-          {Array.from({ length: chapterCount || 0 }, (_, i) => (
-            <button 
-              key={i} 
-              id={`chapter-${i + 1}`}
-              onClick={() => {
-                setSelectedChapter(i + 1);
-                setPreviewVerse(null);
-              }}
-              className={`w-full text-center py-2.5 text-xs transition-all ${selectedChapter === i + 1 ? 'text-accent font-bold bg-accent/10' : 'text-text-lo hover:bg-bg-hover'}`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      </aside>
+      {/* 2. Chapters Selection (Only in List Mode) */}
+      {layoutMode === 'list' && (
+        <aside className="w-20 border-r border-border-dim bg-bg-base/20 flex flex-col shrink-0 animate-in slide-in-from-left duration-300">
+          <div className="p-3 text-[10px] font-bold text-text-ghost uppercase tracking-widest border-b border-border-dim/50 text-center bg-bg-base/30">
+            Ch
+          </div>
+          <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
+            {Array.from({ length: chapterCount || 0 }, (_, i) => (
+              <button 
+                key={i} 
+                id={`chapter-${i + 1}`}
+                onClick={() => {
+                  setSelectedChapter(i + 1);
+                  setPreviewVerse(null);
+                }}
+                className={`w-full text-center py-2.5 text-xs transition-all ${selectedChapter === i + 1 ? 'text-accent font-bold bg-accent/10' : 'text-text-lo hover:bg-bg-hover'}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </aside>
+      )}
 
       {/* 3. Main Workspace (Verses) */}
       <div className="flex-1 flex flex-col min-w-0 bg-bg-base/10 relative">
         
         {/* Fast Entry Header */}
-        <div className="p-3 bg-bg-surface/60 border-b border-border-dim flex flex-col gap-3 backdrop-blur-md">
+        <div className="p-3 bg-bg-surface/60 border-b border-border-dim flex flex-col gap-3 backdrop-blur-md relative z-30">
            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
+                 {/* Navigation Layout Toggle (Grid vs List) */}
                  <div className="flex bg-bg-base/50 rounded-lg p-0.5 border border-border-dim shadow-inner">
                      <button 
-                      onClick={() => setViewMode('grid')}
-                      className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-accent text-white shadow-lg' : 'text-text-ghost hover:text-text-lo'}`}
+                      onClick={() => setLayoutMode('grid')}
+                      className={`p-1.5 rounded-md transition-all ${layoutMode === 'grid' ? 'bg-accent text-white shadow-lg' : 'text-text-ghost hover:text-text-lo'}`}
+                      title="Grid Navigator"
                     >
                        <LayoutGrid size={14} strokeWidth={2.5} />
                     </button>
                      <button 
-                      onClick={() => setViewMode('list')}
-                      className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-accent text-white shadow-lg' : 'text-text-ghost hover:text-text-lo'}`}
+                      onClick={() => setLayoutMode('list')}
+                      className={`p-1.5 rounded-md transition-all ${layoutMode === 'list' ? 'bg-accent text-white shadow-lg' : 'text-text-ghost hover:text-text-lo'}`}
+                      title="List Navigator"
                     >
                        <List size={14} strokeWidth={2.5} />
                     </button>
                  </div>
-                 <span className="text-xs font-bold text-text-hi ml-2">
+                 
+                 {/* Verse Card Layout Toggle */}
+                 <div className="flex bg-bg-base/20 rounded-lg p-0.5 border border-border-dim/30 ml-2">
+                     <button 
+                      onClick={() => setVerseLayout('grid')}
+                      className={`p-1 rounded-md transition-all ${verseLayout === 'grid' ? 'bg-white/10 text-accent' : 'text-text-ghost/40 hover:text-text-ghost'}`}
+                    >
+                       <Maximize2 size={12} strokeWidth={2.5} />
+                    </button>
+                     <button 
+                      onClick={() => setVerseLayout('list')}
+                      className={`p-1 rounded-md transition-all ${verseLayout === 'list' ? 'bg-white/10 text-accent' : 'text-text-ghost/40 hover:text-text-ghost'}`}
+                    >
+                       <List size={12} strokeWidth={2.5} />
+                    </button>
+                 </div>
+
+                 <span className="text-xs font-black text-text-hi ml-2 uppercase tracking-widest">
                     {books.find(b => b.id === selectedBookId)?.name || '...'} {selectedChapter}
                  </span>
               </div>
@@ -642,55 +966,58 @@ export default function ScriptureView({ searchQuery: externalSearchQuery }: { se
                  />
                  <div className="absolute right-2 top-2 text-[7px] font-black text-white bg-accent px-1 py-0.5 rounded border border-accent/20 shadow-sm leading-none">REF</div>
               </div>
-           </div>
+            </div>
         </div>
-        
-        {/* Verses Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar relative">
-          {isLoading ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-bg-base/40 backdrop-blur-sm z-50">
-               <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
-               <div className="text-[10px] font-bold text-text-ghost uppercase tracking-widest animate-pulse">Connecting to Bibles...</div>
-            </div>
-          ) : error ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-bg-base/40 p-12 text-center">
-               <div className="text-accent bg-accent/10 p-4 rounded-full mb-2">
-                 <Search size={32} />
-               </div>
-               <h3 className="text-sm font-bold text-text-hi">{error}</h3>
-               <p className="text-xs text-text-ghost">Please check if your Bible database is correctly initialized or try restarting the app.</p>
-               <button 
-                onClick={loadBibles}
-                className="mt-4 px-6 py-2 bg-accent/20 hover:bg-accent/40 text-accent rounded-lg text-[10px] font-bold uppercase transition-all"
-               >
-                 Retry Connection
-               </button>
-            </div>
-          ) : (
-            <div className={viewMode === 'grid' 
-              ? "grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3" 
-              : "flex flex-col gap-1"
-            }>
-              {verses.map((verse) => (
-                <DraggableVerseRow
-                  key={verse.id}
-                  verse={verse}
-                  verses={verses}
-                  viewMode={viewMode}
-                  previewVerse={previewVerse}
-                  selectedVerseIds={selectedVerseIds}
-                  selectedBookId={selectedBookId}
-                  selectedChapter={selectedChapter}
-                  books={books}
-                  bibles={bibles}
-                  selectedBibleId={selectedBibleId}
-                  onClick={(e) => handleVerseClick(verse, e)}
-                  onDoubleClick={() => handleVerseLive(verse)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Main Content Area: Conditional based on Layout Mode */}
+        {layoutMode === 'grid' ? (
+           renderGridNavigator()
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar relative">
+            {isLoading ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-bg-base/40 backdrop-blur-sm z-50">
+                 <div className="w-10 h-10 border-4 border-accent/20 border-t-accent rounded-full animate-spin" />
+                 <div className="text-[10px] font-bold text-text-ghost uppercase tracking-widest animate-pulse">Connecting to Bibles...</div>
+              </div>
+            ) : error ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-bg-base/40 p-12 text-center">
+                 <div className="text-accent bg-accent/10 p-4 rounded-full mb-2">
+                   <Search size={32} />
+                 </div>
+                 <h3 className="text-sm font-bold text-text-hi">{error}</h3>
+                 <p className="text-xs text-text-ghost">Please check if your Bible database is correctly initialized or try restarting the app.</p>
+                 <button 
+                  onClick={loadBibles}
+                  className="mt-4 px-6 py-2 bg-accent/20 hover:bg-accent/40 text-accent rounded-lg text-[10px] font-bold uppercase transition-all"
+                 >
+                   Retry Connection
+                 </button>
+              </div>
+            ) : (
+              <div className={verseLayout === 'grid' 
+                ? "grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-3" 
+                : "flex flex-col gap-1"
+              }>
+                {verses.map((verse) => (
+                  <DraggableVerseRow
+                    key={verse.id}
+                    verse={verse}
+                    verses={verses}
+                    verseLayout={verseLayout}
+                    previewVerse={previewVerse}
+                    selectedVerseIds={selectedVerseIds}
+                    selectedBookId={selectedBookId}
+                    selectedChapter={selectedChapter}
+                    books={books}
+                    bibles={bibles}
+                    selectedBibleId={selectedBibleId}
+                    onClick={(e) => handleVerseClick(verse, e)}
+                    onDoubleClick={() => handleVerseLive(verse)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer info for Scripture */}
         <div className="px-4 py-2 flex items-center justify-between bg-bg-base/30 text-[10px] text-text-ghost border-t border-border-dim shrink-0">

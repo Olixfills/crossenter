@@ -10,6 +10,7 @@ import { useUIStore } from '../data/store'
 import { usePresentationStore } from '../data/presentationStore'
 import SavePlaylistModal from '../components/modals/SavePlaylistModal'
 import EditorLayout from '../components/editor/EditorLayout'
+import StageDashboard from '../components/stage/StageDashboard'
 import { 
   DndContext, 
   useDroppable, 
@@ -102,18 +103,21 @@ export default function ControlPanel() {
     // B. Handle ADDITION/INSERTION from Library to Playlist
     if (active.data.current?.type === 'library') {
       const overIndex = playlistItems.findIndex(i => i.id === over.id);
+      const libraryItem = active.data.current.item;
       
+      let updated = [...playlistItems];
+      const insertAt = overIndex !== -1 ? overIndex : playlistItems.length;
+
       const newItem: any = {
         id: Date.now(),
         playlist_id: activePlaylist.id,
-        type: active.data.current.item.type,
-        reference_id: active.data.current.item.id,
-        title: active.data.current.item.title,
-        metadata: active.data.current.item.metadata || {},
-        sort_order: overIndex !== -1 ? overIndex : playlistItems.length
+        type: libraryItem.type,
+        reference_id: libraryItem.id,
+        title: libraryItem.title,
+        metadata: libraryItem.metadata || {},
+        sort_order: insertAt
       };
 
-      let updated = [...playlistItems];
       if (overIndex !== -1) {
         updated.splice(overIndex, 0, newItem);
       } else if (over.id === 'playlist-container') {
@@ -168,6 +172,8 @@ export default function ControlPanel() {
         <div className="flex flex-1 min-h-0 overflow-hidden relative">
           {activeMode === 'Edit' ? (
             <EditorLayout />
+          ) : activeMode === 'Stage' ? (
+            <StageDashboard />
           ) : (
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
               <div className="flex flex-1 min-h-0 overflow-hidden">
@@ -193,7 +199,7 @@ export default function ControlPanel() {
             </div>
           )}
 
-          {activeMode !== 'Edit' && (
+          {activeMode !== 'Edit' && activeMode !== 'Stage' && (
             <>
               <ResizeHandle onResize={(d) => setRightPaneWidth(Math.max(180, rightPaneWidth - d))} />
               <RightPane />

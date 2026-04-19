@@ -28,22 +28,87 @@ protocol.registerSchemesAsPrivileged([
 // ─────────────────────────────────────────────────────────────────────────────
 
 let wss: WebSocketServer | null = null
+let stageState = {
+  message: null as string | null,
+  running: false,
+  remaining: 300,
+  duration: 300
+}
+let stageInterval: NodeJS.Timeout | null = null
+
+function broadcastToAll(data: any) {
+  const msg = JSON.stringify(data)
+  wss?.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(msg)
+    }
+  })
+}
 
 function startSyncEngine() {
   wss = new WebSocketServer({ port: 8080 })
   console.log('[Main] Sync Engine started on ws://localhost:8080')
 
   wss.on('connection', (socket) => {
+    // Send initial state
+    socket.send(JSON.stringify({ type: 'STAGE_UPDATE', payload: stageState }))
+
     socket.on('message', (data) => {
-      // Broadcast to all other clients
-      const message = data.toString()
-      wss?.clients.forEach((client) => {
-        if (client !== socket && client.readyState === WebSocket.OPEN) {
-          client.send(message)
+      const messageStr = data.toString()
+      let msg: any
+      try {
+        msg = JSON.parse(messageStr)
+      } catch (e) {
+        // Fallback for non-JSON or malformed
+        broadcastOthers(socket, messageStr)
+        return
+      }
+
+      // 1. Handle Stage Commands
+      if (msg.type === 'STAGE_COMMAND') {
+        const { command, payload } = msg
+        switch (command) {
+          case 'SET_MESSAGE':
+            stageState.message = payload
+            break
+          case 'TIMER_START':
+            stageState.running = true
+            if (!stageInterval) {
+              stageInterval = setInterval(() => {
+                if (stageState.running && stageState.remaining > 0) {
+                  stageState.remaining--
+                  broadcastToAll({ type: 'STAGE_TICK', payload: { remaining: stageState.remaining } })
+                } else if (stageState.remaining <= 0) {
+                  stageState.running = false
+                  broadcastToAll({ type: 'STAGE_UPDATE', payload: stageState })
+                }
+              }, 1000)
+            }
+            break
+          case 'TIMER_STOP':
+            stageState.running = false
+            break
+          case 'TIMER_RESET':
+            stageState.running = false
+            stageState.remaining = payload || 300
+            stageState.duration = payload || 300
+            break
         }
-      })
+        broadcastToAll({ type: 'STAGE_UPDATE', payload: stageState })
+      } else {
+        // 2. Default broadcast sync (SYNC_STATE, etc.)
+        broadcastOthers(socket, messageStr)
+      }
     })
     socket.on('error', console.error)
+  })
+}
+
+function broadcastOthers(socket: WebSocket, message: string) {
+  wss?.clients.forEach((client) => {
+    if (client !== socket && client.readyState === WebSocket.OPEN) {
+      client.send(message)
+    }
   })
 }
 
@@ -369,6 +434,11 @@ function registerHandlers() {
   // App Settings (Phase 7)
   ipcMain.handle('get-setting', async (_e, key) => dbOps.getSetting(key));
   ipcMain.handle('set-setting', async (_e, key, value) => dbOps.setSetting(key, value));
+
+  // Alert Templates (Phase 10)
+  ipcMain.handle('alert-templates:get-all', async () => dbOps.getAlertTemplates());
+  ipcMain.handle('alert-templates:save', async (_e, data) => dbOps.saveAlertTemplate(data));
+  ipcMain.handle('alert-templates:delete', async (_e, id) => dbOps.deleteAlertTemplate(id));
 }
 
 function getMediaType(filePath: string): string {
