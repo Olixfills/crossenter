@@ -92,6 +92,7 @@ interface PresentationState {
   timerColor: string
   timerFontSize: number
   timerFontFamily: string
+  timerTriggerKey: number;
 
   isSafetyEnabled: boolean;
   safetyUrl: string;
@@ -224,6 +225,7 @@ const connectWS = () => {
                timerColor: message.payload.timerColor,
                timerFontSize: message.payload.timerFontSize,
                timerFontFamily: message.payload.timerFontFamily,
+               timerTriggerKey: message.payload.timerTriggerKey,
                isSafetyEnabled: message.payload.isSafetyEnabled,
                safetyUrl: message.payload.safetyUrl,
 
@@ -308,6 +310,7 @@ const broadcastLiveEnriched = (state: PresentationState) => {
         timerColor: state.timerColor,
         timerFontSize: state.timerFontSize,
         timerFontFamily: state.timerFontFamily,
+        timerTriggerKey: state.timerTriggerKey,
         isSafetyEnabled: state.isSafetyEnabled,
         safetyUrl: state.safetyUrl,
         logoIsFullScreen: state.logoIsFullScreen,
@@ -373,6 +376,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   timerColor: '#ffffff',
   timerFontSize: 48,
   timerFontFamily: 'Inter',
+  timerTriggerKey: 0,
 
   isSafetyEnabled: false,
   safetyUrl: '',
@@ -683,6 +687,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
 
         isLogoEnabled, logoUrl, logoPosition, logoScale, logoOpacity, logoIsFullScreen,
         isTimerEnabled, timerMode, timerTarget, timerPosition, timerColor, timerFontSize, timerFontFamily,
+        timerTriggerKey: 0,
         isSafetyEnabled, safetyUrl,
         stageTimerFontFamily,
 

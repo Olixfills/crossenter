@@ -63,6 +63,7 @@ export default function MainOutput() {
     timerColor,
     timerFontSize,
     timerFontFamily,
+    timerTriggerKey,
     isSafetyEnabled,
     safetyUrl,
 
@@ -79,6 +80,7 @@ export default function MainOutput() {
 
   // 1. Load the template font dynamically
   useFontLoader(textStyles.fontFamily)
+  useFontLoader(timerFontFamily)
 
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 1000)
@@ -121,7 +123,7 @@ export default function MainOutput() {
     }, 250)
 
     return () => clearInterval(timer)
-  }, [isTimerEnabled, timerMode, timerTarget])
+  }, [isTimerEnabled, timerMode, timerTarget, timerTriggerKey])
 
   useEffect(() => {
     if (liveSlide?.id !== prevSlideRef.current) {

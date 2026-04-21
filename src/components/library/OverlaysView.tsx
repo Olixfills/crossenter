@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { usePresentationStore } from "../../data/presentationStore";
 import { resolveMediaUrl } from "../../utils/url";
+import { useFontLoader } from "../../hooks/useFontLoader";
 
 const PRESET_GRADIENTS = [
   "linear-gradient(to bottom, #1e1e24, #000000)",
@@ -77,6 +78,7 @@ export default function OverlaysView() {
   >("blank");
   const state = usePresentationStore();
   const { setBlankSetting, setOverlaySetting, toggleOverlay } = state;
+  useFontLoader(state.timerFontFamily || 'Inter');
 
   const handleImageSelect = async (settingKey: string) => {
     const paths = await window.crossenter.openMediaDialog();
@@ -310,7 +312,8 @@ export default function OverlaysView() {
                     className="font-black tracking-tighter"
                     style={{
                       color: state.timerColor,
-                      fontSize: `${state.timerFontSize / 2}px`,
+                      fontSize: `20px`,
+                      fontFamily: state.timerFontFamily || 'Inter'
                     }}
                   >
                     {state.timerMode === "clock" ? "10:45:00" : "00:04:32"}
@@ -689,14 +692,26 @@ export default function OverlaysView() {
             <h3 className="text-[9px] font-black text-text-ghost uppercase tracking-widest px-1">
               Configuration
             </h3>
-            <input
-              disabled={state.timerMode === "clock"}
-              type="text"
-              value={state.timerTarget}
-              onChange={(e) => setOverlaySetting("timerTarget", e.target.value)}
-              placeholder="00:10:00"
-              className="w-full bg-bg-base border border-border-dim rounded-lg px-3 py-1.5 text-xs font-mono text-accent focus:border-accent outline-none disabled:opacity-20"
-            />
+            <div className="flex items-center gap-2">
+              <input
+                disabled={state.timerMode === "clock"}
+                type="text"
+                value={state.timerTarget}
+                onChange={(e) => setOverlaySetting("timerTarget", e.target.value)}
+                placeholder="00:10:00"
+                className="w-full bg-bg-base border border-border-dim rounded-lg px-3 py-1.5 text-xs font-mono text-accent focus:border-accent outline-none disabled:opacity-20"
+              />
+              <button
+                onClick={() => {
+                  setOverlaySetting('isTimerEnabled', true);
+                  setOverlaySetting('timerTriggerKey', Date.now());
+                }}
+                disabled={state.timerMode === "clock"}
+                className="h-[30px] px-4 bg-accent/20 hover:bg-accent/40 text-accent font-black uppercase text-[10px] tracking-widest rounded-lg transition-colors border border-accent/30 flex items-center justify-center disabled:opacity-20"
+              >
+                Play
+              </button>
+            </div>
           </div>
         </section>
 
@@ -740,7 +755,7 @@ export default function OverlaysView() {
               <input
                 type="range"
                 min="12"
-                max="200"
+                max="400"
                 value={state.timerFontSize}
                 onChange={(e) =>
                   setOverlaySetting("timerFontSize", Number(e.target.value))
