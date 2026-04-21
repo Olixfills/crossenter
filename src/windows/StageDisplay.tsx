@@ -22,9 +22,13 @@ function formatTimer(seconds: number) {
   return `${mins}:${secs}`;
 }
 
-function resolveTemplateBg(bgType: string | null, bgValue: string | null): React.CSSProperties {
+function resolveTemplateBg(
+  bgType: string | null,
+  bgValue: string | null,
+): React.CSSProperties {
   if (!bgType || !bgValue) return {};
-  if (bgType === 'color' || bgType === 'gradient') return { background: bgValue };
+  if (bgType === "color" || bgType === "gradient")
+    return { background: bgValue };
   return {};
 }
 
@@ -49,27 +53,40 @@ export default function StageDisplay() {
     alertBgColor,
     alertTextColor,
     alertScrollSpeed,
+    stageTimerFontFamily,
   } = usePresentationStore();
 
   // Load the active font family to ensure branding consistency
   useFontLoader(textStyles?.fontFamily);
+  useFontLoader(stageTimerFontFamily);
 
   // --- WebSocket Media Sync Logic (Mirroring MainOutput) ---
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080');
+    const ws = new WebSocket("ws://localhost:8080");
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.type === 'MEDIA_COMMAND' && videoRef.current) {
+        if (msg.type === "MEDIA_COMMAND" && videoRef.current) {
           const video = videoRef.current;
           switch (msg.command) {
-            case 'PLAY': video.play(); break;
-            case 'PAUSE': video.pause(); break;
-            case 'SEEK': video.currentTime = msg.payload; break;
-            case 'STOP': video.pause(); video.currentTime = 0; break;
+            case "PLAY":
+              video.play();
+              break;
+            case "PAUSE":
+              video.pause();
+              break;
+            case "SEEK":
+              video.currentTime = msg.payload;
+              break;
+            case "STOP":
+              video.pause();
+              video.currentTime = 0;
+              break;
           }
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     };
     return () => ws.close();
   }, []);
@@ -78,39 +95,43 @@ export default function StageDisplay() {
   const next = liveNextSlide;
 
   const { templateBgType, templateBgValue } = textStyles;
-  const templateCssBg = resolveTemplateBg(templateBgType, templateBgValue ?? null);
+  const templateCssBg = resolveTemplateBg(
+    templateBgType,
+    templateBgValue ?? null,
+  );
   const shadowStr = `${textStyles.textShadowX}px ${textStyles.textShadowY}px ${textStyles.textShadowBlur}px ${textStyles.textShadowColor}`;
 
   return (
     <div
       className="w-full h-full bg-black text-white overflow-hidden flex flex-col px-10 py-6 select-none relative"
-      style={{ 
+      style={{
         fontFamily: textStyles?.fontFamily || "Inter, sans-serif",
-        ...templateCssBg 
+        ...templateCssBg,
       }}
     >
       {/* ── Background/Media Layer (z-0) ── */}
-      <div className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${isBlanked ? 'opacity-0' : 'opacity-100'} ${playbackMode === 'foreground' ? 'z-[5]' : 'z-0'}`}>
-        {activeMedia && (
-          activeMedia.type === 'video' ? (
-            <video 
+      <div
+        className={`absolute inset-0 pointer-events-none transition-opacity duration-700 ${isBlanked ? "opacity-0" : "opacity-100"} ${playbackMode === "foreground" ? "z-[5]" : "z-0"}`}
+      >
+        {activeMedia &&
+          (activeMedia.type === "video" ? (
+            <video
               ref={videoRef}
-              key={activeMedia.url} 
-              src={resolveMediaUrl(activeMedia.url)} 
-              autoPlay 
-              loop={mediaLoop} 
+              key={activeMedia.url}
+              src={resolveMediaUrl(activeMedia.url)}
+              autoPlay
+              loop={mediaLoop}
               muted={true} // Stage is always muted to avoid feedback
-              className={`w-full h-full object-cover animate-in fade-in duration-1000`} 
+              className={`w-full h-full object-cover animate-in fade-in duration-1000`}
             />
           ) : (
-            <img 
-              key={activeMedia.url} 
-              src={resolveMediaUrl(activeMedia.url)} 
-              className="w-full h-full object-cover animate-in fade-in duration-1000" 
-              alt="" 
+            <img
+              key={activeMedia.url}
+              src={resolveMediaUrl(activeMedia.url)}
+              className="w-full h-full object-cover animate-in fade-in duration-1000"
+              alt=""
             />
-          )
-        )}
+          ))}
       </div>
 
       {/* ── Visual Polish: Dark Vignette Layer (z-1) ── */}
@@ -122,7 +143,7 @@ export default function StageDisplay() {
           <span className="text-gray-400 text-[11px] uppercase font-black tracking-[0.3em] mb-1.5 opacity-80">
             Local Time
           </span>
-          <span className="text-5xl font-black text-green-500 tabular-nums leading-none tracking-tighter">
+          <span className="text-6xl font-black text-green-500 tabular-nums leading-none tracking-tighter" style={{ fontFamily: `"${stageTimerFontFamily || 'JetBrains Mono'}", monospace` }}>
             {clock.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -137,7 +158,8 @@ export default function StageDisplay() {
             Remaining
           </span>
           <span
-            className={`text-5xl font-black tabular-nums leading-none tracking-tighter ${stageTimerRemaining < 60 && stageTimerRemaining > 0 ? "animate-pulse text-red-500" : "text-red-600"}`}
+            className={`text-6xl font-black tabular-nums leading-none tracking-tighter ${stageTimerRemaining < 60 && stageTimerRemaining > 0 ? "animate-pulse text-red-500" : "text-red-600"}`}
+            style={{ fontFamily: `"${stageTimerFontFamily || 'JetBrains Mono'}", monospace` }}
           >
             {formatTimer(stageTimerRemaining)}
           </span>
@@ -160,7 +182,7 @@ export default function StageDisplay() {
                 fontWeight: textStyles?.fontWeight || "900",
                 textAlign: (textStyles?.textAlign as any) || "center",
                 textShadow: shadowStr,
-                padding: '2rem'
+                padding: "2rem",
               }}
             >
               {current.text || ""}
@@ -215,22 +237,25 @@ export default function StageDisplay() {
 
       {/* ── Alert Layer (Phase 10) ── */}
       {activeAlertText && (
-        <div 
+        <div
           className="absolute bottom-0 left-0 right-0 py-4 px-6 z-[75] overflow-hidden flex items-center shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-white/5 backdrop-blur-md"
           style={{ backgroundColor: alertBgColor }}
         >
-          <div 
+          <div
             className="whitespace-nowrap animate-marquee flex items-center gap-12"
             style={{ animationDuration: alertScrollSpeed }}
           >
-             <p className="text-2xl font-black uppercase tracking-[0.2em] flex items-center gap-8" style={{ color: alertTextColor }}>
-                <span>{activeAlertText}</span>
-                <span className="opacity-30">•</span>
-                <span>{activeAlertText}</span>
-                <span className="opacity-30">•</span>
-                <span>{activeAlertText}</span>
-                <span className="opacity-30">•</span>
-             </p>
+            <p
+              className="text-2xl font-black uppercase tracking-[0.2em] flex items-center gap-8"
+              style={{ color: alertTextColor }}
+            >
+              <span>{activeAlertText}</span>
+              <span className="opacity-30">•</span>
+              <span>{activeAlertText}</span>
+              <span className="opacity-30">•</span>
+              <span>{activeAlertText}</span>
+              <span className="opacity-30">•</span>
+            </p>
           </div>
         </div>
       )}
@@ -243,15 +268,23 @@ export default function StageDisplay() {
       )}
 
       {/* 5. Global Blank Overlay (Syncing with Main Output) */}
-      <div 
-        className={`absolute inset-0 z-[90] transition-opacity duration-700 bg-black ${isBlanked ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      <div
+        className={`absolute inset-0 z-[90] transition-opacity duration-700 bg-black ${isBlanked ? "opacity-100" : "opacity-0 pointer-events-none"}`}
         style={{
-          ...(globalBlankType === 'color' && { backgroundColor: globalBlankValue }),
-          ...(globalBlankType === 'gradient' && { backgroundImage: globalBlankValue })
+          ...(globalBlankType === "color" && {
+            backgroundColor: globalBlankValue,
+          }),
+          ...(globalBlankType === "gradient" && {
+            backgroundImage: globalBlankValue,
+          }),
         }}
       >
-        {globalBlankType === 'image' && isBlanked && (
-          <img src={resolveMediaUrl(globalBlankValue)} className="w-full h-full object-cover" alt="Blank" />
+        {globalBlankType === "image" && isBlanked && (
+          <img
+            src={resolveMediaUrl(globalBlankValue)}
+            className="w-full h-full object-cover"
+            alt="Blank"
+          />
         )}
       </div>
     </div>

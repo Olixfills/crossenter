@@ -91,6 +91,7 @@ interface PresentationState {
   timerPosition: string
   timerColor: string
   timerFontSize: number
+  timerFontFamily: string
 
   isSafetyEnabled: boolean;
   safetyUrl: string;
@@ -108,7 +109,7 @@ interface PresentationState {
   setLiveSlideId: (id: string | null) => void
   goLive: (slideId: string | null) => void
   goLiveExternal: (slide: Slide | null) => void
-  
+  goLiveInternal: (slide: Slide | null, slideId?: string | null) => void
   setBackgroundMedia: (media: Media | null, context: 'scripture' | 'show') => void
   setStyles: (styles: Partial<TextStyles>) => void
 
@@ -158,6 +159,7 @@ interface PresentationState {
   stageTimerRunning: boolean;
   stageTimerDuration: number;
   stageTimerRemaining: number;
+  stageTimerFontFamily: string;
 
   setStageMessage: (msg: string | null) => void;
   sendStageCommand: (command: 'TIMER_START' | 'TIMER_STOP' | 'TIMER_RESET', payload?: any) => void;
@@ -221,6 +223,7 @@ const connectWS = () => {
                timerPosition: message.payload.timerPosition,
                timerColor: message.payload.timerColor,
                timerFontSize: message.payload.timerFontSize,
+               timerFontFamily: message.payload.timerFontFamily,
                isSafetyEnabled: message.payload.isSafetyEnabled,
                safetyUrl: message.payload.safetyUrl,
 
@@ -251,6 +254,7 @@ const connectWS = () => {
             stageTimerRunning: message.payload.running,
             stageTimerRemaining: message.payload.remaining,
             stageTimerDuration: message.payload.duration,
+            stageTimerFontFamily: message.payload.stageTimerFontFamily || 'JetBrains Mono',
           })
         }
       } catch (e) {
@@ -303,6 +307,7 @@ const broadcastLiveEnriched = (state: PresentationState) => {
         timerPosition: state.timerPosition,
         timerColor: state.timerColor,
         timerFontSize: state.timerFontSize,
+        timerFontFamily: state.timerFontFamily,
         isSafetyEnabled: state.isSafetyEnabled,
         safetyUrl: state.safetyUrl,
         logoIsFullScreen: state.logoIsFullScreen,
@@ -312,6 +317,7 @@ const broadcastLiveEnriched = (state: PresentationState) => {
         alertBgColor: state.alertBgColor,
         alertTextColor: state.alertTextColor,
         alertScrollSpeed: state.alertScrollSpeed,
+        stageTimerFontFamily: state.stageTimerFontFamily,
       }
     }))
   }
@@ -358,6 +364,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   logoPosition: 'bottom-right',
   logoScale: 100,
   logoOpacity: 1,
+  logoIsFullScreen: false,
 
   isTimerEnabled: false,
   timerMode: 'clock',
@@ -365,6 +372,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
   timerPosition: 'top-right',
   timerColor: '#ffffff',
   timerFontSize: 48,
+  timerFontFamily: 'Inter',
 
   isSafetyEnabled: false,
   safetyUrl: '',
@@ -398,13 +406,12 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
 
   updateMediaState: (newState) => set(newState),
 
-  alertScrollSpeed: '15s',
-
   // Phase 12 Initialization
   stageMessage: null,
   stageTimerRunning: false,
   stageTimerDuration: 300,
   stageTimerRemaining: 300,
+  stageTimerFontFamily: 'JetBrains Mono',
 
   setStageMessage: (msg: string | null) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -654,6 +661,7 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
       const timerPosition = await window.crossenter.getSetting('timer_position') || 'top-right'
       const timerColor = await window.crossenter.getSetting('timer_color') || '#ffffff'
       const timerFontSize = Number(await window.crossenter.getSetting('timer_font_size') || '48')
+      const timerFontFamily = await window.crossenter.getSetting('timer_font_family') || 'Inter'
 
       const isSafetyEnabled = await window.crossenter.getSetting('is_safety_enabled') === 'true'
       const safetyUrl = await window.crossenter.getSetting('safety_url') || ''
@@ -663,6 +671,8 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
       const alertBgColor = await window.crossenter.getSetting('alert_bg_color') || 'rgba(200, 0, 0, 0.9)'
       const alertTextColor = await window.crossenter.getSetting('alert_text_color') || '#ffffff'
       const alertScrollSpeed = await window.crossenter.getSetting('alert_scroll_speed') || '30s'
+      
+      const stageTimerFontFamily = await window.crossenter.getSetting('stage_timer_font_family') || 'JetBrains Mono'
 
       set({
         templates: templates || [],
@@ -672,8 +682,9 @@ export const usePresentationStore = create<PresentationState>((set, get) => ({
         globalBlankValue: blankValue || '#000000',
 
         isLogoEnabled, logoUrl, logoPosition, logoScale, logoOpacity, logoIsFullScreen,
-        isTimerEnabled, timerMode, timerTarget, timerPosition, timerColor, timerFontSize,
+        isTimerEnabled, timerMode, timerTarget, timerPosition, timerColor, timerFontSize, timerFontFamily,
         isSafetyEnabled, safetyUrl,
+        stageTimerFontFamily,
 
         alertBgColor, alertTextColor, alertScrollSpeed
       })

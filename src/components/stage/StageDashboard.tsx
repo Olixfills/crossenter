@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { usePresentationStore } from '../../data/presentationStore'
 import StageDisplay from '../../windows/StageDisplay'
+import { useFontLoader } from '../../hooks/useFontLoader'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Stage Dashboard (Control Panel Component)
@@ -22,8 +23,12 @@ export default function StageDashboard() {
     setStageMessage,
     stageTimerRemaining,
     stageTimerRunning,
-    sendStageCommand
+    stageTimerFontFamily,
+    sendStageCommand,
+    setOverlaySetting
   } = usePresentationStore()
+
+  useFontLoader(stageTimerFontFamily || "JetBrains Mono");
 
   const [messageInput, setMessageInput] = useState('')
   const [timerMinutes, setTimerMinutes] = useState('5')
@@ -172,9 +177,29 @@ export default function StageDashboard() {
                  <span className="text-[10px] font-black text-text-ghost uppercase tracking-widest">Live Sync Status</span>
                  <span className="text-[9px] text-green-500/60 font-mono italic">Broadcasting heartbeat...</span>
               </div>
-              <span className={`text-4xl font-mono font-black tabular-nums transition-colors ${stageTimerRemaining < 60 && stageTimerRemaining > 0 ? 'text-red-500' : 'text-orange-400'}`}>
+              <span className={`text-4xl font-black tabular-nums transition-colors ${stageTimerRemaining < 60 && stageTimerRemaining > 0 ? 'text-red-500' : 'text-orange-400'}`} style={{ fontFamily: `"${stageTimerFontFamily || 'JetBrains Mono'}", monospace` }}>
                 {Math.floor(stageTimerRemaining / 60).toString().padStart(2, '0')}:{(stageTimerRemaining % 60).toString().padStart(2, '0')}
               </span>
+            </div>
+            
+            {/* Stage Font Config */}
+            <div className="flex items-center justify-between p-4 bg-bg-base/30 rounded-2xl border border-white/5">
+                <span className="text-[10px] font-black text-text-ghost uppercase tracking-widest leading-tight">
+                  Display<br/>Typography
+                </span>
+                <select 
+                  value={stageTimerFontFamily}
+                  onChange={(e) => setOverlaySetting("stageTimerFontFamily", e.target.value)}
+                  className="bg-black/50 border border-border-dim rounded-lg px-4 py-2 text-xs font-bold text-text-hi outline-none focus:border-orange-500/50 w-48"
+                >
+                  <option value="JetBrains Mono">JetBrains (Code)</option>
+                  <option value="Inter">Inter (Clean)</option>
+                  <option value="Outfit">Outfit (Modern)</option>
+                  <option value="Space Grotesk">Space Grotesk (Tech)</option>
+                  <option value="Roboto Mono">Roboto Mono (Classic)</option>
+                  <option value="Oswald">Oswald (Cinematic)</option>
+                  <option value="Bebas Neue">Bebas Neue (Bold)</option>
+                </select>
             </div>
           </div>
 

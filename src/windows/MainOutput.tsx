@@ -62,6 +62,7 @@ export default function MainOutput() {
     timerPosition,
     timerColor,
     timerFontSize,
+    timerFontFamily,
     isSafetyEnabled,
     safetyUrl,
 
@@ -84,21 +85,43 @@ export default function MainOutput() {
     return () => clearInterval(t)
   }, [])
 
-  // Timer Countdown Logic
-  const [countdown, setCountdown] = useState("00:00:00")
+  const [countdownStr, setCountdownStr] = useState("00:00:00")
+  
+  // Independent Quick Timer (Overlay) Countdown Logic
   useEffect(() => {
-    if (timerMode !== 'countdown' || !timerTarget) return
+    if (!isTimerEnabled || timerMode !== 'countdown') return;
+
+    // Parse DD:HH:MM or HH:MM or MM string
+    const parts = (timerTarget || "00:00:00").split(':').map(Number)
+    let totalSecs = 0
+    if (parts.length === 3) totalSecs = parts[0]*3600 + parts[1]*60 + (parts[2] || 0)
+    else if (parts.length === 2) totalSecs = parts[0]*60 + (parts[1] || 0)
+    else if (parts.length === 1) totalSecs = parts[0]*60;
+
+    if (isNaN(totalSecs) || totalSecs <= 0) {
+      setCountdownStr(timerTarget || "00:00")
+      return
+    }
+
+    const targetEndTime = Date.now() + (totalSecs * 1000)
+
     const timer = setInterval(() => {
-      const [h, m, s] = timerTarget.split(':').map(Number)
-      const targetSecs = (h || 0) * 3600 + (m || 0) * 60 + (s || 0)
-      
-      // For now, let's just show the static target if we're not running a global sync clock
-      // Real countdown synchronization would need a "StartTime" in the store.
-      // But for Phase 10, let's keep it simple: just show the target or clock.
-      setCountdown(timerTarget)
-    }, 1000)
+       let rem = Math.max(0, Math.floor((targetEndTime - Date.now()) / 1000))
+       const h = Math.floor(rem / 3600)
+       const m = Math.floor((rem % 3600) / 60)
+       const s = rem % 60
+
+       if (h > 0) {
+         setCountdownStr(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`)
+       } else {
+         setCountdownStr(`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`)
+       }
+
+       if (rem === 0) clearInterval(timer)
+    }, 250)
+
     return () => clearInterval(timer)
-  }, [timerTarget, timerMode])
+  }, [isTimerEnabled, timerMode, timerTarget])
 
   useEffect(() => {
     if (liveSlide?.id !== prevSlideRef.current) {
@@ -329,10 +352,10 @@ export default function MainOutput() {
       {/* ── Quick Timer Layer (Phase 10) ── */}
       {isTimerEnabled && (
         <div className={`absolute z-[105] p-6 flex flex-col pointer-events-none transition-all duration-700 ${resolvePosition(timerPosition)}`}>
-           <p className="font-black tracking-tighter shadow-black animate-in zoom-in-95 duration-500" style={{ color: timerColor, fontSize: `${timerFontSize}px` }}>
+           <p className="font-black tracking-tighter drop-shadow-2xl animate-in zoom-in-95 duration-500 tabular-nums" style={{ color: timerColor, fontSize: `${timerFontSize}px`, fontFamily: timerFontFamily || textStyles.fontFamily }}>
               {timerMode === 'clock' 
                 ? clock.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) 
-                : countdown}
+                : countdownStr}
            </p>
         </div>
       )}

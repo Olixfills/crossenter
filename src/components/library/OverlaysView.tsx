@@ -748,6 +748,26 @@ export default function OverlaysView() {
                 className="w-full accent-accent h-1.5"
               />
             </div>
+            
+            {/* Font Family config */}
+            <div className="space-y-1.5 col-span-2">
+               <label className="text-[8px] font-bold text-text-ghost uppercase tracking-widest">
+                  Typography Profile
+               </label>
+               <select 
+                  value={state.timerFontFamily || 'Inter'}
+                  onChange={(e) => setOverlaySetting("timerFontFamily", e.target.value)}
+                  className="w-full bg-bg-base border border-border-dim rounded-lg px-3 py-2 text-xs font-bold text-text-hi outline-none focus:border-accent"
+               >
+                  <option value="Inter">Inter (Clean)</option>
+                  <option value="Outfit">Outfit (Modern)</option>
+                  <option value="JetBrains Mono">JetBrains (Code)</option>
+                  <option value="Space Grotesk">Space Grotesk (Tech)</option>
+                  <option value="Playfair Display">Playfair (Elegant)</option>
+                  <option value="Oswald">Oswald (Cinematic)</option>
+                  <option value="Bebas Neue">Bebas Neue (Bold)</option>
+               </select>
+            </div>
           </div>
         </section>
 

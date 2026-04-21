@@ -2507,7 +2507,7 @@ const kAborted = Symbol("kAborted");
 const protocolVersions = [8, 13];
 const readyStates = ["CONNECTING", "OPEN", "CLOSING", "CLOSED"];
 const subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
-let WebSocket$2 = class WebSocket extends EventEmitter$2 {
+let WebSocket$1 = class WebSocket extends EventEmitter$2 {
   /**
    * Create a new `WebSocket`.
    *
@@ -2877,35 +2877,35 @@ let WebSocket$2 = class WebSocket extends EventEmitter$2 {
     }
   }
 };
-Object.defineProperty(WebSocket$2, "CONNECTING", {
+Object.defineProperty(WebSocket$1, "CONNECTING", {
   enumerable: true,
   value: readyStates.indexOf("CONNECTING")
 });
-Object.defineProperty(WebSocket$2.prototype, "CONNECTING", {
+Object.defineProperty(WebSocket$1.prototype, "CONNECTING", {
   enumerable: true,
   value: readyStates.indexOf("CONNECTING")
 });
-Object.defineProperty(WebSocket$2, "OPEN", {
+Object.defineProperty(WebSocket$1, "OPEN", {
   enumerable: true,
   value: readyStates.indexOf("OPEN")
 });
-Object.defineProperty(WebSocket$2.prototype, "OPEN", {
+Object.defineProperty(WebSocket$1.prototype, "OPEN", {
   enumerable: true,
   value: readyStates.indexOf("OPEN")
 });
-Object.defineProperty(WebSocket$2, "CLOSING", {
+Object.defineProperty(WebSocket$1, "CLOSING", {
   enumerable: true,
   value: readyStates.indexOf("CLOSING")
 });
-Object.defineProperty(WebSocket$2.prototype, "CLOSING", {
+Object.defineProperty(WebSocket$1.prototype, "CLOSING", {
   enumerable: true,
   value: readyStates.indexOf("CLOSING")
 });
-Object.defineProperty(WebSocket$2, "CLOSED", {
+Object.defineProperty(WebSocket$1, "CLOSED", {
   enumerable: true,
   value: readyStates.indexOf("CLOSED")
 });
-Object.defineProperty(WebSocket$2.prototype, "CLOSED", {
+Object.defineProperty(WebSocket$1.prototype, "CLOSED", {
   enumerable: true,
   value: readyStates.indexOf("CLOSED")
 });
@@ -2918,10 +2918,10 @@ Object.defineProperty(WebSocket$2.prototype, "CLOSED", {
   "readyState",
   "url"
 ].forEach((property) => {
-  Object.defineProperty(WebSocket$2.prototype, property, { enumerable: true });
+  Object.defineProperty(WebSocket$1.prototype, property, { enumerable: true });
 });
 ["open", "error", "close", "message"].forEach((method) => {
-  Object.defineProperty(WebSocket$2.prototype, `on${method}`, {
+  Object.defineProperty(WebSocket$1.prototype, `on${method}`, {
     enumerable: true,
     get() {
       for (const listener of this.listeners(method)) {
@@ -2943,9 +2943,9 @@ Object.defineProperty(WebSocket$2.prototype, "CLOSED", {
     }
   });
 });
-WebSocket$2.prototype.addEventListener = addEventListener;
-WebSocket$2.prototype.removeEventListener = removeEventListener;
-var websocket$1 = WebSocket$2;
+WebSocket$1.prototype.addEventListener = addEventListener;
+WebSocket$1.prototype.removeEventListener = removeEventListener;
+var websocket$1 = WebSocket$1;
 function initAsClient(websocket2, address, protocols, options) {
   const opts = {
     allowSynchronousEvents: true,
@@ -3133,7 +3133,7 @@ function initAsClient(websocket2, address, protocols, options) {
   });
   req.on("upgrade", (res, socket, head) => {
     websocket2.emit("upgrade", res);
-    if (websocket2.readyState !== WebSocket$2.CONNECTING) return;
+    if (websocket2.readyState !== WebSocket$1.CONNECTING) return;
     req = websocket2._req = null;
     const upgrade2 = res.headers.upgrade;
     if (upgrade2 === void 0 || upgrade2.toLowerCase() !== "websocket") {
@@ -3205,7 +3205,7 @@ function initAsClient(websocket2, address, protocols, options) {
   }
 }
 function emitErrorAndClose(websocket2, err) {
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   websocket2._errorEmitted = true;
   websocket2.emit("error", err);
   websocket2.emitClose();
@@ -3222,7 +3222,7 @@ function tlsConnect(options) {
   return tls$1.connect(options);
 }
 function abortHandshake$1(websocket2, stream2, message) {
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   const err = new Error(message);
   Error.captureStackTrace(err, abortHandshake$1);
   if (stream2.setHeader) {
@@ -3297,9 +3297,9 @@ function resume$1(stream2) {
 }
 function senderOnError(err) {
   const websocket2 = this[kWebSocket$1];
-  if (websocket2.readyState === WebSocket$2.CLOSED) return;
-  if (websocket2.readyState === WebSocket$2.OPEN) {
-    websocket2._readyState = WebSocket$2.CLOSING;
+  if (websocket2.readyState === WebSocket$1.CLOSED) return;
+  if (websocket2.readyState === WebSocket$1.OPEN) {
+    websocket2._readyState = WebSocket$1.CLOSING;
     setCloseTimer(websocket2);
   }
   this._socket.end();
@@ -3319,7 +3319,7 @@ function socketOnClose() {
   this.removeListener("close", socketOnClose);
   this.removeListener("data", socketOnData);
   this.removeListener("end", socketOnEnd);
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   if (!this._readableState.endEmitted && !websocket2._closeFrameReceived && !websocket2._receiver._writableState.errorEmitted && this._readableState.length !== 0) {
     const chunk = this.read(this._readableState.length);
     websocket2._receiver.write(chunk);
@@ -3341,7 +3341,7 @@ function socketOnData(chunk) {
 }
 function socketOnEnd() {
   const websocket2 = this[kWebSocket$1];
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   websocket2._receiver.end();
   this.end();
 }
@@ -3350,11 +3350,11 @@ function socketOnError$1() {
   this.removeListener("error", socketOnError$1);
   this.on("error", NOOP);
   if (websocket2) {
-    websocket2._readyState = WebSocket$2.CLOSING;
+    websocket2._readyState = WebSocket$1.CLOSING;
     this.destroy();
   }
 }
-const WebSocket$1 = /* @__PURE__ */ getDefaultExportFromCjs(websocket$1);
+const WebSocket$2 = /* @__PURE__ */ getDefaultExportFromCjs(websocket$1);
 const { Duplex: Duplex$2 } = require$$0$3;
 const { tokenChars } = validationExports;
 function parse$7(header) {
@@ -3407,7 +3407,7 @@ const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
 const RUNNING = 0;
 const CLOSING = 1;
 const CLOSED = 2;
-let WebSocketServer$1 = class WebSocketServer extends EventEmitter$1 {
+class WebSocketServer extends EventEmitter$1 {
   /**
    * Create a `WebSocketServer` instance.
    *
@@ -3740,8 +3740,8 @@ let WebSocketServer$1 = class WebSocketServer extends EventEmitter$1 {
     }
     cb(ws, req);
   }
-};
-var websocketServer = WebSocketServer$1;
+}
+var websocketServer = WebSocketServer;
 function addListeners(server, map) {
   for (const event of Object.keys(map)) server.on(event, map[event]);
   return function removeListeners() {
@@ -3780,7 +3780,7 @@ function abortHandshakeOrEmitwsClientError(server, req, socket, code, message, h
     abortHandshake(socket, code, message, headers2);
   }
 }
-const WebSocketServer2 = /* @__PURE__ */ getDefaultExportFromCjs(websocketServer);
+const WebSocketServer$1 = /* @__PURE__ */ getDefaultExportFromCjs(websocketServer);
 let db;
 function initDatabase() {
   const userDataPath = electron.app.getPath("userData");
@@ -33808,13 +33808,13 @@ let stageInterval = null;
 function broadcastToAll(data) {
   const msg = JSON.stringify(data);
   wss == null ? void 0 : wss.clients.forEach((client2) => {
-    if (client2.readyState === WebSocket$1.OPEN) {
+    if (client2.readyState === WebSocket$2.OPEN) {
       client2.send(msg);
     }
   });
 }
 function startSyncEngine() {
-  wss = new WebSocketServer2({ port: 8080 });
+  wss = new WebSocketServer$1({ port: 8080 });
   console.log("[Main] Sync Engine started on ws://localhost:8080");
   wss.on("connection", (socket) => {
     socket.send(JSON.stringify({ type: "STAGE_UPDATE", payload: stageState }));
@@ -33866,7 +33866,7 @@ function startSyncEngine() {
 }
 function broadcastOthers(socket, message) {
   wss == null ? void 0 : wss.clients.forEach((client2) => {
-    if (client2 !== socket && client2.readyState === WebSocket$1.OPEN) {
+    if (client2 !== socket && client2.readyState === WebSocket$2.OPEN) {
       client2.send(message);
     }
   });
