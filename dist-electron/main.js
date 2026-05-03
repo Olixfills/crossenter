@@ -34747,7 +34747,7 @@ function createControlPanelWindow() {
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 14 },
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.js"),
+      preload: path.join(__dirname$1, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false
@@ -34783,7 +34783,7 @@ function createOutputWindow() {
     backgroundColor: "#000000",
     title: "Crossenter — Main Output",
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.js"),
+      preload: path.join(__dirname$1, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false
@@ -34800,7 +34800,7 @@ function createStageDisplayWindow() {
     backgroundColor: "#000000",
     title: "Crossenter — Stage Display",
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.js"),
+      preload: path.join(__dirname$1, "preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false
