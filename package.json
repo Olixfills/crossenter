@@ -1,6 +1,7 @@
 {
   "name": "crossenter",
   "version": "0.1.0",
+  "type": "module",
   "description": "Open-source multi-window presentation desktop app for live media and projection teams",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -8,7 +9,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "electron:dev": "vite --port 5173 & npx wait-on tcp:5173 && electron .",
-    "electron:build": "tsc && vite build && electron-builder"
+    "electron:build": "tsc && vite build && electron-builder",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
   },
   "dependencies": {
     "@dnd-kit/accessibility": "^3.1.1",
@@ -30,6 +32,7 @@
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
     "@types/adm-zip": "^0.5.8",
     "@types/better-sqlite3": "^7.6.13",
     "@types/react": "^18.2.64",

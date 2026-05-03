@@ -1,4 +1,3 @@
-"use strict";
 var __defProp = Object.defineProperty;
 var __typeError = (msg) => {
   throw TypeError(msg);
@@ -12,41 +11,40 @@ var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O, _P, _Q, _R, _S, _T, _dispatcher, _dispatch, _U, _client, _ProxyAgent_instances, getUrl_fn, _V, _noProxyValue, _noProxyEntries, _opts, _EnvHttpProxyAgent_instances, getProxyAgentForUrl_fn, shouldProxy_fn, parseNoProxy_fn, noProxyChanged_get, noProxyEnv_get, _W, _agent, _options, _X, _Y, _Z, _handler, __, _maxSize, _abort, _dumped, _aborted, _size, _reason, _handler2, _DumpHandler_instances, customAbort_fn, _maxTTL, _maxItems, _records, _DNSInstance_instances, defaultLookup_fn, defaultPick_fn, _state, _opts2, _dispatch2, _handler3, _origin;
-const electron = require("electron");
-const path = require("path");
-const require$$7 = require("url");
-const require$$0$4 = require("events");
-const require$$1$1 = require("https");
-const require$$2$1 = require("http");
-const require$$3 = require("net");
-const require$$4 = require("tls");
-const require$$1 = require("crypto");
-const require$$0$3 = require("stream");
-const require$$0$1 = require("zlib");
-const fs = require("fs");
-const require$$2 = require("os");
-const require$$0$2 = require("buffer");
-const Database = require("better-sqlite3");
-const require$$0$6 = require("node:assert");
-const require$$0$8 = require("node:net");
-const require$$2$2 = require("node:http");
-const require$$0$7 = require("node:stream");
-const require$$0$5 = require("node:buffer");
-const require$$0$9 = require("node:util");
-const require$$7$1 = require("node:querystring");
-const require$$8 = require("node:events");
-const require$$0$a = require("node:diagnostics_channel");
-const require$$5$1 = require("node:tls");
-const require$$1$3 = require("node:zlib");
-const require$$5$2 = require("node:perf_hooks");
-const require$$8$1 = require("node:util/types");
-const require$$1$2 = require("node:worker_threads");
-const require$$1$4 = require("node:url");
-const require$$5$3 = require("node:async_hooks");
-const require$$1$5 = require("node:console");
-const require$$1$6 = require("node:dns");
-const require$$5$4 = require("string_decoder");
-var _documentCurrentScript = typeof document !== "undefined" ? document.currentScript : null;
+import { app, protocol, net as net$4, BrowserWindow, ipcMain, dialog, Menu } from "electron";
+import path from "path";
+import require$$7, { fileURLToPath, pathToFileURL } from "url";
+import require$$0$4 from "events";
+import require$$1$1 from "https";
+import require$$2$1 from "http";
+import require$$3 from "net";
+import require$$4 from "tls";
+import require$$1 from "crypto";
+import require$$0$3 from "stream";
+import require$$0$1 from "zlib";
+import fs from "fs";
+import require$$2 from "os";
+import require$$0$2 from "buffer";
+import Database from "better-sqlite3";
+import require$$0$6 from "node:assert";
+import require$$0$8 from "node:net";
+import require$$2$2 from "node:http";
+import require$$0$7 from "node:stream";
+import require$$0$5 from "node:buffer";
+import require$$0$9 from "node:util";
+import require$$7$1 from "node:querystring";
+import require$$8 from "node:events";
+import require$$0$a from "node:diagnostics_channel";
+import require$$5$1 from "node:tls";
+import require$$1$3 from "node:zlib";
+import require$$5$2 from "node:perf_hooks";
+import require$$8$1 from "node:util/types";
+import require$$1$2 from "node:worker_threads";
+import require$$1$4 from "node:url";
+import require$$5$3 from "node:async_hooks";
+import require$$1$5 from "node:console";
+import require$$1$6 from "node:dns";
+import require$$5$4 from "string_decoder";
 var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
 function getDefaultExportFromCjs(x) {
   return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
@@ -2507,7 +2505,7 @@ const kAborted = Symbol("kAborted");
 const protocolVersions = [8, 13];
 const readyStates = ["CONNECTING", "OPEN", "CLOSING", "CLOSED"];
 const subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
-let WebSocket$2 = class WebSocket extends EventEmitter$2 {
+let WebSocket$1 = class WebSocket extends EventEmitter$2 {
   /**
    * Create a new `WebSocket`.
    *
@@ -2877,35 +2875,35 @@ let WebSocket$2 = class WebSocket extends EventEmitter$2 {
     }
   }
 };
-Object.defineProperty(WebSocket$2, "CONNECTING", {
+Object.defineProperty(WebSocket$1, "CONNECTING", {
   enumerable: true,
   value: readyStates.indexOf("CONNECTING")
 });
-Object.defineProperty(WebSocket$2.prototype, "CONNECTING", {
+Object.defineProperty(WebSocket$1.prototype, "CONNECTING", {
   enumerable: true,
   value: readyStates.indexOf("CONNECTING")
 });
-Object.defineProperty(WebSocket$2, "OPEN", {
+Object.defineProperty(WebSocket$1, "OPEN", {
   enumerable: true,
   value: readyStates.indexOf("OPEN")
 });
-Object.defineProperty(WebSocket$2.prototype, "OPEN", {
+Object.defineProperty(WebSocket$1.prototype, "OPEN", {
   enumerable: true,
   value: readyStates.indexOf("OPEN")
 });
-Object.defineProperty(WebSocket$2, "CLOSING", {
+Object.defineProperty(WebSocket$1, "CLOSING", {
   enumerable: true,
   value: readyStates.indexOf("CLOSING")
 });
-Object.defineProperty(WebSocket$2.prototype, "CLOSING", {
+Object.defineProperty(WebSocket$1.prototype, "CLOSING", {
   enumerable: true,
   value: readyStates.indexOf("CLOSING")
 });
-Object.defineProperty(WebSocket$2, "CLOSED", {
+Object.defineProperty(WebSocket$1, "CLOSED", {
   enumerable: true,
   value: readyStates.indexOf("CLOSED")
 });
-Object.defineProperty(WebSocket$2.prototype, "CLOSED", {
+Object.defineProperty(WebSocket$1.prototype, "CLOSED", {
   enumerable: true,
   value: readyStates.indexOf("CLOSED")
 });
@@ -2918,10 +2916,10 @@ Object.defineProperty(WebSocket$2.prototype, "CLOSED", {
   "readyState",
   "url"
 ].forEach((property) => {
-  Object.defineProperty(WebSocket$2.prototype, property, { enumerable: true });
+  Object.defineProperty(WebSocket$1.prototype, property, { enumerable: true });
 });
 ["open", "error", "close", "message"].forEach((method) => {
-  Object.defineProperty(WebSocket$2.prototype, `on${method}`, {
+  Object.defineProperty(WebSocket$1.prototype, `on${method}`, {
     enumerable: true,
     get() {
       for (const listener of this.listeners(method)) {
@@ -2943,9 +2941,9 @@ Object.defineProperty(WebSocket$2.prototype, "CLOSED", {
     }
   });
 });
-WebSocket$2.prototype.addEventListener = addEventListener;
-WebSocket$2.prototype.removeEventListener = removeEventListener;
-var websocket$1 = WebSocket$2;
+WebSocket$1.prototype.addEventListener = addEventListener;
+WebSocket$1.prototype.removeEventListener = removeEventListener;
+var websocket$1 = WebSocket$1;
 function initAsClient(websocket2, address, protocols, options) {
   const opts = {
     allowSynchronousEvents: true,
@@ -3038,13 +3036,13 @@ function initAsClient(websocket2, address, protocols, options) {
     });
   }
   if (protocols.length) {
-    for (const protocol of protocols) {
-      if (typeof protocol !== "string" || !subprotocolRegex.test(protocol) || protocolSet.has(protocol)) {
+    for (const protocol2 of protocols) {
+      if (typeof protocol2 !== "string" || !subprotocolRegex.test(protocol2) || protocolSet.has(protocol2)) {
         throw new SyntaxError(
           "An invalid or duplicated subprotocol was specified"
         );
       }
-      protocolSet.add(protocol);
+      protocolSet.add(protocol2);
     }
     opts.headers["Sec-WebSocket-Protocol"] = protocols.join(",");
   }
@@ -3133,7 +3131,7 @@ function initAsClient(websocket2, address, protocols, options) {
   });
   req.on("upgrade", (res, socket, head) => {
     websocket2.emit("upgrade", res);
-    if (websocket2.readyState !== WebSocket$2.CONNECTING) return;
+    if (websocket2.readyState !== WebSocket$1.CONNECTING) return;
     req = websocket2._req = null;
     const upgrade2 = res.headers.upgrade;
     if (upgrade2 === void 0 || upgrade2.toLowerCase() !== "websocket") {
@@ -3205,7 +3203,7 @@ function initAsClient(websocket2, address, protocols, options) {
   }
 }
 function emitErrorAndClose(websocket2, err) {
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   websocket2._errorEmitted = true;
   websocket2.emit("error", err);
   websocket2.emitClose();
@@ -3222,7 +3220,7 @@ function tlsConnect(options) {
   return tls$1.connect(options);
 }
 function abortHandshake$1(websocket2, stream2, message) {
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   const err = new Error(message);
   Error.captureStackTrace(err, abortHandshake$1);
   if (stream2.setHeader) {
@@ -3297,9 +3295,9 @@ function resume$1(stream2) {
 }
 function senderOnError(err) {
   const websocket2 = this[kWebSocket$1];
-  if (websocket2.readyState === WebSocket$2.CLOSED) return;
-  if (websocket2.readyState === WebSocket$2.OPEN) {
-    websocket2._readyState = WebSocket$2.CLOSING;
+  if (websocket2.readyState === WebSocket$1.CLOSED) return;
+  if (websocket2.readyState === WebSocket$1.OPEN) {
+    websocket2._readyState = WebSocket$1.CLOSING;
     setCloseTimer(websocket2);
   }
   this._socket.end();
@@ -3319,7 +3317,7 @@ function socketOnClose() {
   this.removeListener("close", socketOnClose);
   this.removeListener("data", socketOnData);
   this.removeListener("end", socketOnEnd);
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   if (!this._readableState.endEmitted && !websocket2._closeFrameReceived && !websocket2._receiver._writableState.errorEmitted && this._readableState.length !== 0) {
     const chunk = this.read(this._readableState.length);
     websocket2._receiver.write(chunk);
@@ -3341,7 +3339,7 @@ function socketOnData(chunk) {
 }
 function socketOnEnd() {
   const websocket2 = this[kWebSocket$1];
-  websocket2._readyState = WebSocket$2.CLOSING;
+  websocket2._readyState = WebSocket$1.CLOSING;
   websocket2._receiver.end();
   this.end();
 }
@@ -3350,11 +3348,11 @@ function socketOnError$1() {
   this.removeListener("error", socketOnError$1);
   this.on("error", NOOP);
   if (websocket2) {
-    websocket2._readyState = WebSocket$2.CLOSING;
+    websocket2._readyState = WebSocket$1.CLOSING;
     this.destroy();
   }
 }
-const WebSocket$1 = /* @__PURE__ */ getDefaultExportFromCjs(websocket$1);
+const WebSocket$2 = /* @__PURE__ */ getDefaultExportFromCjs(websocket$1);
 const { Duplex: Duplex$2 } = require$$0$3;
 const { tokenChars } = validationExports;
 function parse$7(header) {
@@ -3373,11 +3371,11 @@ function parse$7(header) {
         throw new SyntaxError(`Unexpected character at index ${i}`);
       }
       if (end === -1) end = i;
-      const protocol2 = header.slice(start, end);
-      if (protocols.has(protocol2)) {
-        throw new SyntaxError(`The "${protocol2}" subprotocol is duplicated`);
+      const protocol3 = header.slice(start, end);
+      if (protocols.has(protocol3)) {
+        throw new SyntaxError(`The "${protocol3}" subprotocol is duplicated`);
       }
-      protocols.add(protocol2);
+      protocols.add(protocol3);
       start = end = -1;
     } else {
       throw new SyntaxError(`Unexpected character at index ${i}`);
@@ -3386,11 +3384,11 @@ function parse$7(header) {
   if (start === -1 || end !== -1) {
     throw new SyntaxError("Unexpected end of input");
   }
-  const protocol = header.slice(start, i);
-  if (protocols.has(protocol)) {
-    throw new SyntaxError(`The "${protocol}" subprotocol is duplicated`);
+  const protocol2 = header.slice(start, i);
+  if (protocols.has(protocol2)) {
+    throw new SyntaxError(`The "${protocol2}" subprotocol is duplicated`);
   }
-  protocols.add(protocol);
+  protocols.add(protocol2);
   return protocols;
 }
 var subprotocol$1 = { parse: parse$7 };
@@ -3407,7 +3405,7 @@ const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
 const RUNNING = 0;
 const CLOSING = 1;
 const CLOSED = 2;
-let WebSocketServer$1 = class WebSocketServer extends EventEmitter$1 {
+class WebSocketServer extends EventEmitter$1 {
   /**
    * Create a `WebSocketServer` instance.
    *
@@ -3707,10 +3705,10 @@ let WebSocketServer$1 = class WebSocketServer extends EventEmitter$1 {
     ];
     const ws = new this.options.WebSocket(null, void 0, this.options);
     if (protocols.size) {
-      const protocol = this.options.handleProtocols ? this.options.handleProtocols(protocols, req) : protocols.values().next().value;
-      if (protocol) {
-        headers2.push(`Sec-WebSocket-Protocol: ${protocol}`);
-        ws._protocol = protocol;
+      const protocol2 = this.options.handleProtocols ? this.options.handleProtocols(protocols, req) : protocols.values().next().value;
+      if (protocol2) {
+        headers2.push(`Sec-WebSocket-Protocol: ${protocol2}`);
+        ws._protocol = protocol2;
       }
     }
     if (extensions[PerMessageDeflate2.extensionName]) {
@@ -3740,8 +3738,8 @@ let WebSocketServer$1 = class WebSocketServer extends EventEmitter$1 {
     }
     cb(ws, req);
   }
-};
-var websocketServer = WebSocketServer$1;
+}
+var websocketServer = WebSocketServer;
 function addListeners(server, map) {
   for (const event of Object.keys(map)) server.on(event, map[event]);
   return function removeListeners() {
@@ -3780,10 +3778,10 @@ function abortHandshakeOrEmitwsClientError(server, req, socket, code, message, h
     abortHandshake(socket, code, message, headers2);
   }
 }
-const WebSocketServer2 = /* @__PURE__ */ getDefaultExportFromCjs(websocketServer);
+const WebSocketServer$1 = /* @__PURE__ */ getDefaultExportFromCjs(websocketServer);
 let db;
 function initDatabase() {
-  const userDataPath = electron.app.getPath("userData");
+  const userDataPath = app.getPath("userData");
   const dbPath = path.join(userDataPath, "crossenter.db");
   console.log(`[Database] Initializing at: ${dbPath}`);
   db = new Database(dbPath);
@@ -4513,6 +4511,419 @@ function getLineNumberForPosition(xmlData, index) {
 function getPositionFromMatch(match) {
   return match.startIndex + match[1].length;
 }
+const CURRENCY = {
+  cent: "¢",
+  pound: "£",
+  curren: "¤",
+  yen: "¥",
+  euro: "€",
+  dollar: "$",
+  euro: "€",
+  fnof: "ƒ",
+  inr: "₹",
+  af: "؋",
+  birr: "ብር",
+  peso: "₱",
+  rub: "₽",
+  won: "₩",
+  yuan: "¥",
+  cedil: "¸"
+};
+const XML = {
+  amp: "&",
+  apos: "'",
+  gt: ">",
+  lt: "<",
+  quot: '"'
+};
+const COMMON_HTML = {
+  nbsp: " ",
+  copy: "©",
+  reg: "®",
+  trade: "™",
+  mdash: "—",
+  ndash: "–",
+  hellip: "…",
+  laquo: "«",
+  raquo: "»",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+  bull: "•",
+  para: "¶",
+  sect: "§",
+  deg: "°",
+  frac12: "½",
+  frac14: "¼",
+  frac34: "¾"
+};
+const SPECIAL_CHARS = new Set("!?\\\\/[]$%{}^&*()<>|+");
+function validateEntityName$1(name) {
+  if (name[0] === "#") {
+    throw new Error(`[EntityReplacer] Invalid character '#' in entity name: "${name}"`);
+  }
+  for (const ch of name) {
+    if (SPECIAL_CHARS.has(ch)) {
+      throw new Error(`[EntityReplacer] Invalid character '${ch}' in entity name: "${name}"`);
+    }
+  }
+  return name;
+}
+function mergeEntityMaps(...maps) {
+  const out = /* @__PURE__ */ Object.create(null);
+  for (const map of maps) {
+    if (!map) continue;
+    for (const key of Object.keys(map)) {
+      const raw = map[key];
+      if (typeof raw === "string") {
+        out[key] = raw;
+      } else if (raw && typeof raw === "object" && raw.val !== void 0) {
+        const val = raw.val;
+        if (typeof val === "string") {
+          out[key] = val;
+        }
+      }
+    }
+  }
+  return out;
+}
+const LIMIT_TIER_EXTERNAL = "external";
+const LIMIT_TIER_BASE = "base";
+const LIMIT_TIER_ALL = "all";
+function parseLimitTiers(raw) {
+  if (!raw || raw === LIMIT_TIER_EXTERNAL) return /* @__PURE__ */ new Set([LIMIT_TIER_EXTERNAL]);
+  if (raw === LIMIT_TIER_ALL) return /* @__PURE__ */ new Set([LIMIT_TIER_ALL]);
+  if (raw === LIMIT_TIER_BASE) return /* @__PURE__ */ new Set([LIMIT_TIER_BASE]);
+  if (Array.isArray(raw)) return new Set(raw);
+  return /* @__PURE__ */ new Set([LIMIT_TIER_EXTERNAL]);
+}
+const NCR_LEVEL = Object.freeze({ allow: 0, leave: 1, remove: 2, throw: 3 });
+const XML10_ALLOWED_C0 = /* @__PURE__ */ new Set([9, 10, 13]);
+function parseNCRConfig(ncr) {
+  if (!ncr) {
+    return { xmlVersion: 1, onLevel: NCR_LEVEL.allow, nullLevel: NCR_LEVEL.remove };
+  }
+  const xmlVersion = ncr.xmlVersion === 1.1 ? 1.1 : 1;
+  const onLevel = NCR_LEVEL[ncr.onNCR] ?? NCR_LEVEL.allow;
+  const nullLevel = NCR_LEVEL[ncr.nullNCR] ?? NCR_LEVEL.remove;
+  const clampedNull = Math.max(nullLevel, NCR_LEVEL.remove);
+  return { xmlVersion, onLevel, nullLevel: clampedNull };
+}
+class EntityDecoder {
+  /**
+   * @param {object} [options]
+   * @param {object|null}  [options.namedEntities]        — extra named entities merged into base map
+   * @param {object}  [options.limit]                 — security limits
+   * @param {number}       [options.limit.maxTotalExpansions=0]  — 0 = unlimited
+   * @param {number}       [options.limit.maxExpandedLength=0]   — 0 = unlimited
+   * @param {'external'|'base'|'all'|string[]} [options.limit.applyLimitsTo='external']
+   *   Which entity tiers count against the security limits:
+   *   - 'external' (default) — only input/runtime + persistent external entities
+   *   - 'base'               — only DEFAULT_XML_ENTITIES + namedEntities
+   *   - 'all'                — every entity regardless of tier
+   *   - string[]             — explicit combination, e.g. ['external', 'base']
+   * @param {((resolved: string, original: string) => string)|null} [options.postCheck=null]
+   * @param {string[]} [options.remove=[]] — entity names (e.g. ['nbsp', '#13']) to delete (replace with empty string)
+   * @param {string[]} [options.leave=[]]  — entity names to keep as literal (unchanged in output)
+   * @param {object}   [options.ncr]       — Numeric Character Reference controls
+   * @param {1.0|1.1}  [options.ncr.xmlVersion=1.0]
+   *   XML version governing which codepoint ranges are restricted:
+   *   - 1.0 — C0 controls U+0001–U+001F (except U+0009/000A/000D) are prohibited
+   *   - 1.1 — C0 controls are allowed when written as NCRs; C1 (U+007F–U+009F) decoded as-is
+   * @param {'allow'|'leave'|'remove'|'throw'} [options.ncr.onNCR='allow']
+   *   Base action for numeric references. Severity order: allow < leave < remove < throw.
+   *   For codepoint ranges that carry a minimum level (surrogates → remove, XML 1.0 C0 → remove),
+   *   the effective action is max(onNCR, rangeMinimum).
+   * @param {'remove'|'throw'} [options.ncr.nullNCR='remove']
+   *   Action for U+0000 (null). 'allow' and 'leave' are clamped to 'remove' since null is never safe.
+   */
+  constructor(options = {}) {
+    this._limit = options.limit || {};
+    this._maxTotalExpansions = this._limit.maxTotalExpansions || 0;
+    this._maxExpandedLength = this._limit.maxExpandedLength || 0;
+    this._postCheck = typeof options.postCheck === "function" ? options.postCheck : (r) => r;
+    this._limitTiers = parseLimitTiers(this._limit.applyLimitsTo ?? LIMIT_TIER_EXTERNAL);
+    this._numericAllowed = options.numericAllowed ?? true;
+    this._baseMap = mergeEntityMaps(XML, options.namedEntities || null);
+    this._externalMap = /* @__PURE__ */ Object.create(null);
+    this._inputMap = /* @__PURE__ */ Object.create(null);
+    this._totalExpansions = 0;
+    this._expandedLength = 0;
+    this._removeSet = new Set(options.remove && Array.isArray(options.remove) ? options.remove : []);
+    this._leaveSet = new Set(options.leave && Array.isArray(options.leave) ? options.leave : []);
+    const ncrCfg = parseNCRConfig(options.ncr);
+    this._ncrXmlVersion = ncrCfg.xmlVersion;
+    this._ncrOnLevel = ncrCfg.onLevel;
+    this._ncrNullLevel = ncrCfg.nullLevel;
+  }
+  // -------------------------------------------------------------------------
+  // Persistent external entity registration
+  // -------------------------------------------------------------------------
+  /**
+   * Replace the full set of persistent external entities.
+   * All keys are validated — throws on invalid characters.
+   * @param {Record<string, string | { regex?: RegExp, val: string }>} map
+   */
+  setExternalEntities(map) {
+    if (map) {
+      for (const key of Object.keys(map)) {
+        validateEntityName$1(key);
+      }
+    }
+    this._externalMap = mergeEntityMaps(map);
+  }
+  /**
+   * Add a single persistent external entity.
+   * @param {string} key
+   * @param {string} value
+   */
+  addExternalEntity(key, value) {
+    validateEntityName$1(key);
+    if (typeof value === "string" && value.indexOf("&") === -1) {
+      this._externalMap[key] = value;
+    }
+  }
+  // -------------------------------------------------------------------------
+  // Input / runtime entity registration (per document)
+  // -------------------------------------------------------------------------
+  /**
+   * Inject DOCTYPE entities for the current document.
+   * Also resets per-document expansion counters.
+   * @param {Record<string, string | { regx?: RegExp, regex?: RegExp, val: string }>} map
+   */
+  addInputEntities(map) {
+    this._totalExpansions = 0;
+    this._expandedLength = 0;
+    this._inputMap = mergeEntityMaps(map);
+  }
+  // -------------------------------------------------------------------------
+  // Per-document reset
+  // -------------------------------------------------------------------------
+  /**
+   * Wipe input/runtime entities and reset counters.
+   * Call this before processing each new document.
+   * @returns {this}
+   */
+  reset() {
+    this._inputMap = /* @__PURE__ */ Object.create(null);
+    this._totalExpansions = 0;
+    this._expandedLength = 0;
+    return this;
+  }
+  // -------------------------------------------------------------------------
+  // XML version (can be set after construction, e.g. once parser reads <?xml?>)
+  // -------------------------------------------------------------------------
+  /**
+   * Update the XML version used for NCR classification.
+   * Call this as soon as the document's `<?xml version="...">` declaration is parsed.
+   * @param {1.0|1.1|number} version
+   */
+  setXmlVersion(version2) {
+    this._ncrXmlVersion = version2 === 1.1 ? 1.1 : 1;
+  }
+  // -------------------------------------------------------------------------
+  // Primary API
+  // -------------------------------------------------------------------------
+  /**
+   * Replace all entity references in `str` in a single pass.
+   *
+   * @param {string} str
+   * @returns {string}
+   */
+  decode(str) {
+    if (typeof str !== "string" || str.length === 0) return str;
+    const original = str;
+    const chunks = [];
+    const len = str.length;
+    let last = 0;
+    let i = 0;
+    const limitExpansions = this._maxTotalExpansions > 0;
+    const limitLength = this._maxExpandedLength > 0;
+    const checkLimits = limitExpansions || limitLength;
+    while (i < len) {
+      if (str.charCodeAt(i) !== 38) {
+        i++;
+        continue;
+      }
+      let j = i + 1;
+      while (j < len && str.charCodeAt(j) !== 59 && j - i <= 32) j++;
+      if (j >= len || str.charCodeAt(j) !== 59) {
+        i++;
+        continue;
+      }
+      const token = str.slice(i + 1, j);
+      if (token.length === 0) {
+        i++;
+        continue;
+      }
+      let replacement;
+      let tier;
+      if (this._removeSet.has(token)) {
+        replacement = "";
+        if (tier === void 0) {
+          tier = LIMIT_TIER_EXTERNAL;
+        }
+      } else if (this._leaveSet.has(token)) {
+        i++;
+        continue;
+      } else if (token.charCodeAt(0) === 35) {
+        const ncrResult = this._resolveNCR(token);
+        if (ncrResult === void 0) {
+          i++;
+          continue;
+        }
+        replacement = ncrResult;
+        tier = LIMIT_TIER_BASE;
+      } else {
+        const resolved = this._resolveName(token);
+        replacement = resolved == null ? void 0 : resolved.value;
+        tier = resolved == null ? void 0 : resolved.tier;
+      }
+      if (replacement === void 0) {
+        i++;
+        continue;
+      }
+      if (i > last) chunks.push(str.slice(last, i));
+      chunks.push(replacement);
+      last = j + 1;
+      i = last;
+      if (checkLimits && this._tierCounts(tier)) {
+        if (limitExpansions) {
+          this._totalExpansions++;
+          if (this._totalExpansions > this._maxTotalExpansions) {
+            throw new Error(
+              `[EntityReplacer] Entity expansion count limit exceeded: ${this._totalExpansions} > ${this._maxTotalExpansions}`
+            );
+          }
+        }
+        if (limitLength) {
+          const delta = replacement.length - (token.length + 2);
+          if (delta > 0) {
+            this._expandedLength += delta;
+            if (this._expandedLength > this._maxExpandedLength) {
+              throw new Error(
+                `[EntityReplacer] Expanded content length limit exceeded: ${this._expandedLength} > ${this._maxExpandedLength}`
+              );
+            }
+          }
+        }
+      }
+    }
+    if (last < len) chunks.push(str.slice(last));
+    const result = chunks.length === 0 ? str : chunks.join("");
+    return this._postCheck(result, original);
+  }
+  // -------------------------------------------------------------------------
+  // Private: limit tier check
+  // -------------------------------------------------------------------------
+  /**
+   * Returns true if a resolved entity of the given tier should count
+   * against the expansion/length limits.
+   * @param {string} tier  — LIMIT_TIER_EXTERNAL | LIMIT_TIER_BASE
+   * @returns {boolean}
+   */
+  _tierCounts(tier) {
+    if (this._limitTiers.has(LIMIT_TIER_ALL)) return true;
+    return this._limitTiers.has(tier);
+  }
+  // -------------------------------------------------------------------------
+  // Private: entity resolution
+  // -------------------------------------------------------------------------
+  /**
+   * Resolve a named entity token (without & and ;).
+   * Priority: inputMap > externalMap > baseMap
+   * Returns the resolved value tagged with its limit tier.
+   *
+   * @param {string} name
+   * @returns {{ value: string, tier: string }|undefined}
+   */
+  _resolveName(name) {
+    if (name in this._inputMap) return { value: this._inputMap[name], tier: LIMIT_TIER_EXTERNAL };
+    if (name in this._externalMap) return { value: this._externalMap[name], tier: LIMIT_TIER_EXTERNAL };
+    if (name in this._baseMap) return { value: this._baseMap[name], tier: LIMIT_TIER_BASE };
+    return void 0;
+  }
+  /**
+   * Classify a codepoint and return the minimum action level that must be applied.
+   * Returns -1 when no minimum is imposed (normal allow path).
+   *
+   * Ranges checked (in priority order):
+   *   1. U+0000            — null, governed by nullNCR (always ≥ remove)
+   *   2. U+D800–U+DFFF     — surrogates, always prohibited (min: remove)
+   *   3. U+0001–U+001F \ {0x09,0x0A,0x0D}  — XML 1.0 restricted C0 (min: remove)
+   *      (skipped in XML 1.1 — C0 controls are allowed when written as NCRs)
+   *
+   * @param {number} cp  — codepoint
+   * @returns {number}   — minimum NCR_LEVEL value, or -1 for no restriction
+   */
+  _classifyNCR(cp) {
+    if (cp === 0) return this._ncrNullLevel;
+    if (cp >= 55296 && cp <= 57343) return NCR_LEVEL.remove;
+    if (this._ncrXmlVersion === 1) {
+      if (cp >= 1 && cp <= 31 && !XML10_ALLOWED_C0.has(cp)) return NCR_LEVEL.remove;
+    }
+    return -1;
+  }
+  /**
+   * Execute a resolved NCR action.
+   *
+   * @param {number} action   — NCR_LEVEL value
+   * @param {string} token    — raw token (e.g. '#38') for error messages
+   * @param {number} cp       — codepoint, used only for error messages
+   * @returns {string|undefined}
+   *   - decoded character string  → 'allow'
+   *   - ''                        → 'remove'
+   *   - undefined                 → 'leave' (caller must skip past '&' only)
+   *   - throws Error              → 'throw'
+   */
+  _applyNCRAction(action, token, cp) {
+    switch (action) {
+      case NCR_LEVEL.allow:
+        return String.fromCodePoint(cp);
+      case NCR_LEVEL.remove:
+        return "";
+      case NCR_LEVEL.leave:
+        return void 0;
+      case NCR_LEVEL.throw:
+        throw new Error(
+          `[EntityDecoder] Prohibited numeric character reference &${token}; (U+${cp.toString(16).toUpperCase().padStart(4, "0")})`
+        );
+      default:
+        return String.fromCodePoint(cp);
+    }
+  }
+  /**
+   * Full NCR resolution pipeline for a numeric token.
+   *
+   * Steps:
+   *   1. Parse the codepoint (decimal or hex).
+   *   2. Validate the raw codepoint range (NaN, <0, >0x10FFFF).
+   *   3. If numericAllowed is false and no minimum restriction applies → leave as-is.
+   *   4. Classify the codepoint to find the minimum required action level.
+   *   5. Resolve effective action = max(onNCR, minimum).
+   *   6. Apply and return.
+   *
+   * @param {string} token  — e.g. '#38', '#x26', '#X26'
+   * @returns {string|undefined}
+   *   - string (incl. '')  — replacement ('' = remove)
+   *   - undefined          — leave original &token; as-is
+   */
+  _resolveNCR(token) {
+    const second = token.charCodeAt(1);
+    let cp;
+    if (second === 120 || second === 88) {
+      cp = parseInt(token.slice(2), 16);
+    } else {
+      cp = parseInt(token.slice(1), 10);
+    }
+    if (Number.isNaN(cp) || cp < 0 || cp > 1114111) return void 0;
+    const minimum = this._classifyNCR(cp);
+    if (!this._numericAllowed && minimum < NCR_LEVEL.remove) return void 0;
+    const effective = minimum === -1 ? this._ncrOnLevel : Math.max(this._ncrOnLevel, minimum);
+    return this._applyNCRAction(effective, token, cp);
+  }
+}
 const defaultOnDangerousProperty = (name) => {
   if (DANGEROUS_PROPERTY_NAMES.includes(name)) {
     return "__" + name;
@@ -4554,6 +4965,7 @@ const defaultOptions$1 = {
   unpairedTags: [],
   processEntities: true,
   htmlEntities: false,
+  entityDecoder: null,
   ignoreDeclaration: false,
   ignorePiTags: false,
   transformTagName: false,
@@ -4585,18 +4997,19 @@ function validatePropertyName(propertyName, optionName) {
     );
   }
 }
-function normalizeProcessEntities(value) {
+function normalizeProcessEntities(value, htmlEntities) {
   if (typeof value === "boolean") {
     return {
       enabled: value,
       // true or false
       maxEntitySize: 1e4,
-      maxExpansionDepth: 10,
-      maxTotalExpansions: 1e3,
+      maxExpansionDepth: 1e4,
+      maxTotalExpansions: Infinity,
       maxExpandedLength: 1e5,
-      maxEntityCount: 100,
+      maxEntityCount: 1e3,
       allowedTags: null,
-      tagFilter: null
+      tagFilter: null,
+      appliesTo: "all"
     };
   }
   if (typeof value === "object" && value !== null) {
@@ -4608,7 +5021,8 @@ function normalizeProcessEntities(value) {
       maxExpandedLength: Math.max(1, value.maxExpandedLength ?? 1e5),
       maxEntityCount: Math.max(1, value.maxEntityCount ?? 1e3),
       allowedTags: value.allowedTags ?? null,
-      tagFilter: value.tagFilter ?? null
+      tagFilter: value.tagFilter ?? null,
+      appliesTo: value.appliesTo ?? "all"
     };
   }
   return normalizeProcessEntities(true);
@@ -4630,7 +5044,8 @@ const buildOptions = function(options) {
   if (built.onDangerousProperty === null) {
     built.onDangerousProperty = defaultOnDangerousProperty;
   }
-  built.processEntities = normalizeProcessEntities(built.processEntities);
+  built.processEntities = normalizeProcessEntities(built.processEntities, built.htmlEntities);
+  built.unpairedTagsSet = new Set(built.unpairedTags);
   if (built.stopNodes && Array.isArray(built.stopNodes)) {
     built.stopNodes = built.stopNodes.map((node2) => {
       if (typeof node2 === "string" && node2.startsWith("*.")) {
@@ -4698,11 +5113,7 @@ class DocTypeReader {
                   `Entity count (${entityCount + 1}) exceeds maximum allowed (${this.options.maxEntityCount})`
                 );
               }
-              const escaped = entityName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-              entities[entityName] = {
-                regx: RegExp(`&${escaped};`, "g"),
-                val
-              };
+              entities[entityName] = val;
               entityCount++;
             }
           } else if (hasBody && hasSeq(xmlData, "!ELEMENT", i)) {
@@ -5249,34 +5660,300 @@ class Expression {
     return this.pattern;
   }
 }
-const MUTATING_METHODS = /* @__PURE__ */ new Set(["push", "pop", "reset", "updateCurrent", "restore"]);
+class ExpressionSet {
+  constructor() {
+    this._byDepthAndTag = /* @__PURE__ */ new Map();
+    this._wildcardByDepth = /* @__PURE__ */ new Map();
+    this._deepWildcards = [];
+    this._patterns = /* @__PURE__ */ new Set();
+    this._sealed = false;
+  }
+  /**
+   * Add an Expression to the set.
+   * Duplicate patterns (same pattern string) are silently ignored.
+   *
+   * @param {import('./Expression.js').default} expression - A pre-constructed Expression instance
+   * @returns {this} for chaining
+   * @throws {TypeError} if called after seal()
+   *
+   * @example
+   * set.add(new Expression('root.users.user'));
+   * set.add(new Expression('..script'));
+   */
+  add(expression) {
+    if (this._sealed) {
+      throw new TypeError(
+        "ExpressionSet is sealed. Create a new ExpressionSet to add more expressions."
+      );
+    }
+    if (this._patterns.has(expression.pattern)) return this;
+    this._patterns.add(expression.pattern);
+    if (expression.hasDeepWildcard()) {
+      this._deepWildcards.push(expression);
+      return this;
+    }
+    const depth = expression.length;
+    const lastSeg = expression.segments[expression.segments.length - 1];
+    const tag = lastSeg == null ? void 0 : lastSeg.tag;
+    if (!tag || tag === "*") {
+      if (!this._wildcardByDepth.has(depth)) this._wildcardByDepth.set(depth, []);
+      this._wildcardByDepth.get(depth).push(expression);
+    } else {
+      const key = `${depth}:${tag}`;
+      if (!this._byDepthAndTag.has(key)) this._byDepthAndTag.set(key, []);
+      this._byDepthAndTag.get(key).push(expression);
+    }
+    return this;
+  }
+  /**
+   * Add multiple expressions at once.
+   *
+   * @param {import('./Expression.js').default[]} expressions - Array of Expression instances
+   * @returns {this} for chaining
+   *
+   * @example
+   * set.addAll([
+   *   new Expression('root.users.user'),
+   *   new Expression('root.config.setting'),
+   * ]);
+   */
+  addAll(expressions) {
+    for (const expr of expressions) this.add(expr);
+    return this;
+  }
+  /**
+   * Check whether a pattern string is already present in the set.
+   *
+   * @param {import('./Expression.js').default} expression
+   * @returns {boolean}
+   */
+  has(expression) {
+    return this._patterns.has(expression.pattern);
+  }
+  /**
+   * Number of expressions in the set.
+   * @type {number}
+   */
+  get size() {
+    return this._patterns.size;
+  }
+  /**
+   * Seal the set against further modifications.
+   * Useful to prevent accidental mutations after config is built.
+   * Calling add() or addAll() on a sealed set throws a TypeError.
+   *
+   * @returns {this}
+   */
+  seal() {
+    this._sealed = true;
+    return this;
+  }
+  /**
+   * Whether the set has been sealed.
+   * @type {boolean}
+   */
+  get isSealed() {
+    return this._sealed;
+  }
+  /**
+   * Test whether the matcher's current path matches any expression in the set.
+   *
+   * Evaluation order (cheapest → most expensive):
+   *  1. Exact depth + tag bucket  — O(1) lookup, typically 0–2 expressions
+   *  2. Depth-only wildcard bucket — O(1) lookup, rare
+   *  3. Deep-wildcard list         — always checked, but usually small
+   *
+   * @param {import('./Matcher.js').default} matcher - Matcher instance (or readOnly view)
+   * @returns {boolean} true if any expression matches the current path
+   *
+   * @example
+   * if (stopNodes.matchesAny(matcher)) {
+   *   // handle stop node
+   * }
+   */
+  matchesAny(matcher2) {
+    return this.findMatch(matcher2) !== null;
+  }
+  /**
+  * Find and return the first Expression that matches the matcher's current path.
+  *
+  * Uses the same evaluation order as matchesAny (cheapest → most expensive):
+  *  1. Exact depth + tag bucket
+  *  2. Depth-only wildcard bucket
+  *  3. Deep-wildcard list
+  *
+  * @param {import('./Matcher.js').default} matcher - Matcher instance (or readOnly view)
+  * @returns {import('./Expression.js').default | null} the first matching Expression, or null
+  *
+  * @example
+  * const expr = stopNodes.findMatch(matcher);
+  * if (expr) {
+  *   // access expr.config, expr.pattern, etc.
+  * }
+  */
+  findMatch(matcher2) {
+    const depth = matcher2.getDepth();
+    const tag = matcher2.getCurrentTag();
+    const exactKey = `${depth}:${tag}`;
+    const exactBucket = this._byDepthAndTag.get(exactKey);
+    if (exactBucket) {
+      for (let i = 0; i < exactBucket.length; i++) {
+        if (matcher2.matches(exactBucket[i])) return exactBucket[i];
+      }
+    }
+    const wildcardBucket = this._wildcardByDepth.get(depth);
+    if (wildcardBucket) {
+      for (let i = 0; i < wildcardBucket.length; i++) {
+        if (matcher2.matches(wildcardBucket[i])) return wildcardBucket[i];
+      }
+    }
+    for (let i = 0; i < this._deepWildcards.length; i++) {
+      if (matcher2.matches(this._deepWildcards[i])) return this._deepWildcards[i];
+    }
+    return null;
+  }
+}
+class MatcherView {
+  /**
+   * @param {Matcher} matcher - The parent Matcher instance to read from.
+   */
+  constructor(matcher2) {
+    this._matcher = matcher2;
+  }
+  /**
+   * Get the path separator used by the parent matcher.
+   * @returns {string}
+   */
+  get separator() {
+    return this._matcher.separator;
+  }
+  /**
+   * Get current tag name.
+   * @returns {string|undefined}
+   */
+  getCurrentTag() {
+    const path2 = this._matcher.path;
+    return path2.length > 0 ? path2[path2.length - 1].tag : void 0;
+  }
+  /**
+   * Get current namespace.
+   * @returns {string|undefined}
+   */
+  getCurrentNamespace() {
+    const path2 = this._matcher.path;
+    return path2.length > 0 ? path2[path2.length - 1].namespace : void 0;
+  }
+  /**
+   * Get current node's attribute value.
+   * @param {string} attrName
+   * @returns {*}
+   */
+  getAttrValue(attrName) {
+    var _a2;
+    const path2 = this._matcher.path;
+    if (path2.length === 0) return void 0;
+    return (_a2 = path2[path2.length - 1].values) == null ? void 0 : _a2[attrName];
+  }
+  /**
+   * Check if current node has an attribute.
+   * @param {string} attrName
+   * @returns {boolean}
+   */
+  hasAttr(attrName) {
+    const path2 = this._matcher.path;
+    if (path2.length === 0) return false;
+    const current = path2[path2.length - 1];
+    return current.values !== void 0 && attrName in current.values;
+  }
+  /**
+   * Get current node's sibling position (child index in parent).
+   * @returns {number}
+   */
+  getPosition() {
+    const path2 = this._matcher.path;
+    if (path2.length === 0) return -1;
+    return path2[path2.length - 1].position ?? 0;
+  }
+  /**
+   * Get current node's repeat counter (occurrence count of this tag name).
+   * @returns {number}
+   */
+  getCounter() {
+    const path2 = this._matcher.path;
+    if (path2.length === 0) return -1;
+    return path2[path2.length - 1].counter ?? 0;
+  }
+  /**
+   * Get current node's sibling index (alias for getPosition).
+   * @returns {number}
+   * @deprecated Use getPosition() or getCounter() instead
+   */
+  getIndex() {
+    return this.getPosition();
+  }
+  /**
+   * Get current path depth.
+   * @returns {number}
+   */
+  getDepth() {
+    return this._matcher.path.length;
+  }
+  /**
+   * Get path as string.
+   * @param {string} [separator] - Optional separator (uses default if not provided)
+   * @param {boolean} [includeNamespace=true]
+   * @returns {string}
+   */
+  toString(separator, includeNamespace = true) {
+    return this._matcher.toString(separator, includeNamespace);
+  }
+  /**
+   * Get path as array of tag names.
+   * @returns {string[]}
+   */
+  toArray() {
+    return this._matcher.path.map((n) => n.tag);
+  }
+  /**
+   * Match current path against an Expression.
+   * @param {Expression} expression
+   * @returns {boolean}
+   */
+  matches(expression) {
+    return this._matcher.matches(expression);
+  }
+  /**
+   * Match any expression in the given set against the current path.
+   * @param {ExpressionSet} exprSet
+   * @returns {boolean}
+   */
+  matchesAny(exprSet) {
+    return exprSet.matchesAny(this._matcher);
+  }
+}
 class Matcher {
   /**
-   * Create a new Matcher
-   * @param {Object} options - Configuration options
-   * @param {string} options.separator - Default path separator (default: '.')
+   * Create a new Matcher.
+   * @param {Object} [options={}]
+   * @param {string} [options.separator='.'] - Default path separator
    */
   constructor(options = {}) {
     this.separator = options.separator || ".";
     this.path = [];
     this.siblingStacks = [];
     this._pathStringCache = null;
-    this._frozenPathCache = null;
-    this._frozenSiblingsCache = null;
+    this._view = new MatcherView(this);
   }
   /**
-   * Push a new tag onto the path
-   * @param {string} tagName - Name of the tag
-   * @param {Object} attrValues - Attribute key-value pairs for current node (optional)
-   * @param {string} namespace - Namespace for the tag (optional)
+   * Push a new tag onto the path.
+   * @param {string} tagName
+   * @param {Object|null} [attrValues=null]
+   * @param {string|null} [namespace=null]
    */
   push(tagName, attrValues = null, namespace = null) {
     this._pathStringCache = null;
-    this._frozenPathCache = null;
-    this._frozenSiblingsCache = null;
     if (this.path.length > 0) {
-      const prev = this.path[this.path.length - 1];
-      prev.values = void 0;
+      this.path[this.path.length - 1].values = void 0;
     }
     const currentLevel = this.path.length;
     if (!this.siblingStacks[currentLevel]) {
@@ -5304,14 +5981,12 @@ class Matcher {
     this.path.push(node2);
   }
   /**
-   * Pop the last tag from the path
+   * Pop the last tag from the path.
    * @returns {Object|undefined} The popped node
    */
   pop() {
     if (this.path.length === 0) return void 0;
     this._pathStringCache = null;
-    this._frozenPathCache = null;
-    this._frozenSiblingsCache = null;
     const node2 = this.path.pop();
     if (this.siblingStacks.length > this.path.length + 1) {
       this.siblingStacks.length = this.path.length + 1;
@@ -5319,47 +5994,45 @@ class Matcher {
     return node2;
   }
   /**
-   * Update current node's attribute values
-   * Useful when attributes are parsed after push
-   * @param {Object} attrValues - Attribute values
+   * Update current node's attribute values.
+   * Useful when attributes are parsed after push.
+   * @param {Object} attrValues
    */
   updateCurrent(attrValues) {
     if (this.path.length > 0) {
       const current = this.path[this.path.length - 1];
       if (attrValues !== null && attrValues !== void 0) {
         current.values = attrValues;
-        this._frozenPathCache = null;
       }
     }
   }
   /**
-   * Get current tag name
+   * Get current tag name.
    * @returns {string|undefined}
    */
   getCurrentTag() {
     return this.path.length > 0 ? this.path[this.path.length - 1].tag : void 0;
   }
   /**
-   * Get current namespace
+   * Get current namespace.
    * @returns {string|undefined}
    */
   getCurrentNamespace() {
     return this.path.length > 0 ? this.path[this.path.length - 1].namespace : void 0;
   }
   /**
-   * Get current node's attribute value
-   * @param {string} attrName - Attribute name
-   * @returns {*} Attribute value or undefined
+   * Get current node's attribute value.
+   * @param {string} attrName
+   * @returns {*}
    */
   getAttrValue(attrName) {
     var _a2;
     if (this.path.length === 0) return void 0;
-    const current = this.path[this.path.length - 1];
-    return (_a2 = current.values) == null ? void 0 : _a2[attrName];
+    return (_a2 = this.path[this.path.length - 1].values) == null ? void 0 : _a2[attrName];
   }
   /**
-   * Check if current node has an attribute
-   * @param {string} attrName - Attribute name
+   * Check if current node has an attribute.
+   * @param {string} attrName
    * @returns {boolean}
    */
   hasAttr(attrName) {
@@ -5368,7 +6041,7 @@ class Matcher {
     return current.values !== void 0 && attrName in current.values;
   }
   /**
-   * Get current node's sibling position (child index in parent)
+   * Get current node's sibling position (child index in parent).
    * @returns {number}
    */
   getPosition() {
@@ -5376,7 +6049,7 @@ class Matcher {
     return this.path[this.path.length - 1].position ?? 0;
   }
   /**
-   * Get current node's repeat counter (occurrence count of this tag name)
+   * Get current node's repeat counter (occurrence count of this tag name).
    * @returns {number}
    */
   getCounter() {
@@ -5384,7 +6057,7 @@ class Matcher {
     return this.path[this.path.length - 1].counter ?? 0;
   }
   /**
-   * Get current node's sibling index (alias for getPosition for backward compatibility)
+   * Get current node's sibling index (alias for getPosition).
    * @returns {number}
    * @deprecated Use getPosition() or getCounter() instead
    */
@@ -5392,27 +6065,27 @@ class Matcher {
     return this.getPosition();
   }
   /**
-   * Get current path depth
+   * Get current path depth.
    * @returns {number}
    */
   getDepth() {
     return this.path.length;
   }
   /**
-   * Get path as string
-   * @param {string} separator - Optional separator (uses default if not provided)
-   * @param {boolean} includeNamespace - Whether to include namespace in output (default: true)
+   * Get path as string.
+   * @param {string} [separator] - Optional separator (uses default if not provided)
+   * @param {boolean} [includeNamespace=true]
    * @returns {string}
    */
   toString(separator, includeNamespace = true) {
     const sep = separator || this.separator;
     const isDefault = sep === this.separator && includeNamespace === true;
     if (isDefault) {
-      if (this._pathStringCache !== null && this._pathStringCache !== void 0) {
+      if (this._pathStringCache !== null) {
         return this._pathStringCache;
       }
       const result = this.path.map(
-        (n) => includeNamespace && n.namespace ? `${n.namespace}:${n.tag}` : n.tag
+        (n) => n.namespace ? `${n.namespace}:${n.tag}` : n.tag
       ).join(sep);
       this._pathStringCache = result;
       return result;
@@ -5422,26 +6095,24 @@ class Matcher {
     ).join(sep);
   }
   /**
-   * Get path as array of tag names
+   * Get path as array of tag names.
    * @returns {string[]}
    */
   toArray() {
     return this.path.map((n) => n.tag);
   }
   /**
-   * Reset the path to empty
+   * Reset the path to empty.
    */
   reset() {
     this._pathStringCache = null;
-    this._frozenPathCache = null;
-    this._frozenSiblingsCache = null;
     this.path = [];
     this.siblingStacks = [];
   }
   /**
-   * Match current path against an Expression
-   * @param {Expression} expression - The expression to match against
-   * @returns {boolean} True if current path matches the expression
+   * Match current path against an Expression.
+   * @param {Expression} expression
+   * @returns {boolean}
    */
   matches(expression) {
     const segments = expression.segments;
@@ -5454,7 +6125,6 @@ class Matcher {
     return this._matchSimple(segments);
   }
   /**
-   * Match simple path (no deep wildcards)
    * @private
    */
   _matchSimple(segments) {
@@ -5462,17 +6132,13 @@ class Matcher {
       return false;
     }
     for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-      const node2 = this.path[i];
-      const isCurrentNode = i === this.path.length - 1;
-      if (!this._matchSegment(segment, node2, isCurrentNode)) {
+      if (!this._matchSegment(segments[i], this.path[i], i === this.path.length - 1)) {
         return false;
       }
     }
     return true;
   }
   /**
-   * Match path with deep wildcards
    * @private
    */
   _matchWithDeepWildcard(segments) {
@@ -5488,8 +6154,7 @@ class Matcher {
         const nextSeg = segments[segIdx];
         let found = false;
         for (let i = pathIdx; i >= 0; i--) {
-          const isCurrentNode = i === this.path.length - 1;
-          if (this._matchSegment(nextSeg, this.path[i], isCurrentNode)) {
+          if (this._matchSegment(nextSeg, this.path[i], i === this.path.length - 1)) {
             pathIdx = i - 1;
             segIdx--;
             found = true;
@@ -5500,8 +6165,7 @@ class Matcher {
           return false;
         }
       } else {
-        const isCurrentNode = pathIdx === this.path.length - 1;
-        if (!this._matchSegment(segment, this.path[pathIdx], isCurrentNode)) {
+        if (!this._matchSegment(segment, this.path[pathIdx], pathIdx === this.path.length - 1)) {
           return false;
         }
         pathIdx--;
@@ -5511,12 +6175,7 @@ class Matcher {
     return segIdx < 0;
   }
   /**
-   * Match a single segment against a node
    * @private
-   * @param {Object} segment - Segment from Expression
-   * @param {Object} node - Node from path
-   * @param {boolean} isCurrentNode - Whether this is the current (last) node
-   * @returns {boolean}
    */
   _matchSegment(segment, node2, isCurrentNode) {
     if (segment.tag !== "*" && segment.tag !== node2.tag) {
@@ -5535,8 +6194,7 @@ class Matcher {
         return false;
       }
       if (segment.attrValue !== void 0) {
-        const actualValue = node2.values[segment.attrName];
-        if (String(actualValue) !== String(segment.attrValue)) {
+        if (String(node2.values[segment.attrName]) !== String(segment.attrValue)) {
           return false;
         }
       }
@@ -5552,25 +6210,23 @@ class Matcher {
         return false;
       } else if (segment.position === "even" && counter % 2 !== 0) {
         return false;
-      } else if (segment.position === "nth") {
-        if (counter !== segment.positionValue) {
-          return false;
-        }
+      } else if (segment.position === "nth" && counter !== segment.positionValue) {
+        return false;
       }
     }
     return true;
   }
   /**
-  * Match any expression in the given set against the current path.
-  * @param {ExpressionSet} exprSet - The set of expressions to match against.
-  * @returns {boolean} - True if any expression in the set matches the current path, false otherwise.
-  */
+   * Match any expression in the given set against the current path.
+   * @param {ExpressionSet} exprSet
+   * @returns {boolean}
+   */
   matchesAny(exprSet) {
     return exprSet.matchesAny(this);
   }
   /**
-   * Create a snapshot of current state
-   * @returns {Object} State snapshot
+   * Create a snapshot of current state.
+   * @returns {Object}
    */
   snapshot() {
     return {
@@ -5579,83 +6235,32 @@ class Matcher {
     };
   }
   /**
-   * Restore state from snapshot
-   * @param {Object} snapshot - State snapshot
+   * Restore state from snapshot.
+   * @param {Object} snapshot
    */
   restore(snapshot) {
     this._pathStringCache = null;
-    this._frozenPathCache = null;
-    this._frozenSiblingsCache = null;
     this.path = snapshot.path.map((node2) => ({ ...node2 }));
     this.siblingStacks = snapshot.siblingStacks.map((map) => new Map(map));
   }
   /**
-   * Return a read-only view of this matcher.
+   * Return the read-only {@link MatcherView} for this matcher.
    *
-   * The returned object exposes all query/inspection methods but throws a
-   * TypeError if any state-mutating method is called (`push`, `pop`, `reset`,
-   * `updateCurrent`, `restore`).  Property reads (e.g. `.path`, `.separator`)
-   * are allowed but the returned arrays/objects are frozen so callers cannot
-   * mutate internal state through them either.
+   * The same instance is returned on every call — no allocation occurs.
+   * It always reflects the current parser state and is safe to pass to
+   * user callbacks without risk of accidental mutation.
    *
-   * @returns {ReadOnlyMatcher} A proxy that forwards read operations and blocks writes.
+   * @returns {MatcherView}
    *
    * @example
-   * const matcher = new Matcher();
-   * matcher.push("root", {});
-   *
-   * const ro = matcher.readOnly();
-   * ro.matches(expr);      // ✓ works
-   * ro.getCurrentTag();    // ✓ works
-   * ro.push("child", {}); // ✗ throws TypeError
-   * ro.reset();            // ✗ throws TypeError
+   * const view = matcher.readOnly();
+   * // pass view to callbacks — it stays in sync automatically
+   * view.matches(expr);       // ✓
+   * view.getCurrentTag();     // ✓
+   * // view.push(...)         // ✗ method does not exist — caught by TypeScript
    */
   readOnly() {
-    const self2 = this;
-    return new Proxy(self2, {
-      get(target, prop, receiver2) {
-        if (MUTATING_METHODS.has(prop)) {
-          return () => {
-            throw new TypeError(
-              `Cannot call '${prop}' on a read-only Matcher. Obtain a writable instance to mutate state.`
-            );
-          };
-        }
-        if (prop === "path") {
-          if (target._frozenPathCache === null) {
-            target._frozenPathCache = Object.freeze(
-              target.path.map((node2) => Object.freeze({ ...node2 }))
-            );
-          }
-          return target._frozenPathCache;
-        }
-        if (prop === "siblingStacks") {
-          if (target._frozenSiblingsCache === null) {
-            target._frozenSiblingsCache = Object.freeze(
-              target.siblingStacks.map((map) => Object.freeze(new Map(map)))
-            );
-          }
-          return target._frozenSiblingsCache;
-        }
-        const value = Reflect.get(target, prop, receiver2);
-        if (typeof value === "function") {
-          return value.bind(target);
-        }
-        return value;
-      },
-      // Prevent any property assignment on the read-only view
-      set(_target, prop) {
-        throw new TypeError(
-          `Cannot set property '${String(prop)}' on a read-only Matcher.`
-        );
-      },
-      // Prevent property deletion
-      deleteProperty(_target, prop) {
-        throw new TypeError(
-          `Cannot delete property '${String(prop)}' from a read-only Matcher.`
-        );
-      }
-    });
+    return this._view;
   }
 }
 function extractRawAttributes(prefixedAttrs, options) {
@@ -5685,36 +6290,10 @@ function extractNamespace(rawTagName) {
   return void 0;
 }
 class OrderedObjParser {
-  constructor(options) {
+  constructor(options, externalEntities) {
     this.options = options;
     this.currentNode = null;
     this.tagsNodeStack = [];
-    this.docTypeEntities = {};
-    this.lastEntities = {
-      "apos": { regex: /&(apos|#39|#x27);/g, val: "'" },
-      "gt": { regex: /&(gt|#62|#x3E);/g, val: ">" },
-      "lt": { regex: /&(lt|#60|#x3C);/g, val: "<" },
-      "quot": { regex: /&(quot|#34|#x22);/g, val: '"' }
-    };
-    this.ampEntity = { regex: /&(amp|#38|#x26);/g, val: "&" };
-    this.htmlEntities = {
-      "space": { regex: /&(nbsp|#160);/g, val: " " },
-      // "lt" : { regex: /&(lt|#60);/g, val: "<" },
-      // "gt" : { regex: /&(gt|#62);/g, val: ">" },
-      // "amp" : { regex: /&(amp|#38);/g, val: "&" },
-      // "quot" : { regex: /&(quot|#34);/g, val: "\"" },
-      // "apos" : { regex: /&(apos|#39);/g, val: "'" },
-      "cent": { regex: /&(cent|#162);/g, val: "¢" },
-      "pound": { regex: /&(pound|#163);/g, val: "£" },
-      "yen": { regex: /&(yen|#165);/g, val: "¥" },
-      "euro": { regex: /&(euro|#8364);/g, val: "€" },
-      "copyright": { regex: /&(copy|#169);/g, val: "©" },
-      "reg": { regex: /&(reg|#174);/g, val: "®" },
-      "inr": { regex: /&(inr|#8377);/g, val: "₹" },
-      "num_dec": { regex: /&#([0-9]{1,7});/g, val: (_, str) => fromCodePoint(str, 10, "&#") },
-      "num_hex": { regex: /&#x([0-9a-fA-F]{1,6});/g, val: (_, str) => fromCodePoint(str, 16, "&#x") }
-    };
-    this.addExternalEntities = addExternalEntities;
     this.parseXml = parseXml;
     this.parseTextData = parseTextData;
     this.resolveNameSpace = resolveNameSpace;
@@ -5727,52 +6306,61 @@ class OrderedObjParser {
     this.ignoreAttributesFn = getIgnoreAttributesFn(this.options.ignoreAttributes);
     this.entityExpansionCount = 0;
     this.currentExpandedLength = 0;
+    let namedEntities = { ...XML };
+    if (this.options.entityDecoder) {
+      this.entityDecoder = this.options.entityDecoder;
+    } else {
+      if (typeof this.options.htmlEntities === "object") namedEntities = this.options.htmlEntities;
+      else if (this.options.htmlEntities === true) namedEntities = { ...COMMON_HTML, ...CURRENCY };
+      this.entityDecoder = new EntityDecoder({
+        namedEntities: { ...namedEntities, ...externalEntities },
+        numericAllowed: this.options.htmlEntities,
+        limit: {
+          maxTotalExpansions: this.options.processEntities.maxTotalExpansions,
+          maxExpandedLength: this.options.processEntities.maxExpandedLength,
+          applyLimitsTo: this.options.processEntities.appliesTo
+        }
+        //postCheck: resolved => resolved
+      });
+    }
     this.matcher = new Matcher();
     this.readonlyMatcher = this.matcher.readOnly();
     this.isCurrentNodeStopNode = false;
-    if (this.options.stopNodes && this.options.stopNodes.length > 0) {
-      this.stopNodeExpressions = [];
-      for (let i = 0; i < this.options.stopNodes.length; i++) {
-        const stopNodeExp = this.options.stopNodes[i];
+    this.stopNodeExpressionsSet = new ExpressionSet();
+    const stopNodesOpts = this.options.stopNodes;
+    if (stopNodesOpts && stopNodesOpts.length > 0) {
+      for (let i = 0; i < stopNodesOpts.length; i++) {
+        const stopNodeExp = stopNodesOpts[i];
         if (typeof stopNodeExp === "string") {
-          this.stopNodeExpressions.push(new Expression(stopNodeExp));
+          this.stopNodeExpressionsSet.add(new Expression(stopNodeExp));
         } else if (stopNodeExp instanceof Expression) {
-          this.stopNodeExpressions.push(stopNodeExp);
+          this.stopNodeExpressionsSet.add(stopNodeExp);
         }
       }
+      this.stopNodeExpressionsSet.seal();
     }
   }
 }
-function addExternalEntities(externalEntities) {
-  const entKeys = Object.keys(externalEntities);
-  for (let i = 0; i < entKeys.length; i++) {
-    const ent = entKeys[i];
-    const escaped = ent.replace(/[.\-+*:]/g, "\\.");
-    this.lastEntities[ent] = {
-      regex: new RegExp("&" + escaped + ";", "g"),
-      val: externalEntities[ent]
-    };
-  }
-}
 function parseTextData(val, tagName, jPath, dontTrim, hasAttributes, isLeafNode, escapeEntities) {
+  const options = this.options;
   if (val !== void 0) {
-    if (this.options.trimValues && !dontTrim) {
+    if (options.trimValues && !dontTrim) {
       val = val.trim();
     }
     if (val.length > 0) {
       if (!escapeEntities) val = this.replaceEntitiesValue(val, tagName, jPath);
-      const jPathOrMatcher = this.options.jPath ? jPath.toString() : jPath;
-      const newval = this.options.tagValueProcessor(tagName, val, jPathOrMatcher, hasAttributes, isLeafNode);
+      const jPathOrMatcher = options.jPath ? jPath.toString() : jPath;
+      const newval = options.tagValueProcessor(tagName, val, jPathOrMatcher, hasAttributes, isLeafNode);
       if (newval === null || newval === void 0) {
         return val;
       } else if (typeof newval !== typeof val || newval !== val) {
         return newval;
-      } else if (this.options.trimValues) {
-        return parseValue(val, this.options.parseTagValue, this.options.numberParseOptions);
+      } else if (options.trimValues) {
+        return parseValue(val, options.parseTagValue, options.numberParseOptions);
       } else {
         const trimmedVal = val.trim();
         if (trimmedVal === val) {
-          return parseValue(val, this.options.parseTagValue, this.options.numberParseOptions);
+          return parseValue(val, options.parseTagValue, options.numberParseOptions);
         } else {
           return val;
         }
@@ -5794,8 +6382,9 @@ function resolveNameSpace(tagname) {
   return tagname;
 }
 const attrsRegx = new RegExp(`([^\\s=]+)\\s*(=\\s*(['"])([\\s\\S]*?)\\3)?`, "gm");
-function buildAttributesMap(attrStr, jPath, tagName) {
-  if (this.options.ignoreAttributes !== true && typeof attrStr === "string") {
+function buildAttributesMap(attrStr, jPath, tagName, force = false) {
+  const options = this.options;
+  if (force === true || options.ignoreAttributes !== true && typeof attrStr === "string") {
     const matches = getAllMatches(attrStr, attrsRegx);
     const len = matches.length;
     const attrs = {};
@@ -5807,7 +6396,7 @@ function buildAttributesMap(attrStr, jPath, tagName) {
       const oldVal = matches[i][4];
       if (attrName.length && oldVal !== void 0) {
         let val = oldVal;
-        if (this.options.trimValues) val = val.trim();
+        if (options.trimValues) val = val.trim();
         val = this.replaceEntitiesValue(val, tagName, this.readonlyMatcher);
         processedVals[i] = val;
         rawAttrsForMatcher[attrName] = val;
@@ -5817,38 +6406,38 @@ function buildAttributesMap(attrStr, jPath, tagName) {
     if (hasRawAttrs && typeof jPath === "object" && jPath.updateCurrent) {
       jPath.updateCurrent(rawAttrsForMatcher);
     }
-    const jPathStr = this.options.jPath ? jPath.toString() : this.readonlyMatcher;
+    const jPathStr = options.jPath ? jPath.toString() : this.readonlyMatcher;
     let hasAttrs = false;
     for (let i = 0; i < len; i++) {
       const attrName = this.resolveNameSpace(matches[i][1]);
       if (this.ignoreAttributesFn(attrName, jPathStr)) continue;
-      let aName = this.options.attributeNamePrefix + attrName;
+      let aName = options.attributeNamePrefix + attrName;
       if (attrName.length) {
-        if (this.options.transformAttributeName) {
-          aName = this.options.transformAttributeName(aName);
+        if (options.transformAttributeName) {
+          aName = options.transformAttributeName(aName);
         }
-        aName = sanitizeName(aName, this.options);
+        aName = sanitizeName(aName, options);
         if (matches[i][4] !== void 0) {
           const oldVal = processedVals[i];
-          const newVal = this.options.attributeValueProcessor(attrName, oldVal, jPathStr);
+          const newVal = options.attributeValueProcessor(attrName, oldVal, jPathStr);
           if (newVal === null || newVal === void 0) {
             attrs[aName] = oldVal;
           } else if (typeof newVal !== typeof oldVal || newVal !== oldVal) {
             attrs[aName] = newVal;
           } else {
-            attrs[aName] = parseValue(oldVal, this.options.parseAttributeValue, this.options.numberParseOptions);
+            attrs[aName] = parseValue(oldVal, options.parseAttributeValue, options.numberParseOptions);
           }
           hasAttrs = true;
-        } else if (this.options.allowBooleanAttributes) {
+        } else if (options.allowBooleanAttributes) {
           attrs[aName] = true;
           hasAttrs = true;
         }
       }
     }
     if (!hasAttrs) return;
-    if (this.options.attributesGroupName) {
+    if (options.attributesGroupName && !options.preserveOrder) {
       const attrCollection = {};
-      attrCollection[this.options.attributesGroupName] = attrs;
+      attrCollection[options.attributesGroupName] = attrs;
       return attrCollection;
     }
     return attrs;
@@ -5860,30 +6449,34 @@ const parseXml = function(xmlData) {
   let currentNode = xmlObj;
   let textData = "";
   this.matcher.reset();
+  this.entityDecoder.reset();
   this.entityExpansionCount = 0;
   this.currentExpandedLength = 0;
-  const docTypeReader = new DocTypeReader(this.options.processEntities);
-  for (let i = 0; i < xmlData.length; i++) {
+  const options = this.options;
+  const docTypeReader = new DocTypeReader(options.processEntities);
+  const xmlLen = xmlData.length;
+  for (let i = 0; i < xmlLen; i++) {
     const ch = xmlData[i];
     if (ch === "<") {
-      if (xmlData[i + 1] === "/") {
+      const c1 = xmlData.charCodeAt(i + 1);
+      if (c1 === 47) {
         const closeIndex = findClosingIndex(xmlData, ">", i, "Closing Tag is not closed.");
         let tagName = xmlData.substring(i + 2, closeIndex).trim();
-        if (this.options.removeNSPrefix) {
+        if (options.removeNSPrefix) {
           const colonIndex = tagName.indexOf(":");
           if (colonIndex !== -1) {
             tagName = tagName.substr(colonIndex + 1);
           }
         }
-        tagName = transformTagName(this.options.transformTagName, tagName, "", this.options).tagName;
+        tagName = transformTagName(options.transformTagName, tagName, "", options).tagName;
         if (currentNode) {
           textData = this.saveTextToParentTag(textData, currentNode, this.readonlyMatcher);
         }
         const lastTagName = this.matcher.getCurrentTag();
-        if (tagName && this.options.unpairedTags.indexOf(tagName) !== -1) {
+        if (tagName && options.unpairedTagsSet.has(tagName)) {
           throw new Error(`Unpaired tag can not be used as closing tag: </${tagName}>`);
         }
-        if (lastTagName && this.options.unpairedTags.indexOf(lastTagName) !== -1) {
+        if (lastTagName && options.unpairedTagsSet.has(lastTagName)) {
           this.matcher.pop();
           this.tagsNodeStack.pop();
         }
@@ -5892,48 +6485,53 @@ const parseXml = function(xmlData) {
         currentNode = this.tagsNodeStack.pop();
         textData = "";
         i = closeIndex;
-      } else if (xmlData[i + 1] === "?") {
+      } else if (c1 === 63) {
         let tagData = readTagExp(xmlData, i, false, "?>");
         if (!tagData) throw new Error("Pi Tag is not closed.");
         textData = this.saveTextToParentTag(textData, currentNode, this.readonlyMatcher);
-        if (this.options.ignoreDeclaration && tagData.tagName === "?xml" || this.options.ignorePiTags) ;
+        const attsMap = this.buildAttributesMap(tagData.tagExp, this.matcher, tagData.tagName, true);
+        if (attsMap) {
+          const ver = attsMap[this.options.attributeNamePrefix + "version"];
+          this.entityDecoder.setXmlVersion(Number(ver) || 1);
+        }
+        if (options.ignoreDeclaration && tagData.tagName === "?xml" || options.ignorePiTags) ;
         else {
           const childNode = new XmlNode(tagData.tagName);
-          childNode.add(this.options.textNodeName, "");
-          if (tagData.tagName !== tagData.tagExp && tagData.attrExpPresent) {
-            childNode[":@"] = this.buildAttributesMap(tagData.tagExp, this.matcher, tagData.tagName);
+          childNode.add(options.textNodeName, "");
+          if (tagData.tagName !== tagData.tagExp && tagData.attrExpPresent && options.ignoreAttributes !== true) {
+            childNode[":@"] = attsMap;
           }
           this.addChild(currentNode, childNode, this.readonlyMatcher, i);
         }
         i = tagData.closeIndex + 1;
-      } else if (xmlData.substr(i + 1, 3) === "!--") {
+      } else if (c1 === 33 && xmlData.charCodeAt(i + 2) === 45 && xmlData.charCodeAt(i + 3) === 45) {
         const endIndex = findClosingIndex(xmlData, "-->", i + 4, "Comment is not closed.");
-        if (this.options.commentPropName) {
+        if (options.commentPropName) {
           const comment2 = xmlData.substring(i + 4, endIndex - 2);
           textData = this.saveTextToParentTag(textData, currentNode, this.readonlyMatcher);
-          currentNode.add(this.options.commentPropName, [{ [this.options.textNodeName]: comment2 }]);
+          currentNode.add(options.commentPropName, [{ [options.textNodeName]: comment2 }]);
         }
         i = endIndex;
-      } else if (xmlData.substr(i + 1, 2) === "!D") {
+      } else if (c1 === 33 && xmlData.charCodeAt(i + 2) === 68) {
         const result = docTypeReader.readDocType(xmlData, i);
-        this.docTypeEntities = result.entities;
+        this.entityDecoder.addInputEntities(result.entities);
         i = result.i;
-      } else if (xmlData.substr(i + 1, 2) === "![") {
+      } else if (c1 === 33 && xmlData.charCodeAt(i + 2) === 91) {
         const closeIndex = findClosingIndex(xmlData, "]]>", i, "CDATA is not closed.") - 2;
         const tagExp = xmlData.substring(i + 9, closeIndex);
         textData = this.saveTextToParentTag(textData, currentNode, this.readonlyMatcher);
         let val = this.parseTextData(tagExp, currentNode.tagname, this.readonlyMatcher, true, false, true, true);
         if (val == void 0) val = "";
-        if (this.options.cdataPropName) {
-          currentNode.add(this.options.cdataPropName, [{ [this.options.textNodeName]: tagExp }]);
+        if (options.cdataPropName) {
+          currentNode.add(options.cdataPropName, [{ [options.textNodeName]: tagExp }]);
         } else {
-          currentNode.add(this.options.textNodeName, val);
+          currentNode.add(options.textNodeName, val);
         }
         i = closeIndex + 2;
       } else {
-        let result = readTagExp(xmlData, i, this.options.removeNSPrefix);
+        let result = readTagExp(xmlData, i, options.removeNSPrefix);
         if (!result) {
-          const context = xmlData.substring(Math.max(0, i - 50), Math.min(xmlData.length, i + 50));
+          const context = xmlData.substring(Math.max(0, i - 50), Math.min(xmlLen, i + 50));
           throw new Error(`readTagExp returned undefined at position ${i}. Context: "${context}"`);
         }
         let tagName = result.tagName;
@@ -5941,8 +6539,8 @@ const parseXml = function(xmlData) {
         let tagExp = result.tagExp;
         let attrExpPresent = result.attrExpPresent;
         let closeIndex = result.closeIndex;
-        ({ tagName, tagExp } = transformTagName(this.options.transformTagName, tagName, tagExp, this.options));
-        if (this.options.strictReservedNames && (tagName === this.options.commentPropName || tagName === this.options.cdataPropName || tagName === this.options.textNodeName || tagName === this.options.attributesGroupName)) {
+        ({ tagName, tagExp } = transformTagName(options.transformTagName, tagName, tagExp, options));
+        if (options.strictReservedNames && (tagName === options.commentPropName || tagName === options.cdataPropName || tagName === options.textNodeName || tagName === options.attributesGroupName)) {
           throw new Error(`Invalid tag name: ${tagName}`);
         }
         if (currentNode && textData) {
@@ -5951,7 +6549,7 @@ const parseXml = function(xmlData) {
           }
         }
         const lastTag = currentNode;
-        if (lastTag && this.options.unpairedTags.indexOf(lastTag.tagname) !== -1) {
+        if (lastTag && options.unpairedTagsSet.has(lastTag.tagname)) {
           currentNode = this.tagsNodeStack.pop();
           this.matcher.pop();
         }
@@ -5975,18 +6573,18 @@ const parseXml = function(xmlData) {
         if (tagName !== tagExp && attrExpPresent) {
           prefixedAttrs = this.buildAttributesMap(tagExp, this.matcher, tagName);
           if (prefixedAttrs) {
-            extractRawAttributes(prefixedAttrs, this.options);
+            extractRawAttributes(prefixedAttrs, options);
           }
         }
         if (tagName !== xmlObj.tagname) {
-          this.isCurrentNodeStopNode = this.isItStopNode(this.stopNodeExpressions, this.matcher);
+          this.isCurrentNodeStopNode = this.isItStopNode();
         }
         const startIndex = i;
         if (this.isCurrentNodeStopNode) {
           let tagContent = "";
           if (isSelfClosing) {
             i = result.closeIndex;
-          } else if (this.options.unpairedTags.indexOf(tagName) !== -1) {
+          } else if (options.unpairedTagsSet.has(tagName)) {
             i = result.closeIndex;
           } else {
             const result2 = this.readStopNodeData(xmlData, rawTagName, closeIndex + 1);
@@ -5998,13 +6596,13 @@ const parseXml = function(xmlData) {
           if (prefixedAttrs) {
             childNode[":@"] = prefixedAttrs;
           }
-          childNode.add(this.options.textNodeName, tagContent);
+          childNode.add(options.textNodeName, tagContent);
           this.matcher.pop();
           this.isCurrentNodeStopNode = false;
           this.addChild(currentNode, childNode, this.readonlyMatcher, startIndex);
         } else {
           if (isSelfClosing) {
-            ({ tagName, tagExp } = transformTagName(this.options.transformTagName, tagName, tagExp, this.options));
+            ({ tagName, tagExp } = transformTagName(options.transformTagName, tagName, tagExp, options));
             const childNode = new XmlNode(tagName);
             if (prefixedAttrs) {
               childNode[":@"] = prefixedAttrs;
@@ -6012,7 +6610,7 @@ const parseXml = function(xmlData) {
             this.addChild(currentNode, childNode, this.readonlyMatcher, startIndex);
             this.matcher.pop();
             this.isCurrentNodeStopNode = false;
-          } else if (this.options.unpairedTags.indexOf(tagName) !== -1) {
+          } else if (options.unpairedTagsSet.has(tagName)) {
             const childNode = new XmlNode(tagName);
             if (prefixedAttrs) {
               childNode[":@"] = prefixedAttrs;
@@ -6024,7 +6622,7 @@ const parseXml = function(xmlData) {
             continue;
           } else {
             const childNode = new XmlNode(tagName);
-            if (this.tagsNodeStack.length > this.options.maxNestedTags) {
+            if (this.tagsNodeStack.length > options.maxNestedTags) {
               throw new Error("Maximum nested tags exceeded");
             }
             this.tagsNodeStack.push(currentNode);
@@ -6074,60 +6672,7 @@ function replaceEntitiesValue(val, tagName, jPath) {
       return val;
     }
   }
-  for (const entityName of Object.keys(this.docTypeEntities)) {
-    const entity = this.docTypeEntities[entityName];
-    const matches = val.match(entity.regx);
-    if (matches) {
-      this.entityExpansionCount += matches.length;
-      if (entityConfig.maxTotalExpansions && this.entityExpansionCount > entityConfig.maxTotalExpansions) {
-        throw new Error(
-          `Entity expansion limit exceeded: ${this.entityExpansionCount} > ${entityConfig.maxTotalExpansions}`
-        );
-      }
-      const lengthBefore = val.length;
-      val = val.replace(entity.regx, entity.val);
-      if (entityConfig.maxExpandedLength) {
-        this.currentExpandedLength += val.length - lengthBefore;
-        if (this.currentExpandedLength > entityConfig.maxExpandedLength) {
-          throw new Error(
-            `Total expanded content size exceeded: ${this.currentExpandedLength} > ${entityConfig.maxExpandedLength}`
-          );
-        }
-      }
-    }
-  }
-  if (val.indexOf("&") === -1) return val;
-  for (const entityName of Object.keys(this.lastEntities)) {
-    const entity = this.lastEntities[entityName];
-    const matches = val.match(entity.regex);
-    if (matches) {
-      this.entityExpansionCount += matches.length;
-      if (entityConfig.maxTotalExpansions && this.entityExpansionCount > entityConfig.maxTotalExpansions) {
-        throw new Error(
-          `Entity expansion limit exceeded: ${this.entityExpansionCount} > ${entityConfig.maxTotalExpansions}`
-        );
-      }
-    }
-    val = val.replace(entity.regex, entity.val);
-  }
-  if (val.indexOf("&") === -1) return val;
-  if (this.options.htmlEntities) {
-    for (const entityName of Object.keys(this.htmlEntities)) {
-      const entity = this.htmlEntities[entityName];
-      const matches = val.match(entity.regex);
-      if (matches) {
-        this.entityExpansionCount += matches.length;
-        if (entityConfig.maxTotalExpansions && this.entityExpansionCount > entityConfig.maxTotalExpansions) {
-          throw new Error(
-            `Entity expansion limit exceeded: ${this.entityExpansionCount} > ${entityConfig.maxTotalExpansions}`
-          );
-        }
-      }
-      val = val.replace(entity.regex, entity.val);
-    }
-  }
-  val = val.replace(this.ampEntity.regex, this.ampEntity.val);
-  return val;
+  return this.entityDecoder.decode(val);
 }
 function saveTextToParentTag(textData, parentNode, matcher2, isLeafNode) {
   if (textData) {
@@ -6146,42 +6691,37 @@ function saveTextToParentTag(textData, parentNode, matcher2, isLeafNode) {
   }
   return textData;
 }
-function isItStopNode(stopNodeExpressions, matcher2) {
-  if (!stopNodeExpressions || stopNodeExpressions.length === 0) return false;
-  for (let i = 0; i < stopNodeExpressions.length; i++) {
-    if (matcher2.matches(stopNodeExpressions[i])) {
-      return true;
-    }
-  }
-  return false;
+function isItStopNode() {
+  if (this.stopNodeExpressionsSet.size === 0) return false;
+  return this.matcher.matchesAny(this.stopNodeExpressionsSet);
 }
 function tagExpWithClosingIndex(xmlData, i, closingChar = ">") {
-  let attrBoundary;
-  let tagExp = "";
-  for (let index = i; index < xmlData.length; index++) {
-    let ch = xmlData[index];
+  let attrBoundary = 0;
+  const len = xmlData.length;
+  const closeCode0 = closingChar.charCodeAt(0);
+  const closeCode1 = closingChar.length > 1 ? closingChar.charCodeAt(1) : -1;
+  let result = "";
+  let segmentStart = i;
+  for (let index = i; index < len; index++) {
+    const code = xmlData.charCodeAt(index);
     if (attrBoundary) {
-      if (ch === attrBoundary) attrBoundary = "";
-    } else if (ch === '"' || ch === "'") {
-      attrBoundary = ch;
-    } else if (ch === closingChar[0]) {
-      if (closingChar[1]) {
-        if (xmlData[index + 1] === closingChar[1]) {
-          return {
-            data: tagExp,
-            index
-          };
+      if (code === attrBoundary) attrBoundary = 0;
+    } else if (code === 34 || code === 39) {
+      attrBoundary = code;
+    } else if (code === closeCode0) {
+      if (closeCode1 !== -1) {
+        if (xmlData.charCodeAt(index + 1) === closeCode1) {
+          result += xmlData.substring(segmentStart, index);
+          return { data: result, index };
         }
       } else {
-        return {
-          data: tagExp,
-          index
-        };
+        result += xmlData.substring(segmentStart, index);
+        return { data: result, index };
       }
-    } else if (ch === "	") {
-      ch = " ";
+    } else if (code === 9 && !attrBoundary) {
+      result += xmlData.substring(segmentStart, index) + " ";
+      segmentStart = index + 1;
     }
-    tagExp += ch;
   }
 }
 function findClosingIndex(xmlData, str, i, errMsg) {
@@ -6191,6 +6731,11 @@ function findClosingIndex(xmlData, str, i, errMsg) {
   } else {
     return closingIndex + str.length - 1;
   }
+}
+function findClosingChar(xmlData, char, i, errMsg) {
+  const closingIndex = xmlData.indexOf(char, i);
+  if (closingIndex === -1) throw new Error(errMsg);
+  return closingIndex;
 }
 function readTagExp(xmlData, i, removeNSPrefix, closingChar = ">") {
   const result = tagExpWithClosingIndex(xmlData, i + 1, closingChar);
@@ -6223,10 +6768,12 @@ function readTagExp(xmlData, i, removeNSPrefix, closingChar = ">") {
 function readStopNodeData(xmlData, tagName, i) {
   const startIndex = i;
   let openTagCount = 1;
-  for (; i < xmlData.length; i++) {
+  const xmllen = xmlData.length;
+  for (; i < xmllen; i++) {
     if (xmlData[i] === "<") {
-      if (xmlData[i + 1] === "/") {
-        const closeIndex = findClosingIndex(xmlData, ">", i, `${tagName} is not closed`);
+      const c1 = xmlData.charCodeAt(i + 1);
+      if (c1 === 47) {
+        const closeIndex = findClosingChar(xmlData, ">", i, `${tagName} is not closed`);
         let closeTagName = xmlData.substring(i + 2, closeIndex).trim();
         if (closeTagName === tagName) {
           openTagCount--;
@@ -6238,13 +6785,13 @@ function readStopNodeData(xmlData, tagName, i) {
           }
         }
         i = closeIndex;
-      } else if (xmlData[i + 1] === "?") {
+      } else if (c1 === 63) {
         const closeIndex = findClosingIndex(xmlData, "?>", i + 1, "StopNode is not closed.");
         i = closeIndex;
-      } else if (xmlData.substr(i + 1, 3) === "!--") {
+      } else if (c1 === 33 && xmlData.charCodeAt(i + 2) === 45 && xmlData.charCodeAt(i + 3) === 45) {
         const closeIndex = findClosingIndex(xmlData, "-->", i + 3, "StopNode is not closed.");
         i = closeIndex;
-      } else if (xmlData.substr(i + 1, 2) === "![") {
+      } else if (c1 === 33 && xmlData.charCodeAt(i + 2) === 91) {
         const closeIndex = findClosingIndex(xmlData, "]]>", i, "StopNode is not closed.") - 2;
         i = closeIndex;
       } else {
@@ -6272,14 +6819,6 @@ function parseValue(val, shouldParse, options) {
     } else {
       return "";
     }
-  }
-}
-function fromCodePoint(str, base, prefix) {
-  const codePoint = Number.parseInt(str, base);
-  if (codePoint >= 0 && codePoint <= 1114111) {
-    return String.fromCodePoint(codePoint);
-  } else {
-    return prefix + str + ";";
   }
 }
 function transformTagName(fn, tagName, tagExp, options) {
@@ -6431,8 +6970,7 @@ class XMLParser {
         throw Error(`${result.err.msg}:${result.err.line}:${result.err.col}`);
       }
     }
-    const orderedObjParser = new OrderedObjParser(this.options);
-    orderedObjParser.addExternalEntities(this.externalEntities);
+    const orderedObjParser = new OrderedObjParser(this.options, this.externalEntities);
     const orderedResult = orderedObjParser.parseXml(xmlData);
     if (this.options.preserveOrder || orderedResult === void 0) return orderedResult;
     else return prettify(orderedResult, this.options, orderedObjParser.matcher, orderedObjParser.readonlyMatcher);
@@ -7717,35 +8255,35 @@ if (undiciDebugLog.enabled || fetchDebuglog.enabled) {
   const debuglog = fetchDebuglog.enabled ? fetchDebuglog : undiciDebugLog;
   diagnosticsChannel.channel("undici:client:beforeConnect").subscribe((evt) => {
     const {
-      connectParams: { version: version2, protocol, port, host }
+      connectParams: { version: version2, protocol: protocol2, port, host }
     } = evt;
     debuglog(
       "connecting to %s using %s%s",
       `${host}${port ? `:${port}` : ""}`,
-      protocol,
+      protocol2,
       version2
     );
   });
   diagnosticsChannel.channel("undici:client:connected").subscribe((evt) => {
     const {
-      connectParams: { version: version2, protocol, port, host }
+      connectParams: { version: version2, protocol: protocol2, port, host }
     } = evt;
     debuglog(
       "connected to %s using %s%s",
       `${host}${port ? `:${port}` : ""}`,
-      protocol,
+      protocol2,
       version2
     );
   });
   diagnosticsChannel.channel("undici:client:connectError").subscribe((evt) => {
     const {
-      connectParams: { version: version2, protocol, port, host },
+      connectParams: { version: version2, protocol: protocol2, port, host },
       error
     } = evt;
     debuglog(
       "connection to %s using %s%s errored - %s",
       `${host}${port ? `:${port}` : ""}`,
-      protocol,
+      protocol2,
       version2,
       error.message
     );
@@ -7795,38 +8333,38 @@ if (websocketDebuglog.enabled) {
     const debuglog = undiciDebugLog.enabled ? undiciDebugLog : websocketDebuglog;
     diagnosticsChannel.channel("undici:client:beforeConnect").subscribe((evt) => {
       const {
-        connectParams: { version: version2, protocol, port, host }
+        connectParams: { version: version2, protocol: protocol2, port, host }
       } = evt;
       debuglog(
         "connecting to %s%s using %s%s",
         host,
         port ? `:${port}` : "",
-        protocol,
+        protocol2,
         version2
       );
     });
     diagnosticsChannel.channel("undici:client:connected").subscribe((evt) => {
       const {
-        connectParams: { version: version2, protocol, port, host }
+        connectParams: { version: version2, protocol: protocol2, port, host }
       } = evt;
       debuglog(
         "connected to %s%s using %s%s",
         host,
         port ? `:${port}` : "",
-        protocol,
+        protocol2,
         version2
       );
     });
     diagnosticsChannel.channel("undici:client:connectError").subscribe((evt) => {
       const {
-        connectParams: { version: version2, protocol, port, host },
+        connectParams: { version: version2, protocol: protocol2, port, host },
         error
       } = evt;
       debuglog(
         "connection to %s%s using %s%s errored - %s",
         host,
         port ? `:${port}` : "",
-        protocol,
+        protocol2,
         version2,
         error.message
       );
@@ -8253,13 +8791,20 @@ const { kDestroy: kDestroy$5, kClose: kClose$7, kClosed: kClosed$1, kDestroyed: 
 const kOnDestroyed = Symbol("onDestroyed");
 const kOnClosed = Symbol("onClosed");
 const kInterceptedDispatch = Symbol("Intercepted Dispatch");
+const kWebSocketOptions = Symbol("webSocketOptions");
 let DispatcherBase$5 = class DispatcherBase extends Dispatcher$3 {
-  constructor() {
+  constructor(opts) {
     super();
     this[kDestroyed$1] = false;
     this[kOnDestroyed] = null;
     this[kClosed$1] = false;
     this[kOnClosed] = [];
+    this[kWebSocketOptions] = (opts == null ? void 0 : opts.webSocket) ?? {};
+  }
+  get webSocketOptions() {
+    return {
+      maxPayloadSize: this[kWebSocketOptions].maxPayloadSize ?? 128 * 1024 * 1024
+    };
   }
   get destroyed() {
     return this[kDestroyed$1];
@@ -8687,9 +9232,9 @@ function buildConnector$4({ allowH2, maxCachedSessions, socketPath, timeout, ses
   const sessionCache = new SessionCache(maxCachedSessions == null ? 100 : maxCachedSessions);
   timeout = timeout == null ? 1e4 : timeout;
   allowH2 = allowH2 != null ? allowH2 : false;
-  return function connect2({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
+  return function connect2({ hostname, host, protocol: protocol2, port, servername, localAddress, httpSocket }, callback) {
     let socket;
-    if (protocol === "https:") {
+    if (protocol2 === "https:") {
       if (!tls) {
         tls = require$$5$1;
       }
@@ -8732,7 +9277,7 @@ function buildConnector$4({ allowH2, maxCachedSessions, socketPath, timeout, ses
       socket.setKeepAlive(true, keepAliveInitialDelay);
     }
     const clearConnectTimeout = setupConnectTimeout(new WeakRef(socket), { timeout, hostname, port });
-    socket.setNoDelay(true).once(protocol === "https:" ? "secureConnect" : "connect", function() {
+    socket.setNoDelay(true).once(protocol2 === "https:" ? "secureConnect" : "connect", function() {
       queueMicrotask(clearConnectTimeout);
       if (callback) {
         const cb = callback;
@@ -10759,16 +11304,16 @@ function requireUtil$5() {
   }
   function urlIsLocal(url) {
     assert2("protocol" in url);
-    const protocol = url.protocol;
-    return protocol === "about:" || protocol === "blob:" || protocol === "data:";
+    const protocol2 = url.protocol;
+    return protocol2 === "about:" || protocol2 === "blob:" || protocol2 === "data:";
   }
   function urlHasHttpsScheme(url) {
     return typeof url === "string" && url[5] === ":" && url[0] === "h" && url[1] === "t" && url[2] === "t" && url[3] === "p" && url[4] === "s" || url.protocol === "https:";
   }
   function urlIsHttpHttpsScheme(url) {
     assert2("protocol" in url);
-    const protocol = url.protocol;
-    return protocol === "http:" || protocol === "https:";
+    const protocol2 = url.protocol;
+    return protocol2 === "http:" || protocol2 === "https:";
   }
   function simpleRangeHeaderValue(value, allowWhitespace) {
     const data = value;
@@ -13638,9 +14183,10 @@ let Client$6 = class Client extends DispatcherBase$4 {
     autoSelectFamilyAttemptTimeout,
     // h2
     maxConcurrentStreams,
-    allowH2
+    allowH2,
+    webSocket
   } = {}) {
-    super();
+    super({ webSocket });
     if (keepAlive !== void 0) {
       throw new InvalidArgumentError$i("unsupported keepAlive, use pipelining=0 instead");
     }
@@ -13850,7 +14396,7 @@ async function connect$1(client2) {
   var _a2, _b2, _c2;
   assert$8(!client2[kConnecting]);
   assert$8(!client2[kHTTPContext]);
-  let { host, hostname, protocol, port } = client2[kUrl$3];
+  let { host, hostname, protocol: protocol2, port } = client2[kUrl$3];
   if (hostname[0] === "[") {
     const idx = hostname.indexOf("]");
     assert$8(idx !== -1);
@@ -13864,7 +14410,7 @@ async function connect$1(client2) {
       connectParams: {
         host,
         hostname,
-        protocol,
+        protocol: protocol2,
         port,
         version: (_a2 = client2[kHTTPContext]) == null ? void 0 : _a2.version,
         servername: client2[kServerName],
@@ -13878,7 +14424,7 @@ async function connect$1(client2) {
       client2[kConnector]({
         host,
         hostname,
-        protocol,
+        protocol: protocol2,
         port,
         servername: client2[kServerName],
         localAddress: client2[kLocalAddress]
@@ -13911,7 +14457,7 @@ async function connect$1(client2) {
         connectParams: {
           host,
           hostname,
-          protocol,
+          protocol: protocol2,
           port,
           version: (_b2 = client2[kHTTPContext]) == null ? void 0 : _b2.version,
           servername: client2[kServerName],
@@ -13932,7 +14478,7 @@ async function connect$1(client2) {
         connectParams: {
           host,
           hostname,
-          protocol,
+          protocol: protocol2,
           port,
           version: (_c2 = client2[kHTTPContext]) == null ? void 0 : _c2.version,
           servername: client2[kServerName],
@@ -14129,8 +14675,8 @@ const kAddClient$2 = Symbol("add client");
 const kRemoveClient$1 = Symbol("remove client");
 const kStats = Symbol("stats");
 let PoolBase$2 = class PoolBase extends DispatcherBase$3 {
-  constructor() {
-    super();
+  constructor(opts) {
+    super(opts);
     this[kQueue] = new FixedQueue2();
     this[kClients$4] = [];
     this[kQueued] = 0;
@@ -14295,7 +14841,6 @@ let Pool$5 = class Pool extends PoolBase$1 {
     ...options
   } = {}) {
     var _a2;
-    super();
     if (connections != null && (!Number.isFinite(connections) || connections < 0)) {
       throw new InvalidArgumentError$h("invalid connections");
     }
@@ -14316,6 +14861,7 @@ let Pool$5 = class Pool extends PoolBase$1 {
         ...connect2
       });
     }
+    super(options);
     this[kInterceptors$3] = ((_a2 = options.interceptors) == null ? void 0 : _a2.Pool) && Array.isArray(options.interceptors.Pool) ? options.interceptors.Pool : [];
     this[kConnections] = connections || null;
     this[kUrl$1] = util$g.parseOrigin(origin);
@@ -14503,7 +15049,6 @@ function defaultFactory$1(origin, opts) {
 let Agent$5 = class Agent extends DispatcherBase$2 {
   constructor({ factory = defaultFactory$1, maxRedirections = 0, connect: connect2, ...options } = {}) {
     var _a2;
-    super();
     if (typeof factory !== "function") {
       throw new InvalidArgumentError$f("factory must be a function.");
     }
@@ -14513,6 +15058,7 @@ let Agent$5 = class Agent extends DispatcherBase$2 {
     if (!Number.isInteger(maxRedirections) || maxRedirections < 0) {
       throw new InvalidArgumentError$f("maxRedirections must be a positive number");
     }
+    super(options);
     if (connect2 && typeof connect2 !== "function") {
       connect2 = { ...connect2 };
     }
@@ -14589,8 +15135,8 @@ const kRequestTls = Symbol("request tls settings");
 const kProxyTls = Symbol("proxy tls settings");
 const kConnectEndpoint = Symbol("connect endpoint function");
 const kTunnelProxy = Symbol("tunnel proxy");
-function defaultProtocolPort(protocol) {
-  return protocol === "https:" ? 443 : 80;
+function defaultProtocolPort(protocol2) {
+  return protocol2 === "https:" ? 443 : 80;
 }
 function defaultFactory(origin, opts) {
   return new Pool$2(origin, opts);
@@ -14663,8 +15209,8 @@ let ProxyAgent$2 = (_V = class extends DispatcherBase$1 {
     }
     const { proxyTunnel = true } = opts;
     const url = __privateMethod(this, _ProxyAgent_instances, getUrl_fn).call(this, opts);
-    const { href, origin, port, protocol, username, password, hostname: proxyHostname } = url;
-    this[kProxy] = { uri: href, protocol };
+    const { href, origin, port, protocol: protocol2, username, password, hostname: proxyHostname } = url;
+    this[kProxy] = { uri: href, protocol: protocol2 };
     this[kInterceptors] = ((_a2 = opts.interceptors) == null ? void 0 : _a2.ProxyAgent) && Array.isArray(opts.interceptors.ProxyAgent) ? opts.interceptors.ProxyAgent : [];
     this[kRequestTls] = opts.requestTls;
     this[kProxyTls] = opts.proxyTls;
@@ -14683,8 +15229,8 @@ let ProxyAgent$2 = (_V = class extends DispatcherBase$1 {
     this[kConnectEndpoint] = buildConnector$1({ ...opts.requestTls });
     const agentFactory = opts.factory || defaultAgentFactory;
     const factory = (origin2, options) => {
-      const { protocol: protocol2 } = new URL$1(origin2);
-      if (!this[kTunnelProxy] && protocol2 === "http:" && this[kProxy].protocol === "http:") {
+      const { protocol: protocol3 } = new URL$1(origin2);
+      if (!this[kTunnelProxy] && protocol3 === "http:" && this[kProxy].protocol === "http:") {
         return new Http1ProxyWrapper(this[kProxy].uri, {
           headers: this[kProxyHeaders],
           connect: connect2,
@@ -14856,13 +15402,13 @@ let EnvHttpProxyAgent$1 = (_W = class extends DispatcherBase2 {
     }
   }
 }, _noProxyValue = new WeakMap(), _noProxyEntries = new WeakMap(), _opts = new WeakMap(), _EnvHttpProxyAgent_instances = new WeakSet(), getProxyAgentForUrl_fn = function(url) {
-  let { protocol, host: hostname, port } = url;
+  let { protocol: protocol2, host: hostname, port } = url;
   hostname = hostname.replace(/:\d*$/, "").toLowerCase();
-  port = Number.parseInt(port, 10) || DEFAULT_PORTS[protocol] || 0;
+  port = Number.parseInt(port, 10) || DEFAULT_PORTS[protocol2] || 0;
   if (!__privateMethod(this, _EnvHttpProxyAgent_instances, shouldProxy_fn).call(this, hostname, port)) {
     return this[kNoProxyAgent];
   }
-  if (protocol === "https:") {
+  if (protocol2 === "https:") {
     return this[kHttpsProxyAgent];
   }
   return this[kHttpProxyAgent];
@@ -22593,12 +23139,12 @@ function requireUtil$1() {
     }
     return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
   }
-  function isValidSubprotocol(protocol) {
-    if (protocol.length === 0) {
+  function isValidSubprotocol(protocol2) {
+    if (protocol2.length === 0) {
       return false;
     }
-    for (let i = 0; i < protocol.length; ++i) {
-      const code = protocol.charCodeAt(i);
+    for (let i = 0; i < protocol2.length; ++i) {
+      const code = protocol2.charCodeAt(i);
       if (code < 33 || // CTL, contains SP (0x20) and HT (0x09)
       code > 126 || code === 34 || // "
       code === 40 || // (
@@ -22834,8 +23380,8 @@ function requireConnection() {
     const keyValue = crypto.randomBytes(16).toString("base64");
     request2.headersList.append("sec-websocket-key", keyValue);
     request2.headersList.append("sec-websocket-version", "13");
-    for (const protocol of protocols) {
-      request2.headersList.append("sec-websocket-protocol", protocol);
+    for (const protocol2 of protocols) {
+      request2.headersList.append("sec-websocket-protocol", protocol2);
     }
     const permessageDeflate2 = "permessage-deflate; client_max_window_bits";
     request2.headersList.append("sec-websocket-extensions", permessageDeflate2);
@@ -22977,7 +23523,7 @@ function requireConnection() {
 var permessageDeflate;
 var hasRequiredPermessageDeflate;
 function requirePermessageDeflate() {
-  var _inflate, _options2, _aborted2, _currentCallback;
+  var _inflate, _options2, _maxPayloadSize;
   if (hasRequiredPermessageDeflate) return permessageDeflate;
   hasRequiredPermessageDeflate = 1;
   const { createInflateRaw, Z_DEFAULT_WINDOWBITS } = require$$1$3;
@@ -22986,27 +23532,26 @@ function requirePermessageDeflate() {
   const tail = Buffer.from([0, 0, 255, 255]);
   const kBuffer = Symbol("kBuffer");
   const kLength = Symbol("kLength");
-  const kDefaultMaxDecompressedSize = 4 * 1024 * 1024;
   class PerMessageDeflate3 {
     /**
      * @param {Map<string, string>} extensions
      */
-    constructor(extensions) {
+    constructor(extensions, options) {
       /** @type {import('node:zlib').InflateRaw} */
       __privateAdd(this, _inflate);
       __privateAdd(this, _options2, {});
-      /** @type {boolean} */
-      __privateAdd(this, _aborted2, false);
-      /** @type {Function|null} */
-      __privateAdd(this, _currentCallback, null);
+      __privateAdd(this, _maxPayloadSize, 0);
       __privateGet(this, _options2).serverNoContextTakeover = extensions.has("server_no_context_takeover");
       __privateGet(this, _options2).serverMaxWindowBits = extensions.get("server_max_window_bits");
+      __privateSet(this, _maxPayloadSize, options.maxPayloadSize);
     }
+    /**
+     * Decompress a compressed payload.
+     * @param {Buffer} chunk Compressed data
+     * @param {boolean} fin Final fragment flag
+     * @param {Function} callback Callback function
+     */
     decompress(chunk, fin, callback) {
-      if (__privateGet(this, _aborted2)) {
-        callback(new MessageSizeExceededError2());
-        return;
-      }
       if (!__privateGet(this, _inflate)) {
         let windowBits = Z_DEFAULT_WINDOWBITS;
         if (__privateGet(this, _options2).serverMaxWindowBits) {
@@ -23025,20 +23570,11 @@ function requirePermessageDeflate() {
         __privateGet(this, _inflate)[kBuffer] = [];
         __privateGet(this, _inflate)[kLength] = 0;
         __privateGet(this, _inflate).on("data", (data) => {
-          if (__privateGet(this, _aborted2)) {
-            return;
-          }
           __privateGet(this, _inflate)[kLength] += data.length;
-          if (__privateGet(this, _inflate)[kLength] > kDefaultMaxDecompressedSize) {
-            __privateSet(this, _aborted2, true);
+          if (__privateGet(this, _maxPayloadSize) > 0 && __privateGet(this, _inflate)[kLength] > __privateGet(this, _maxPayloadSize)) {
+            callback(new MessageSizeExceededError2());
             __privateGet(this, _inflate).removeAllListeners();
-            __privateGet(this, _inflate).destroy();
             __privateSet(this, _inflate, null);
-            if (__privateGet(this, _currentCallback)) {
-              const cb = __privateGet(this, _currentCallback);
-              __privateSet(this, _currentCallback, null);
-              cb(new MessageSizeExceededError2());
-            }
             return;
           }
           __privateGet(this, _inflate)[kBuffer].push(data);
@@ -23048,34 +23584,31 @@ function requirePermessageDeflate() {
           callback(err);
         });
       }
-      __privateSet(this, _currentCallback, callback);
       __privateGet(this, _inflate).write(chunk);
       if (fin) {
         __privateGet(this, _inflate).write(tail);
       }
       __privateGet(this, _inflate).flush(() => {
-        if (__privateGet(this, _aborted2) || !__privateGet(this, _inflate)) {
+        if (!__privateGet(this, _inflate)) {
           return;
         }
         const full = Buffer.concat(__privateGet(this, _inflate)[kBuffer], __privateGet(this, _inflate)[kLength]);
         __privateGet(this, _inflate)[kBuffer].length = 0;
         __privateGet(this, _inflate)[kLength] = 0;
-        __privateSet(this, _currentCallback, null);
         callback(null, full);
       });
     }
   }
   _inflate = new WeakMap();
   _options2 = new WeakMap();
-  _aborted2 = new WeakMap();
-  _currentCallback = new WeakMap();
+  _maxPayloadSize = new WeakMap();
   permessageDeflate = { PerMessageDeflate: PerMessageDeflate3 };
   return permessageDeflate;
 }
 var receiver;
 var hasRequiredReceiver;
 function requireReceiver() {
-  var _buffers, _byteOffset, _loop, _state2, _info, _fragments, _extensions;
+  var _buffers, _fragmentsBytes, _byteOffset, _loop, _state2, _info, _fragments, _extensions, _maxPayloadSize, _ByteParser_instances, validatePayloadLength_fn;
   if (hasRequiredReceiver) return receiver;
   hasRequiredReceiver = 1;
   const { Writable: Writable2 } = require$$0$7;
@@ -23096,14 +23629,18 @@ function requireReceiver() {
   const { WebsocketFrameSend } = requireFrame();
   const { closeWebSocketConnection } = requireConnection();
   const { PerMessageDeflate: PerMessageDeflate3 } = requirePermessageDeflate();
+  const { MessageSizeExceededError: MessageSizeExceededError2 } = errors$3;
   class ByteParser extends Writable2 {
     /**
      * @param {import('./websocket').WebSocket} ws
      * @param {Map<string, string>|null} extensions
+     * @param {{ maxPayloadSize?: number }} [options]
      */
-    constructor(ws, extensions) {
+    constructor(ws, extensions, options = {}) {
       super();
+      __privateAdd(this, _ByteParser_instances);
       __privateAdd(this, _buffers, []);
+      __privateAdd(this, _fragmentsBytes, 0);
       __privateAdd(this, _byteOffset, 0);
       __privateAdd(this, _loop, false);
       __privateAdd(this, _state2, parserStates.INFO);
@@ -23111,10 +23648,13 @@ function requireReceiver() {
       __privateAdd(this, _fragments, []);
       /** @type {Map<string, PerMessageDeflate>} */
       __privateAdd(this, _extensions);
+      /** @type {number} */
+      __privateAdd(this, _maxPayloadSize);
       this.ws = ws;
       __privateSet(this, _extensions, extensions == null ? /* @__PURE__ */ new Map() : extensions);
+      __privateSet(this, _maxPayloadSize, options.maxPayloadSize ?? 0);
       if (__privateGet(this, _extensions).has("permessage-deflate")) {
-        __privateGet(this, _extensions).set("permessage-deflate", new PerMessageDeflate3(extensions));
+        __privateGet(this, _extensions).set("permessage-deflate", new PerMessageDeflate3(extensions, options));
       }
     }
     /**
@@ -23186,6 +23726,9 @@ function requireReceiver() {
           if (payloadLength <= 125) {
             __privateGet(this, _info).payloadLength = payloadLength;
             __privateSet(this, _state2, parserStates.READ_DATA);
+            if (!__privateMethod(this, _ByteParser_instances, validatePayloadLength_fn).call(this)) {
+              return;
+            }
           } else if (payloadLength === 126) {
             __privateSet(this, _state2, parserStates.PAYLOADLENGTH_16);
           } else if (payloadLength === 127) {
@@ -23206,6 +23749,9 @@ function requireReceiver() {
           const buffer = this.consume(2);
           __privateGet(this, _info).payloadLength = buffer.readUInt16BE(0);
           __privateSet(this, _state2, parserStates.READ_DATA);
+          if (!__privateMethod(this, _ByteParser_instances, validatePayloadLength_fn).call(this)) {
+            return;
+          }
         } else if (__privateGet(this, _state2) === parserStates.PAYLOADLENGTH_64) {
           if (__privateGet(this, _byteOffset) < 8) {
             return callback();
@@ -23219,6 +23765,9 @@ function requireReceiver() {
           }
           __privateGet(this, _info).payloadLength = lower;
           __privateSet(this, _state2, parserStates.READ_DATA);
+          if (!__privateMethod(this, _ByteParser_instances, validatePayloadLength_fn).call(this)) {
+            return;
+          }
         } else if (__privateGet(this, _state2) === parserStates.READ_DATA) {
           if (__privateGet(this, _byteOffset) < __privateGet(this, _info).payloadLength) {
             return callback();
@@ -23229,32 +23778,41 @@ function requireReceiver() {
             __privateSet(this, _state2, parserStates.INFO);
           } else {
             if (!__privateGet(this, _info).compressed) {
-              __privateGet(this, _fragments).push(body2);
+              this.writeFragments(body2);
+              if (__privateGet(this, _maxPayloadSize) > 0 && __privateGet(this, _fragmentsBytes) > __privateGet(this, _maxPayloadSize)) {
+                failWebsocketConnection(this.ws, new MessageSizeExceededError2().message);
+                return;
+              }
               if (!__privateGet(this, _info).fragmented && __privateGet(this, _info).fin) {
-                const fullMessage = Buffer.concat(__privateGet(this, _fragments));
-                websocketMessageReceived(this.ws, __privateGet(this, _info).binaryType, fullMessage);
-                __privateGet(this, _fragments).length = 0;
+                websocketMessageReceived(this.ws, __privateGet(this, _info).binaryType, this.consumeFragments());
               }
               __privateSet(this, _state2, parserStates.INFO);
             } else {
-              __privateGet(this, _extensions).get("permessage-deflate").decompress(body2, __privateGet(this, _info).fin, (error, data) => {
-                if (error) {
-                  failWebsocketConnection(this.ws, error.message);
-                  return;
-                }
-                __privateGet(this, _fragments).push(data);
-                if (!__privateGet(this, _info).fin) {
-                  __privateSet(this, _state2, parserStates.INFO);
+              __privateGet(this, _extensions).get("permessage-deflate").decompress(
+                body2,
+                __privateGet(this, _info).fin,
+                (error, data) => {
+                  if (error) {
+                    failWebsocketConnection(this.ws, error.message);
+                    return;
+                  }
+                  this.writeFragments(data);
+                  if (__privateGet(this, _maxPayloadSize) > 0 && __privateGet(this, _fragmentsBytes) > __privateGet(this, _maxPayloadSize)) {
+                    failWebsocketConnection(this.ws, new MessageSizeExceededError2().message);
+                    return;
+                  }
+                  if (!__privateGet(this, _info).fin) {
+                    __privateSet(this, _state2, parserStates.INFO);
+                    __privateSet(this, _loop, true);
+                    this.run(callback);
+                    return;
+                  }
+                  websocketMessageReceived(this.ws, __privateGet(this, _info).binaryType, this.consumeFragments());
                   __privateSet(this, _loop, true);
+                  __privateSet(this, _state2, parserStates.INFO);
                   this.run(callback);
-                  return;
                 }
-                websocketMessageReceived(this.ws, __privateGet(this, _info).binaryType, Buffer.concat(__privateGet(this, _fragments)));
-                __privateSet(this, _loop, true);
-                __privateSet(this, _state2, parserStates.INFO);
-                __privateGet(this, _fragments).length = 0;
-                this.run(callback);
-              });
+              );
               __privateSet(this, _loop, false);
               break;
             }
@@ -23296,6 +23854,21 @@ function requireReceiver() {
       }
       __privateSet(this, _byteOffset, __privateGet(this, _byteOffset) - n);
       return buffer;
+    }
+    writeFragments(fragment) {
+      __privateSet(this, _fragmentsBytes, __privateGet(this, _fragmentsBytes) + fragment.length);
+      __privateGet(this, _fragments).push(fragment);
+    }
+    consumeFragments() {
+      const fragments = __privateGet(this, _fragments);
+      if (fragments.length === 1) {
+        __privateSet(this, _fragmentsBytes, 0);
+        return fragments.shift();
+      }
+      const output = Buffer.concat(fragments, __privateGet(this, _fragmentsBytes));
+      __privateSet(this, _fragments, []);
+      __privateSet(this, _fragmentsBytes, 0);
+      return output;
     }
     parseCloseBody(data) {
       assert2(data.length !== 1);
@@ -23378,12 +23951,22 @@ function requireReceiver() {
     }
   }
   _buffers = new WeakMap();
+  _fragmentsBytes = new WeakMap();
   _byteOffset = new WeakMap();
   _loop = new WeakMap();
   _state2 = new WeakMap();
   _info = new WeakMap();
   _fragments = new WeakMap();
   _extensions = new WeakMap();
+  _maxPayloadSize = new WeakMap();
+  _ByteParser_instances = new WeakSet();
+  validatePayloadLength_fn = function() {
+    if (__privateGet(this, _maxPayloadSize) > 0 && !isControlFrame(__privateGet(this, _info).opcode) && __privateGet(this, _info).payloadLength > __privateGet(this, _maxPayloadSize)) {
+      failWebsocketConnection(this.ws, "Payload size exceeds maximum allowed size");
+      return false;
+    }
+    return true;
+  };
   receiver = {
     ByteParser
   };
@@ -23755,8 +24338,12 @@ function requireWebsocket() {
    * @see https://websockets.spec.whatwg.org/#feedback-from-the-protocol
    */
   onConnectionEstablished_fn = function(response2, parsedExtensions) {
+    var _a2, _b2, _c2;
     this[kResponse] = response2;
-    const parser = new ByteParser(this, parsedExtensions);
+    const maxPayloadSize = (_c2 = (_b2 = (_a2 = this[kController]) == null ? void 0 : _a2.dispatcher) == null ? void 0 : _b2.webSocketOptions) == null ? void 0 : _c2.maxPayloadSize;
+    const parser = new ByteParser(this, parsedExtensions, {
+      maxPayloadSize
+    });
     parser.on("drain", onParserDrain);
     parser.on("error", onParserError.bind(this));
     response2.socket.ws = this;
@@ -23767,9 +24354,9 @@ function requireWebsocket() {
     if (extensions !== null) {
       __privateSet(this, _extensions, extensions);
     }
-    const protocol = response2.headersList.get("sec-websocket-protocol");
-    if (protocol !== null) {
-      __privateSet(this, _protocol, protocol);
+    const protocol2 = response2.headersList.get("sec-websocket-protocol");
+    if (protocol2 !== null) {
+      __privateSet(this, _protocol, protocol2);
     }
     fireEvent("open", this);
   };
@@ -24729,10 +25316,10 @@ var node$1 = {};
 var he = { exports: {} };
 /*! https://mths.be/he v1.2.0 by @mathias | MIT license */
 he.exports;
-(function(module2, exports$1) {
+(function(module, exports$1) {
   (function(root) {
     var freeExports = exports$1;
-    var freeModule = module2 && module2.exports == freeExports && module2;
+    var freeModule = module && module.exports == freeExports && module;
     var freeGlobal = typeof commonjsGlobal == "object" && commonjsGlobal;
     if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
       root = freeGlobal;
@@ -25884,10 +26471,10 @@ var decode_codepoint = {};
     DecodingMode2[DecodingMode2["Strict"] = 1] = "Strict";
     DecodingMode2[DecodingMode2["Attribute"] = 2] = "Attribute";
   })(DecodingMode = exports$1.DecodingMode || (exports$1.DecodingMode = {}));
-  var EntityDecoder = (
+  var EntityDecoder2 = (
     /** @class */
     function() {
-      function EntityDecoder2(decodeTree, emitCodePoint, errors2) {
+      function EntityDecoder3(decodeTree, emitCodePoint, errors2) {
         this.decodeTree = decodeTree;
         this.emitCodePoint = emitCodePoint;
         this.errors = errors2;
@@ -25898,7 +26485,7 @@ var decode_codepoint = {};
         this.excess = 1;
         this.decodeMode = DecodingMode.Strict;
       }
-      EntityDecoder2.prototype.startEntity = function(decodeMode) {
+      EntityDecoder3.prototype.startEntity = function(decodeMode) {
         this.decodeMode = decodeMode;
         this.state = EntityDecoderState.EntityStart;
         this.result = 0;
@@ -25906,7 +26493,7 @@ var decode_codepoint = {};
         this.excess = 1;
         this.consumed = 1;
       };
-      EntityDecoder2.prototype.write = function(str, offset) {
+      EntityDecoder3.prototype.write = function(str, offset) {
         switch (this.state) {
           case EntityDecoderState.EntityStart: {
             if (str.charCodeAt(offset) === CharCodes.NUM) {
@@ -25931,7 +26518,7 @@ var decode_codepoint = {};
           }
         }
       };
-      EntityDecoder2.prototype.stateNumericStart = function(str, offset) {
+      EntityDecoder3.prototype.stateNumericStart = function(str, offset) {
         if (offset >= str.length) {
           return -1;
         }
@@ -25943,14 +26530,14 @@ var decode_codepoint = {};
         this.state = EntityDecoderState.NumericDecimal;
         return this.stateNumericDecimal(str, offset);
       };
-      EntityDecoder2.prototype.addToNumericResult = function(str, start, end, base) {
+      EntityDecoder3.prototype.addToNumericResult = function(str, start, end, base) {
         if (start !== end) {
           var digitCount = end - start;
           this.result = this.result * Math.pow(base, digitCount) + parseInt(str.substr(start, digitCount), base);
           this.consumed += digitCount;
         }
       };
-      EntityDecoder2.prototype.stateNumericHex = function(str, offset) {
+      EntityDecoder3.prototype.stateNumericHex = function(str, offset) {
         var startIdx = offset;
         while (offset < str.length) {
           var char = str.charCodeAt(offset);
@@ -25964,7 +26551,7 @@ var decode_codepoint = {};
         this.addToNumericResult(str, startIdx, offset, 16);
         return -1;
       };
-      EntityDecoder2.prototype.stateNumericDecimal = function(str, offset) {
+      EntityDecoder3.prototype.stateNumericDecimal = function(str, offset) {
         var startIdx = offset;
         while (offset < str.length) {
           var char = str.charCodeAt(offset);
@@ -25978,7 +26565,7 @@ var decode_codepoint = {};
         this.addToNumericResult(str, startIdx, offset, 10);
         return -1;
       };
-      EntityDecoder2.prototype.emitNumericEntity = function(lastCp, expectedLength) {
+      EntityDecoder3.prototype.emitNumericEntity = function(lastCp, expectedLength) {
         var _a2;
         if (this.consumed <= expectedLength) {
           (_a2 = this.errors) === null || _a2 === void 0 ? void 0 : _a2.absenceOfDigitsInNumericCharacterReference(this.consumed);
@@ -25998,7 +26585,7 @@ var decode_codepoint = {};
         }
         return this.consumed;
       };
-      EntityDecoder2.prototype.stateNamedEntity = function(str, offset) {
+      EntityDecoder3.prototype.stateNamedEntity = function(str, offset) {
         var decodeTree = this.decodeTree;
         var current = decodeTree[this.treeIndex];
         var valueLength = (current & BinTrieFlags.VALUE_LENGTH) >> 14;
@@ -26026,7 +26613,7 @@ var decode_codepoint = {};
         }
         return -1;
       };
-      EntityDecoder2.prototype.emitNotTerminatedNamedEntity = function() {
+      EntityDecoder3.prototype.emitNotTerminatedNamedEntity = function() {
         var _a2;
         var _b2 = this, result = _b2.result, decodeTree = _b2.decodeTree;
         var valueLength = (decodeTree[result] & BinTrieFlags.VALUE_LENGTH) >> 14;
@@ -26034,7 +26621,7 @@ var decode_codepoint = {};
         (_a2 = this.errors) === null || _a2 === void 0 ? void 0 : _a2.missingSemicolonAfterCharacterReference();
         return this.consumed;
       };
-      EntityDecoder2.prototype.emitNamedEntityData = function(result, valueLength, consumed) {
+      EntityDecoder3.prototype.emitNamedEntityData = function(result, valueLength, consumed) {
         var decodeTree = this.decodeTree;
         this.emitCodePoint(valueLength === 1 ? decodeTree[result] & ~BinTrieFlags.VALUE_LENGTH : decodeTree[result + 1], consumed);
         if (valueLength === 3) {
@@ -26042,7 +26629,7 @@ var decode_codepoint = {};
         }
         return consumed;
       };
-      EntityDecoder2.prototype.end = function() {
+      EntityDecoder3.prototype.end = function() {
         var _a2;
         switch (this.state) {
           case EntityDecoderState.NamedEntity: {
@@ -26063,13 +26650,13 @@ var decode_codepoint = {};
           }
         }
       };
-      return EntityDecoder2;
+      return EntityDecoder3;
     }()
   );
-  exports$1.EntityDecoder = EntityDecoder;
+  exports$1.EntityDecoder = EntityDecoder2;
   function getDecoder(decodeTree) {
     var ret = "";
-    var decoder2 = new EntityDecoder(decodeTree, function(str) {
+    var decoder2 = new EntityDecoder2(decodeTree, function(str) {
       return ret += (0, decode_codepoint_js_1.fromCodePoint)(str);
     });
     return function decodeWithTrie(str, decodeMode) {
@@ -30559,8 +31146,8 @@ function requireSong() {
         throw new errors_12.InvalidTypeError("removeChorus", "boolean", typeof removeChorus);
       }
       const body2 = await this.client.request.get(this.url);
-      const document2 = (0, node_html_parser_1.default)(body2);
-      const lyricsRoot = document2.getElementById("lyrics-root");
+      const document = (0, node_html_parser_1.default)(body2);
+      const lyricsRoot = document.getElementById("lyrics-root");
       const lyrics = lyricsRoot == null ? void 0 : lyricsRoot.querySelectorAll("[data-lyrics-container='true']").map((x) => {
         x.querySelectorAll("br").forEach((y) => {
           y.replaceWith(new node_html_parser_1.default.TextNode("\n"));
@@ -33539,23 +34126,23 @@ var admZip = function(input, options) {
   };
 };
 const AdmZip = /* @__PURE__ */ getDefaultExportFromCjs(admZip);
-electron.app.disableHardwareAcceleration();
+app.disableHardwareAcceleration();
 const GENIUS_ACCESS_TOKEN = "x8Q-VA-Zw5QJIrJfJyUJzygT8LRp2wUU7J37mgBPpofzMv6_q9eSkkN7nsQZz7pf";
 const GeniusClient = new Genius.Client(GENIUS_ACCESS_TOKEN);
-const __dirname$1 = path.dirname(require$$7.fileURLToPath(typeof document === "undefined" ? require("url").pathToFileURL(__filename).href : _documentCurrentScript && _documentCurrentScript.tagName.toUpperCase() === "SCRIPT" && _documentCurrentScript.src || new URL("main.js", document.baseURI).href));
+const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-electron.protocol.registerSchemesAsPrivileged([
+protocol.registerSchemesAsPrivileged([
   { scheme: "crossenter", privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }
 ]);
 let wss = null;
 function startSyncEngine() {
-  wss = new WebSocketServer2({ port: 8080 });
+  wss = new WebSocketServer$1({ port: 8080 });
   console.log("[Main] Sync Engine started on ws://localhost:8080");
   wss.on("connection", (socket) => {
     socket.on("message", (data) => {
       const message = data.toString();
       wss == null ? void 0 : wss.clients.forEach((client2) => {
-        if (client2 !== socket && client2.readyState === WebSocket$1.OPEN) {
+        if (client2 !== socket && client2.readyState === WebSocket$2.OPEN) {
           client2.send(message);
         }
       });
@@ -33565,8 +34152,8 @@ function startSyncEngine() {
 }
 function registerHandlers() {
   console.log("[Main] Registering Bible IPC handlers...");
-  electron.ipcMain.handle("bible:import", async () => {
-    const { canceled, filePaths } = await electron.dialog.showOpenDialog({
+  ipcMain.handle("bible:import", async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
       title: "Import Bible (Zefania XML)",
       filters: [{ name: "XML Files", extensions: ["xml"] }],
       properties: ["openFile"]
@@ -33579,18 +34166,18 @@ function registerHandlers() {
       throw error;
     }
   });
-  electron.ipcMain.handle("bible:get-all", async () => dbOps.getBibles());
-  electron.ipcMain.handle("bible:get-books", async (_e2, id) => dbOps.getBooks(id));
-  electron.ipcMain.handle("bible:get-verses", async (_e2, b, c) => dbOps.getVerses(b, c));
-  electron.ipcMain.handle("bible:get-chapter-count", async (_e2, id) => dbOps.getChapterCount(id));
-  electron.ipcMain.handle("bible:delete", async (_e2, id) => dbOps.deleteBible(id));
-  electron.ipcMain.handle("show:get-all", async (_e2, catId) => dbOps.getShows(catId));
-  electron.ipcMain.handle("show:get-with-slides", async (_e2, id) => dbOps.getShowWithSlides(id));
-  electron.ipcMain.handle("show:save", async (_e2, data) => {
+  ipcMain.handle("bible:get-all", async () => dbOps.getBibles());
+  ipcMain.handle("bible:get-books", async (_e2, id) => dbOps.getBooks(id));
+  ipcMain.handle("bible:get-verses", async (_e2, b, c) => dbOps.getVerses(b, c));
+  ipcMain.handle("bible:get-chapter-count", async (_e2, id) => dbOps.getChapterCount(id));
+  ipcMain.handle("bible:delete", async (_e2, id) => dbOps.deleteBible(id));
+  ipcMain.handle("show:get-all", async (_e2, catId) => dbOps.getShows(catId));
+  ipcMain.handle("show:get-with-slides", async (_e2, id) => dbOps.getShowWithSlides(id));
+  ipcMain.handle("show:save", async (_e2, data) => {
     try {
       console.log(`[Main] Saving show: ${data.title} with ${data.slides.length} slides`);
       const result = await dbOps.saveShow(data);
-      electron.BrowserWindow.getAllWindows().forEach((win) => {
+      BrowserWindow.getAllWindows().forEach((win) => {
         win.webContents.send("show:list-updated");
       });
       return result;
@@ -33599,10 +34186,10 @@ function registerHandlers() {
       throw err;
     }
   });
-  electron.ipcMain.handle("show:delete", async (_e2, id) => dbOps.deleteShow(id));
-  electron.ipcMain.handle("category:get-all", async (_e2, type2) => dbOps.getCategories(type2));
-  electron.ipcMain.handle("category:add", async (_e2, { name, type: type2 }) => dbOps.saveCategory(name, type2));
-  electron.ipcMain.handle("search-web-lyrics", async (_e2, query) => {
+  ipcMain.handle("show:delete", async (_e2, id) => dbOps.deleteShow(id));
+  ipcMain.handle("category:get-all", async (_e2, type2) => dbOps.getCategories(type2));
+  ipcMain.handle("category:add", async (_e2, { name, type: type2 }) => dbOps.saveCategory(name, type2));
+  ipcMain.handle("search-web-lyrics", async (_e2, query) => {
     const results = [];
     const searches = await Promise.allSettled([
       // 1. Genius
@@ -33610,21 +34197,21 @@ function registerHandlers() {
         (songs2) => songs2.slice(0, 5).map((s) => ({ title: s.title, artist: s.artist.name, id: s.id, source: "Genius" }))
       ),
       // 2. LRCLIB
-      electron.net.fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`, { headers: { "User-Agent": "CrossenterApp/1.0.0" } }).then((r) => r.json()).then((data) => (data || []).slice(0, 5).map((r) => ({
+      net$4.fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`, { headers: { "User-Agent": "CrossenterApp/1.0.0" } }).then((r) => r.json()).then((data) => (data || []).slice(0, 5).map((r) => ({
         title: r.trackName,
         artist: r.artistName,
         instantLyrics: r.plainLyrics,
         source: "LRCLIB"
       }))),
       // 3. Hymnary
-      electron.net.fetch(`https://hymnary.org/hymnary/api/v1/search?term=${encodeURIComponent(query)}`).then((r) => r.json()).then((data) => (data || []).slice(0, 5).map((r) => ({
+      net$4.fetch(`https://hymnary.org/hymnary/api/v1/search?term=${encodeURIComponent(query)}`).then((r) => r.json()).then((data) => (data || []).slice(0, 5).map((r) => ({
         title: r.title,
         artist: r.hymnal || "Hymnary",
         id: r.uri,
         source: "Hymnary"
       }))),
       // 4. Letras
-      electron.net.fetch(`https://www.letras.mus.br/winamp.php?t=${encodeURIComponent(query)}`).then((r) => r.text()).then((text2) => {
+      net$4.fetch(`https://www.letras.mus.br/winamp.php?t=${encodeURIComponent(query)}`).then((r) => r.text()).then((text2) => {
         return [{ title: query, artist: "Various", id: query, source: "Letras", instantLyrics: text2 }];
       })
     ]);
@@ -33633,7 +34220,7 @@ function registerHandlers() {
     });
     return results;
   });
-  electron.ipcMain.handle("fetch-web-lyrics", async (_e2, { id, source }) => {
+  ipcMain.handle("fetch-web-lyrics", async (_e2, { id, source }) => {
     try {
       console.log(`[Main] Fetching lyrics for ${source} (ID: ${id})`);
       if (source === "Genius") {
@@ -33643,14 +34230,14 @@ function registerHandlers() {
         return lyrics || "";
       }
       if (source === "Hymnary") {
-        const response2 = await electron.net.fetch(`https://hymnary.org/${id}`);
+        const response2 = await net$4.fetch(`https://hymnary.org/${id}`);
         const html2 = await response2.text();
         const match = html2.match(/<div id="hymn_text">([\s\S]*?)<\/div>/);
         const text2 = match ? match[1] : "Lyrics not found on page structure";
         return text2.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
       }
       if (source === "Letras") {
-        const response2 = await electron.net.fetch(`https://www.letras.mus.br/winamp.php?t=${encodeURIComponent(id)}`);
+        const response2 = await net$4.fetch(`https://www.letras.mus.br/winamp.php?t=${encodeURIComponent(id)}`);
         const body2 = await response2.text();
         return body2.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
       }
@@ -33660,21 +34247,21 @@ function registerHandlers() {
       return "";
     }
   });
-  electron.ipcMain.handle("playlist:get-active", async () => dbOps.getActivePlaylist());
-  electron.ipcMain.handle("playlist:update-items", async (_e2, { playlistId, items }) => dbOps.updatePlaylistItems(playlistId, items));
-  electron.ipcMain.handle("playlist:get-all", async () => dbOps.getPlaylists());
-  electron.ipcMain.handle("playlist:save-as", async (_e2, { name, items }) => dbOps.savePlaylistAs(name, items));
-  electron.ipcMain.handle("playlist:rename", async (_, { id, name }) => {
+  ipcMain.handle("playlist:get-active", async () => dbOps.getActivePlaylist());
+  ipcMain.handle("playlist:update-items", async (_e2, { playlistId, items }) => dbOps.updatePlaylistItems(playlistId, items));
+  ipcMain.handle("playlist:get-all", async () => dbOps.getPlaylists());
+  ipcMain.handle("playlist:save-as", async (_e2, { name, items }) => dbOps.savePlaylistAs(name, items));
+  ipcMain.handle("playlist:rename", async (_, { id, name }) => {
     return dbOps.renamePlaylist(id, name);
   });
-  electron.ipcMain.handle("show:save-draft", async (_, showId, slides, settings) => {
+  ipcMain.handle("show:save-draft", async (_, showId, slides, settings) => {
     return dbOps.saveDraftSlides(showId, slides, settings);
   });
-  electron.ipcMain.handle("playlist:delete", async (_e2, id) => dbOps.deletePlaylist(id));
-  electron.ipcMain.handle("playlist:get-details", async (_e2, id) => dbOps.getPlaylistWithItems(id));
-  electron.ipcMain.handle("playlist:export", async (_e2, playlistId) => {
+  ipcMain.handle("playlist:delete", async (_e2, id) => dbOps.deletePlaylist(id));
+  ipcMain.handle("playlist:get-details", async (_e2, id) => dbOps.getPlaylistWithItems(id));
+  ipcMain.handle("playlist:export", async (_e2, playlistId) => {
     var _a2;
-    const { filePath } = await electron.dialog.showSaveDialog({
+    const { filePath } = await dialog.showSaveDialog({
       title: "Export Crossenter Playlist",
       defaultPath: `Playlist-${(/* @__PURE__ */ new Date()).toISOString().split("T")[0]}.cepl`,
       filters: [{ name: "Crossenter Playlist", extensions: ["cepl"] }]
@@ -33718,9 +34305,9 @@ function registerHandlers() {
       throw err;
     }
   });
-  electron.ipcMain.handle("playlist:import", async () => {
+  ipcMain.handle("playlist:import", async () => {
     var _a2, _b2, _c2;
-    const { filePaths } = await electron.dialog.showOpenDialog({
+    const { filePaths } = await dialog.showOpenDialog({
       title: "Import Crossenter Playlist",
       filters: [{ name: "Crossenter Playlist", extensions: ["cepl"] }],
       properties: ["openFile"]
@@ -33731,7 +34318,7 @@ function registerHandlers() {
       const manifestLine = zip.getEntry("manifest.json");
       if (!manifestLine) throw new Error("Invalid bundle: Missing manifest.json");
       const manifest = JSON.parse(manifestLine.getData().toString("utf-8"));
-      const userDataPath = electron.app.getPath("userData");
+      const userDataPath = app.getPath("userData");
       const assetsDir = path.join(userDataPath, "assets");
       if (!fs.existsSync(assetsDir)) fs.mkdirSync(assetsDir, { recursive: true });
       const newItems = [];
@@ -33770,15 +34357,15 @@ function registerHandlers() {
       throw err;
     }
   });
-  electron.ipcMain.handle("media:get-all", async (_e2, typeFilter) => {
+  ipcMain.handle("media:get-all", async (_e2, typeFilter) => {
     const records = dbOps.getMedia(typeFilter);
     return records.map((r) => ({
       ...r,
       url: r.file_path_or_url.startsWith("http") || r.file_path_or_url.startsWith("data:") ? r.file_path_or_url : `crossenter://${r.file_path_or_url}`
     }));
   });
-  electron.ipcMain.handle("media:import-local-files", async (_e2, filePaths) => {
-    const managedMediaPath = path.join(electron.app.getPath("userData"), "Media");
+  ipcMain.handle("media:import-local-files", async (_e2, filePaths) => {
+    const managedMediaPath = path.join(app.getPath("userData"), "Media");
     const importedRecords = [];
     for (const srcPath of filePaths) {
       if (!fs.existsSync(srcPath)) continue;
@@ -33800,12 +34387,12 @@ function registerHandlers() {
     }
     return importedRecords;
   });
-  electron.ipcMain.handle("media:add-link", async (_e2, { name, type: type2, url }) => {
+  ipcMain.handle("media:add-link", async (_e2, { name, type: type2, url }) => {
     const id = dbOps.saveMedia(name, type2, url);
     return { id, name, type: type2, file_path_or_url: url, url };
   });
-  electron.ipcMain.handle("media:open-dialog", async () => {
-    const { canceled, filePaths } = await electron.dialog.showOpenDialog({
+  ipcMain.handle("media:open-dialog", async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
       title: "Import Media",
       properties: ["openFile", "multiSelections"],
       filters: [
@@ -33814,7 +34401,7 @@ function registerHandlers() {
     });
     return canceled ? [] : filePaths;
   });
-  electron.ipcMain.handle("media:delete", async (_e2, { id, filePath, isLink }) => {
+  ipcMain.handle("media:delete", async (_e2, { id, filePath, isLink }) => {
     if (!isLink && filePath && fs.existsSync(filePath)) {
       try {
         fs.unlinkSync(filePath);
@@ -33834,7 +34421,7 @@ function getMediaType(filePath) {
   return "link";
 }
 function createControlPanelWindow() {
-  const win = new electron.BrowserWindow({
+  const win = new BrowserWindow({
     width: 1440,
     height: 900,
     minWidth: 1100,
@@ -33849,7 +34436,7 @@ function createControlPanelWindow() {
       sandbox: false
     }
   });
-  electron.Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(null);
   if (VITE_DEV_SERVER_URL) win.loadURL(`${VITE_DEV_SERVER_URL}#control`);
   else win.loadFile(path.join(__dirname$1, "../dist/index.html"), { hash: "control" });
   win.webContents.on("render-process-gone", (_event, details) => {
@@ -33861,7 +34448,7 @@ function createControlPanelWindow() {
   });
   win.on("unresponsive", () => {
     console.warn("[Main] Control Panel is unresponsive. Requesting reload...");
-    electron.dialog.showMessageBox(win, {
+    dialog.showMessageBox(win, {
       type: "warning",
       title: "Performance Lag Detected",
       message: "The application is taking too long to respond. Would you like to reload?",
@@ -33873,7 +34460,7 @@ function createControlPanelWindow() {
   return win;
 }
 function createOutputWindow() {
-  const win = new electron.BrowserWindow({
+  const win = new BrowserWindow({
     width: 1024,
     height: 768,
     backgroundColor: "#000000",
@@ -33890,7 +34477,7 @@ function createOutputWindow() {
   return win;
 }
 function createStageDisplayWindow() {
-  const win = new electron.BrowserWindow({
+  const win = new BrowserWindow({
     width: 1024,
     height: 768,
     backgroundColor: "#000000",
@@ -33906,13 +34493,13 @@ function createStageDisplayWindow() {
   else win.loadFile(path.join(__dirname$1, "../dist/index.html"), { hash: "stage" });
   return win;
 }
-electron.app.whenReady().then(() => {
-  electron.protocol.handle("crossenter", (request2) => {
+app.whenReady().then(() => {
+  protocol.handle("crossenter", (request2) => {
     try {
       let cleanPath = request2.url.replace(/^crossenter:\/+/i, "/");
       const decodedPath = decodeURIComponent(cleanPath);
       if (fs.existsSync(decodedPath)) {
-        return electron.net.fetch(require$$7.pathToFileURL(decodedPath).toString());
+        return net$4.fetch(pathToFileURL(decodedPath).toString());
       }
       return new Response("File not found", { status: 404 });
     } catch (err) {
@@ -33921,7 +34508,7 @@ electron.app.whenReady().then(() => {
     }
   });
   initDatabase();
-  const managedMediaPath = path.join(electron.app.getPath("userData"), "Media");
+  const managedMediaPath = path.join(app.getPath("userData"), "Media");
   if (!fs.existsSync(managedMediaPath)) {
     fs.mkdirSync(managedMediaPath, { recursive: true });
   }
@@ -33932,10 +34519,10 @@ electron.app.whenReady().then(() => {
     createOutputWindow();
     createStageDisplayWindow();
   }
-  electron.app.on("activate", () => {
-    if (electron.BrowserWindow.getAllWindows().length === 0) createControlPanelWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) createControlPanelWindow();
   });
 });
-electron.app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") electron.app.quit();
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") app.quit();
 });
