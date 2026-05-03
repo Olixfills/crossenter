@@ -49,5 +49,12 @@ electron.contextBridge.exposeInMainWorld("crossenter", {
     const subscription = (_event) => callback();
     electron.ipcRenderer.on("show:list-updated", subscription);
     return () => electron.ipcRenderer.removeListener("show:list-updated", subscription);
-  }
+  },
+  // Templates (Phase 7)
+  getTemplates: () => electron.ipcRenderer.invoke("get-templates"),
+  saveTemplate: (data) => electron.ipcRenderer.invoke("save-template", data),
+  deleteTemplate: (id) => electron.ipcRenderer.invoke("delete-template", id),
+  // App Settings (Phase 7)
+  getSetting: (key) => electron.ipcRenderer.invoke("get-setting", key),
+  setSetting: (key, value) => electron.ipcRenderer.invoke("set-setting", key, value)
 });

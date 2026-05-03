@@ -1,23 +1,24 @@
 import { useState } from "react";
-import { 
-  Music, 
-  BookOpen, 
-  Film, 
-  Layers, 
-  Volume2, 
-  Layout, 
-  PlaySquare, 
+import {
+  Music,
+  BookOpen,
+  Film,
+  Layers,
+  Volume2,
+  Layout,
+  PlaySquare,
   Radio,
   Search,
   Palette,
-  Calendar
+  Calendar,
 } from "lucide-react";
 import ShowsView from "./library/ShowsView";
 import ScriptureView from "./library/ScriptureView";
 import MediaView from "./library/MediaView";
 import PlaylistsView from "./library/PlaylistsView";
-import StyleEditor from "./library/StyleEditor";
 import PlaceholderView from "./library/PlaceholderView";
+import TemplatesView from "./library/TemplatesView";
+import OverlaysView from "./library/OverlaysView";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crossenter — Library Pane
@@ -29,10 +30,10 @@ type LibraryTab =
   | "Scripture"
   | "Playlists"
   | "Media"
-  | "Style"
+  | "Templates"
+  // | "Style"
   | "Overlays"
   | "Audio"
-  | "Templates"
   | "Player"
   | "Live";
 
@@ -41,10 +42,10 @@ const LIBRARY_TABS: LibraryTab[] = [
   "Scripture",
   "Playlists",
   "Media",
-  "Style",
+  "Templates",
+  // "Style",
   "Overlays",
   "Audio",
-  "Templates",
   "Player",
   "Live",
 ];
@@ -54,7 +55,7 @@ const TAB_ICONS: Record<LibraryTab, any> = {
   Scripture: BookOpen,
   Playlists: Calendar,
   Media: Film,
-  Style: Palette,
+  // Style: Palette,
   Overlays: Layers,
   Audio: Volume2,
   Templates: Layout,
@@ -84,7 +85,13 @@ export default function LibraryPane() {
                     : "text-text-ghost border-transparent hover:text-text-lo hover:bg-bg-hover"
                 }`}
               >
-                <Icon size={14} strokeWidth={2.5} className={activeTab === tab ? "text-accent" : "text-text-ghost"} />
+                <Icon
+                  size={14}
+                  strokeWidth={2.5}
+                  className={
+                    activeTab === tab ? "text-accent" : "text-text-ghost"
+                  }
+                />
                 {tab}
               </button>
             );
@@ -109,17 +116,29 @@ export default function LibraryPane() {
       {/* ── Contextual View Dispatcher ────────── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {activeTab === "Shows" && <ShowsView searchQuery={searchQuery} />}
-        {activeTab === "Scripture" && <ScriptureView searchQuery={searchQuery} />}
-        {activeTab === "Playlists" && <PlaylistsView searchQuery={searchQuery} />}
+        {activeTab === "Scripture" && (
+          <ScriptureView searchQuery={searchQuery} />
+        )}
+        {activeTab === "Playlists" && (
+          <PlaylistsView searchQuery={searchQuery} />
+        )}
         {activeTab === "Media" && <MediaView searchQuery={searchQuery} />}
-        {activeTab === "Style" && <StyleEditor />}
-        
+        {/* {activeTab === "Style" && <StyleEditor />} */}
+
         {/* Placeholder for other tabs */}
-        {activeTab === "Overlays" && <PlaceholderView title="Overlays" icon={Layers} />}
-        {activeTab === "Audio" && <PlaceholderView title="Audio" icon={Volume2} />}
-        {activeTab === "Templates" && <PlaceholderView title="Templates" icon={Layout} />}
-        {activeTab === "Player" && <PlaceholderView title="Music Player" icon={PlaySquare} />}
-        {activeTab === "Live" && <PlaceholderView title="Live Streams" icon={Radio} />}
+        {activeTab === "Overlays" && (
+          <OverlaysView />
+        )}
+        {activeTab === "Audio" && (
+          <PlaceholderView title="Audio" icon={Volume2} />
+        )}
+        {activeTab === "Templates" && <TemplatesView />}
+        {activeTab === "Player" && (
+          <PlaceholderView title="Music Player" icon={PlaySquare} />
+        )}
+        {activeTab === "Live" && (
+          <PlaceholderView title="Live Streams" icon={Radio} />
+        )}
       </div>
     </div>
   );

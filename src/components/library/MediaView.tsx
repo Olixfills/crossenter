@@ -20,6 +20,7 @@ import {
 import { useDraggable } from "@dnd-kit/core";
 import { usePresentationStore } from "../../data/presentationStore";
 import { useUIStore } from "../../data/store";
+import { resolveMediaUrl } from "../../utils/url";
 import AddLinkModal from "./AddLinkModal";
 
 // --- Sub-component: Media Card ---
@@ -80,13 +81,13 @@ function MediaCard({
 
         {item.type === "image" ? (
           <img
-            src={item.url}
+            src={resolveMediaUrl(item.url)}
             className="w-full h-full object-cover"
             alt={item.name}
           />
         ) : item.type === "video" ? (
           <video
-            src={item.url}
+            src={resolveMediaUrl(item.url)}
             className="w-full h-full object-cover"
             muted
             onMouseEnter={(e) => (e.target as HTMLVideoElement).play()}
@@ -161,13 +162,13 @@ function PreviewPanel({
         <div className="aspect-video rounded-lg bg-black overflow-hidden shadow-inner border border-white/5 relative group">
           {item.type === "image" ? (
             <img
-              src={item.url}
+              src={resolveMediaUrl(item.url)}
               className="w-full h-full object-contain"
               alt={item.name}
             />
           ) : item.type === "video" ? (
             <video
-              src={item.url}
+              src={resolveMediaUrl(item.url)}
               className="w-full h-full object-contain"
               autoPlay
               muted
@@ -187,41 +188,48 @@ function PreviewPanel({
         </div>
       </div>
 
-      {/* 3. Actions Section (Fixed - Prioritized) */}
-      <div className="p-3 shrink-0 space-y-3 bg-accent/5 border-b border-border-dim/10">
-        <div className="space-y-2">
-          <h4 className="text-[8px] font-black text-accent uppercase tracking-[0.2em]">
-            Quick Actions
-          </h4>
-          <button
-            onClick={() => onPresentNow(item)}
-            className="w-full py-1.5 bg-accent hover:bg-accent-hi text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20 active:scale-95"
-          >
-            <PlayCircle size={12} strokeWidth={3} />
-            Present Now
-          </button>
-
-          <div className="grid grid-cols-2 gap-2 mt-2">
+      {/* 4. Scrollable Metadata Area */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-4">
+        {/* 3. Actions Section (Fixed - Prioritized) */}
+        <div className="p-3 shrink-0 space-y-3 bg-accent/5 border-b border-border-dim/10">
+          <div className="space-y-2">
+            <h4 className="text-[8px] font-black text-accent uppercase tracking-[0.2em]">
+              Quick Actions
+            </h4>
             <button
-              onClick={() => onSetBackground(item, "scripture")}
-              className="py-1.5 bg-blue-600/10 border border-blue-600/30 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-[8px] font-black uppercase tracking-tight transition-all flex items-center justify-center gap-1.5"
+              onClick={() => onPresentNow(item)}
+              className="w-full py-1.5 bg-accent hover:bg-accent-hi text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/20 active:scale-95"
             >
-              <ImageIcon size={10} />
-              <span>Scripture bg</span>
+              <PlayCircle size={12} strokeWidth={3} />
+              Present Now
             </button>
+
+            {/* <div className="grid grid-cols-2 gap-2 mt-2">
+              <button
+                onClick={() => onSetBackground(item, "scripture")}
+                className="py-1.5 bg-blue-600/10 border border-blue-600/30 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-[8px] font-black uppercase tracking-tight transition-all flex items-center justify-center gap-1.5"
+              >
+                <ImageIcon size={10} />
+                <span>Scripture bg</span>
+              </button>
+              <button
+                onClick={() => onSetBackground(item, "show")}
+                className="py-1.5 bg-purple-600/10 border border-purple-600/30 text-purple-400 hover:bg-purple-600 hover:text-white rounded-lg text-[8px] font-black uppercase tracking-tight transition-all flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 size={10} />
+                <span>Show bg</span>
+              </button>
+            </div> */}
+            {/* 5. Danger Zone (Fixed) */}
             <button
-              onClick={() => onSetBackground(item, "show")}
-              className="py-1.5 bg-purple-600/10 border border-purple-600/30 text-purple-400 hover:bg-purple-600 hover:text-white rounded-lg text-[8px] font-black uppercase tracking-tight transition-all flex items-center justify-center gap-1.5"
+              onClick={() => onDelete(item)}
+              className="w-full py-1.5 border border-red-500/10 text-red-500/40 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/30 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-1.5"
             >
-              <CheckCircle2 size={10} />
-              <span>Show bg</span>
+              <Trash2 size={10} />
+              Delete Resource
             </button>
           </div>
         </div>
-      </div>
-
-      {/* 4. Scrollable Metadata Area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-4">
         <div className="space-y-2">
           <h4 className="text-[8px] font-black text-text-ghost uppercase tracking-[0.2em] border-b border-border-dim/10 pb-1">
             Media Info
@@ -245,17 +253,6 @@ function PreviewPanel({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* 5. Danger Zone (Fixed) */}
-      <div className="p-3 border-t border-border-dim/20 bg-bg-base/20">
-        <button
-          onClick={() => onDelete(item)}
-          className="w-full py-1.5 border border-red-500/10 text-red-500/40 hover:text-red-500 hover:bg-red-500/5 hover:border-red-500/30 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-1.5"
-        >
-          <Trash2 size={10} />
-          Delete Resource
-        </button>
       </div>
     </aside>
   );
@@ -377,7 +374,7 @@ export default function MediaView({ searchQuery }: { searchQuery: string }) {
   );
 
   const formattedMedia = media.filter((m) =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    m.name?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const filterCategories = [

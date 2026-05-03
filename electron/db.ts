@@ -103,6 +103,39 @@ export function initDatabase() {
       file_path_or_url TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    -- Phase 7: Global Template Engine
+    CREATE TABLE IF NOT EXISTS templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      bg_type TEXT NOT NULL DEFAULT 'color', -- 'color' | 'image' | 'video' | 'gradient'
+      bg_value TEXT NOT NULL DEFAULT '#000000', -- CSS color, file path, or CSS gradient string
+      font_family TEXT NOT NULL DEFAULT 'Inter',
+      font_size INTEGER NOT NULL DEFAULT 64,
+      font_color TEXT NOT NULL DEFAULT '#ffffff',
+      text_align TEXT NOT NULL DEFAULT 'center',
+      shadow_blur INTEGER NOT NULL DEFAULT 40,
+      shadow_color TEXT NOT NULL DEFAULT 'rgba(0,0,0,0.8)',
+      offset_x INTEGER NOT NULL DEFAULT 0,
+      offset_y INTEGER NOT NULL DEFAULT 10,
+      padding INTEGER NOT NULL DEFAULT 24,
+      backdrop_opacity REAL NOT NULL DEFAULT 0.3,
+      transition TEXT NOT NULL DEFAULT 'fade',
+      transition_duration INTEGER NOT NULL DEFAULT 700,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );
+
+    -- Phase 10: Alerts & Announcements
+    CREATE TABLE IF NOT EXISTS alert_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      template_text TEXT NOT NULL
+    );
   `);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -211,6 +244,92 @@ export function initDatabase() {
     db.prepare("INSERT INTO categories (name, type) VALUES ('General', 'show')").run();
   }
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Migration: Add background_media_id to shows and slides
+  // ─────────────────────────────────────────────────────────────────────────────
+  try {
+    const showCols = db.prepare("PRAGMA table_info(shows)").all() as any[];
+    if (!showCols.some(c => c.name === 'background_media_id')) {
+      db.exec("ALTER TABLE shows ADD COLUMN background_media_id INTEGER;");
+      console.log('[Database] Migration: Added background_media_id to shows.');
+    }
+    const slideCols = db.prepare("PRAGMA table_info(slides)").all() as any[];
+    if (!slideCols.some(c => c.name === 'background_media_id')) {
+      db.exec("ALTER TABLE slides ADD COLUMN background_media_id INTEGER;");
+      console.log('[Database] Migration: Added background_media_id to slides.');
+    }
+  } catch (e) {
+    console.warn('[DB] Media override migration error:', e);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Seed: Insert built-in starter templates (runs once per install via flag)
+  // Uses app_settings flag 'builtin_templates_seeded_v1' so it runs even if
+  // user already has custom templates from a previous session.
+  // ─────────────────────────────────────────────────────────────────────────────
+  try {
+    const alreadySeeded = db.prepare("SELECT value FROM app_settings WHERE key = 'builtin_templates_seeded_v1'").get();
+    if (!alreadySeeded) {
+      console.log('[Database] Seeding built-in starter templates...');
+      const insertTemplate = db.prepare(`
+        INSERT INTO templates (name, bg_type, bg_value, font_family, font_size, font_color, text_align, shadow_blur, shadow_color, offset_x, offset_y, padding, backdrop_opacity, transition, transition_duration)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+
+      const builtinTemplates = [
+        // 1. Deep Worship — clean black, bold fade (song default)
+        ['Deep Worship', 'color', '#0a0a12', 'Inter', 72, '#ffffff', 'center', 60, 'rgba(0,0,0,0.9)', 0, 4, 80, 0.0, 'fade', 800],
+        // 2. Scripture Blue — deep navy gradient (scripture default)
+        ['Scripture Blue', 'gradient', 'linear-gradient(160deg, #0f1c3d 0%, #0a0a1a 80%)', 'Georgia', 64, '#e8f0ff', 'center', 40, 'rgba(0,20,80,0.6)', 0, 6, 72, 0.1, 'slide-up', 900],
+        // 3. Royal Purple — rich radial purple gradient
+        ['Royal Purple', 'gradient', 'radial-gradient(ellipse at center, #1e0a3c 0%, #0a0012 100%)', 'Outfit', 68, '#f0e8ff', 'center', 50, 'rgba(80,0,160,0.5)', 0, 5, 76, 0.15, 'fade', 700],
+        // 4. Warm Ember — warm dark brown gradient
+        ['Warm Ember', 'gradient', 'linear-gradient(135deg, #1a0800 0%, #2d1500 50%, #0a0000 100%)', 'Raleway', 64, '#fff1e0', 'center', 45, 'rgba(120,40,0,0.5)', 0, 5, 72, 0.2, 'slide-left', 750],
+        // 5. Minimal Contrast — pure black, instant cut
+        ['Minimal Contrast', 'color', '#000000', 'Helvetica', 80, '#ffffff', 'center', 0, 'rgba(0,0,0,0)', 0, 0, 64, 0.0, 'cut', 0],
+      ];
+
+      let firstId: number | bigint = 1;
+      builtinTemplates.forEach((t, i) => {
+        const result = insertTemplate.run(...t as any);
+        if (i === 0) firstId = result.lastInsertRowid;
+      });
+
+      // Set defaults only if none are currently set
+      const hasSongDefault = db.prepare("SELECT value FROM app_settings WHERE key = 'default_song_template_id'").get();
+      if (!hasSongDefault) {
+        db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('default_song_template_id', ?)").run(String(firstId));
+      }
+      const hasScriptureDefault = db.prepare("SELECT value FROM app_settings WHERE key = 'default_scripture_template_id'").get();
+      if (!hasScriptureDefault) {
+        db.prepare("INSERT OR REPLACE INTO app_settings (key, value) VALUES ('default_scripture_template_id', ?)").run(String(Number(firstId) + 1));
+      }
+
+      // Phase 10: Default Alert Styles
+      const hasAlertBg = db.prepare("SELECT value FROM app_settings WHERE key = 'alert_bg_color'").get();
+      if (!hasAlertBg) {
+        db.prepare("INSERT INTO app_settings (key, value) VALUES ('alert_bg_color', 'rgba(200, 0, 0, 0.9)')").run();
+        db.prepare("INSERT INTO app_settings (key, value) VALUES ('alert_text_color', '#ffffff')").run();
+        db.prepare("INSERT INTO app_settings (key, value) VALUES ('alert_scroll_speed', '30s')").run();
+      }
+
+      // Seed starter alerts
+      const hasAlerts = db.prepare("SELECT id FROM alert_templates LIMIT 1").get();
+      if (!hasAlerts) {
+        const insertAlert = db.prepare("INSERT INTO alert_templates (title, template_text) VALUES (?, ?)");
+        insertAlert.run('Nursery Call', 'Parents of child [ID], please report to the nursery.');
+        insertAlert.run('Announcement', 'Welcome to our service! Please join us for coffee in the lounge after the meeting.');
+        insertAlert.run('Security', 'Owner of vehicle [PLATE], you have left your lights on.');
+      }
+
+      // Mark as seeded so this never runs again
+      db.prepare("INSERT INTO app_settings (key, value) VALUES ('builtin_templates_seeded_v1', '1')").run();
+      console.log(`[Database] Seeded starter templates and alerts.`);
+    }
+  } catch (e) {
+    console.warn('[DB] Seeding error:', e);
+  }
+
   return db;
 }
 
@@ -263,12 +382,42 @@ export const dbOps = {
   },
 
   getShowWithSlides: (id: number) => {
-    const show = getDb().prepare('SELECT * FROM shows WHERE id = ?').get(id) as any;
+    const show = getDb().prepare(`
+      SELECT s.*, m.name as bg_name, m.type as bg_type, m.file_path_or_url as bg_path
+      FROM shows s
+      LEFT JOIN media m ON s.background_media_id = m.id
+      WHERE s.id = ?
+    `).get(id) as any;
+    
     if (!show) return null;
-    const slides = getDb().prepare('SELECT * FROM slides WHERE show_id = ? ORDER BY slide_order ASC').all(id);
+    
+    // Also join slides with media if background_media_id is set
+    const slides = getDb().prepare(`
+      SELECT sl.*, m.name as bg_name, m.type as bg_type, m.file_path_or_url as bg_path
+      FROM slides sl
+      LEFT JOIN media m ON sl.background_media_id = m.id
+      WHERE sl.show_id = ? 
+      ORDER BY sl.slide_order ASC
+    `).all(id) as any[];
+
     return { 
       ...show, 
-      content: slides,
+      content: slides.map(sl => ({
+        ...sl,
+        // Map joined media to active background object if exists
+        background_media: sl.bg_path ? {
+          name: sl.bg_name,
+          type: sl.bg_type,
+          path: sl.bg_path,
+          url: (sl.bg_path.startsWith('http') || sl.bg_path.startsWith('data:')) ? sl.bg_path : `crossenter://${sl.bg_path}`
+        } : null
+      })),
+      background_media: show.bg_path ? {
+        name: show.bg_name,
+        type: show.bg_type,
+        path: show.bg_path,
+        url: (show.bg_path.startsWith('http') || show.bg_path.startsWith('data:')) ? show.bg_path : `crossenter://${show.bg_path}`
+      } : null,
       settings: show.settings ? JSON.parse(show.settings) : null
     }; 
   },
@@ -489,6 +638,134 @@ export const dbOps = {
       return getDb().prepare('DELETE FROM media WHERE id = ?').run(id);
     } catch (err) {
       console.error("[Database] deleteMedia error:", err);
+      throw err;
+    }
+  },
+
+  // Templates (Phase 7)
+  getTemplates: () => {
+    try {
+      return getDb().prepare('SELECT * FROM templates ORDER BY created_at DESC').all();
+    } catch (err) {
+      console.error("[Database] getTemplates error:", err);
+      return [];
+    }
+  },
+
+  saveTemplate: (data: {
+    id?: number;
+    name: string;
+    bg_type: string;
+    bg_value: string;
+    font_family: string;
+    font_size: number;
+    font_color: string;
+    text_align: string;
+    shadow_blur: number;
+    shadow_color: string;
+    offset_x: number;
+    offset_y: number;
+    padding: number;
+    backdrop_opacity: number;
+    transition?: string;
+    transition_duration?: number;
+  }) => {
+    const transition = data.transition ?? 'fade';
+    const transitionDuration = data.transition_duration ?? 700;
+    try {
+      if (data.id) {
+        getDb().prepare(`
+          UPDATE templates SET
+            name = ?, bg_type = ?, bg_value = ?, font_family = ?, font_size = ?,
+            font_color = ?, text_align = ?, shadow_blur = ?, shadow_color = ?,
+            offset_x = ?, offset_y = ?, padding = ?, backdrop_opacity = ?,
+            transition = ?, transition_duration = ?
+          WHERE id = ?
+        `).run(
+          data.name, data.bg_type, data.bg_value, data.font_family, data.font_size,
+          data.font_color, data.text_align, data.shadow_blur, data.shadow_color,
+          data.offset_x, data.offset_y, data.padding, data.backdrop_opacity,
+          transition, transitionDuration,
+          data.id
+        );
+        return data.id;
+      } else {
+        const result = getDb().prepare(`
+          INSERT INTO templates (name, bg_type, bg_value, font_family, font_size, font_color, text_align, shadow_blur, shadow_color, offset_x, offset_y, padding, backdrop_opacity, transition, transition_duration)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          data.name, data.bg_type, data.bg_value, data.font_family, data.font_size,
+          data.font_color, data.text_align, data.shadow_blur, data.shadow_color,
+          data.offset_x, data.offset_y, data.padding, data.backdrop_opacity,
+          transition, transitionDuration
+        );
+        return result.lastInsertRowid;
+      }
+    } catch (err) {
+      console.error("[Database] saveTemplate error:", err);
+      throw err;
+    }
+  },
+
+  deleteTemplate: (id: number) => {
+    try {
+      return getDb().prepare('DELETE FROM templates WHERE id = ?').run(id);
+    } catch (err) {
+      console.error("[Database] deleteTemplate error:", err);
+      throw err;
+    }
+  },
+
+  // App Settings (Phase 7)
+  getSetting: (key: string) => {
+    try {
+      const row = getDb().prepare('SELECT value FROM app_settings WHERE key = ?').get(key) as any;
+      return row?.value ?? null;
+    } catch (err) {
+      console.error("[Database] getSetting error:", err);
+      return null;
+    }
+  },
+
+  setSetting: (key: string, value: string | null) => {
+    try {
+      getDb().prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, value);
+    } catch (err) {
+      console.error("[Database] setSetting error:", err);
+      throw err;
+    }
+  },
+
+  // Alert Templates
+  getAlertTemplates: () => {
+    try {
+      return getDb().prepare('SELECT * FROM alert_templates ORDER BY title ASC').all();
+    } catch (err) {
+      console.error("[Database] getAlertTemplates error:", err);
+      return [];
+    }
+  },
+
+  saveAlertTemplate: (data: { id?: number; title: string, template_text: string }) => {
+    try {
+      if (data.id) {
+        getDb().prepare('UPDATE alert_templates SET title = ?, template_text = ? WHERE id = ?').run(data.title, data.template_text, data.id);
+        return data.id;
+      } else {
+        const result = getDb().prepare('INSERT INTO alert_templates (title, template_text) VALUES (?, ?)').run(data.title, data.template_text);
+        return result.lastInsertRowid;
+      }
+    } catch (err) {
+      console.error("[Database] saveAlertTemplate error:", err);
+      throw err;
+    }
+  },
+
+  deleteAlertTemplate: (id: number) => {
+    try {
+      return getDb().prepare('DELETE FROM alert_templates WHERE id = ?').run(id);
+    } catch (err) {
+      console.error("[Database] deleteAlertTemplate error:", err);
       throw err;
     }
   }
